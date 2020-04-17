@@ -945,7 +945,9 @@ public class BridgeSupport {
 
             eventLogger.logReleaseBtc(btcTx, rskTxHash);
         } else {
-            logger.debug("Tx not yet fully signed {}.", new Keccak256(rskTxHash));
+            int neededSignatures = (getFederationSize() / 2) + 1;
+            int signaturesAmount = neededSignatures - getMissingSignatures(btcTx);
+            logger.debug("Tx {} not yet fully signed. Requires {}/{} signatures but has {}", new Keccak256(rskTxHash), neededSignatures, getFederationSize(), signaturesAmount);
         }
     }
 
@@ -994,6 +996,25 @@ public class BridgeSupport {
             }
         }
         return true;
+    }
+
+    private int getMissingSignatures(BtcTransaction btcTx) {
+        // When the tx is constructed OP_0 are placed where signature should go.
+        // Check all OP_0 have been replaced with actual signatures in all inputs
+        Context.propagate(btcContext);
+        int unsigned = 0;
+
+        for (TransactionInput input : btcTx.getInputs()) {
+            Script scriptSig = input.getScriptSig();
+            List<ScriptChunk> chunks = scriptSig.getChunks();
+            for (int i = 1; i < chunks.size(); i++) {
+                ScriptChunk chunk = chunks.get(i);
+                if (!chunk.isOpCode() && chunk.data.length == 0) {
+                    unsigned++;
+                }
+            }
+        }
+        return unsigned;
     }
 
     /**
