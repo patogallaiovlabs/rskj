@@ -21,7 +21,6 @@ package org.ethereum.jsontestsuite.runners;
 
 import co.rsk.config.BridgeRegTestConstants;
 import co.rsk.config.TestSystemProperties;
-import co.rsk.core.Coin;
 import co.rsk.core.RskAddress;
 import co.rsk.core.TransactionExecutorFactory;
 import co.rsk.core.bc.BlockChainImpl;
@@ -50,7 +49,6 @@ import org.ethereum.jsontestsuite.validators.LogsValidator;
 import org.ethereum.jsontestsuite.validators.OutputValidator;
 import org.ethereum.jsontestsuite.validators.RepositoryValidator;
 import org.ethereum.jsontestsuite.validators.ValidationStats;
-import org.ethereum.util.ByteUtil;
 import org.ethereum.vm.LogInfo;
 import org.ethereum.vm.PrecompiledContracts;
 import org.ethereum.vm.program.ProgramResult;
@@ -64,7 +62,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
 import static org.ethereum.util.ByteUtil.byteArrayToLong;
 
 public class StateTestRunner {

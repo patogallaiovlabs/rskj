@@ -23,6 +23,7 @@ import co.rsk.config.BridgeConstants;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.Block;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,12 +111,12 @@ public class FederationSupportTest {
     @Test
     public void getFederatorPublicKeys() {
         BtcECKey btcKey0 = BtcECKey.fromPublicOnly(Hex.decode("020000000000000000001111111111111111111122222222222222222222333333"));
-        ECKey rskKey0 = new ECKey();
-        ECKey mstKey0 = new ECKey();
+        ECKey rskKey0 = new ECKeyBC();
+        ECKey mstKey0 = new ECKeyBC();
 
         BtcECKey btcKey1 = BtcECKey.fromPublicOnly(Hex.decode("020000000000000000001111111111111111111122222222222222222222444444"));
-        ECKey rskKey1 = new ECKey();
-        ECKey mstKey1 = new ECKey();
+        ECKey rskKey1 = new ECKeyBC();
+        ECKey mstKey1 = new ECKeyBC();
 
         Federation theFederation = new Federation(
                 Arrays.asList(
@@ -142,12 +143,12 @@ public class FederationSupportTest {
     @Test
     public void getMemberPublicKeyOfType() {
         BtcECKey btcKey0 = new BtcECKey();
-        ECKey rskKey0 = new ECKey();
-        ECKey mstKey0 = new ECKey();
+        ECKey rskKey0 = new ECKeyBC();
+        ECKey mstKey0 = new ECKeyBC();
 
         BtcECKey btcKey1 = new BtcECKey();
-        ECKey rskKey1 = new ECKey();
-        ECKey mstKey1 = new ECKey();
+        ECKey rskKey1 = new ECKeyBC();
+        ECKey mstKey1 = new ECKeyBC();
 
         List<FederationMember> members = Arrays.asList(
                 new FederationMember(btcKey0, rskKey0, mstKey0),
@@ -167,8 +168,8 @@ public class FederationSupportTest {
     @Test
     public void getMemberPublicKeyOfType_OutOfBounds() {
         List<FederationMember> members = Arrays.asList(
-                new FederationMember(new BtcECKey(), new ECKey(), new ECKey()),
-                new FederationMember(new BtcECKey(), new ECKey(), new ECKey())
+                new FederationMember(new BtcECKey(), new ECKeyBC(), new ECKeyBC()),
+                new FederationMember(new BtcECKey(), new ECKeyBC(), new ECKeyBC())
         );
 
         try {

@@ -22,6 +22,7 @@ package org.ethereum.net.rlpx;
 import org.ethereum.crypto.ECKey;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.util.encoders.Hex;
+import org.ethereum.crypto.ECKeyBC;
 
 /**
  * Authentication response message, to be wrapped inside
@@ -40,7 +41,7 @@ public class AuthResponseMessage {
         System.arraycopy(wire, offset, bytes, 1, 64);
         offset += 64;
         bytes[0] = 0x04; // uncompressed
-        message.ephemeralPublicKey = ECKey.CURVE.getCurve().decodePoint(bytes);
+        message.ephemeralPublicKey = ECKeyBC.CURVE.getCurve().decodePoint(bytes);
         message.nonce = new byte[32];
         System.arraycopy(wire, offset, message.nonce, 0, 32);
         offset += message.nonce.length;

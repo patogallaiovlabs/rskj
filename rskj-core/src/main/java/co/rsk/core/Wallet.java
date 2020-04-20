@@ -23,6 +23,7 @@ import co.rsk.crypto.EncryptedData;
 import co.rsk.crypto.KeyCrypterAes;
 import org.ethereum.core.Account;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.datasource.KeyValueDataSource;
 import org.ethereum.rpc.TypeConverter;
@@ -81,13 +82,13 @@ public class Wallet {
     }
 
     public RskAddress addAccount() {
-        Account account = new Account(new ECKey());
+        Account account = new Account(new ECKeyBC());
         saveAccount(account);
         return account.getAddress();
     }
 
     public RskAddress addAccount(String passphrase) {
-        Account account = new Account(new ECKey());
+        Account account = new Account(new ECKeyBC());
         saveAccount(account, passphrase);
         return account.getAddress();
     }
@@ -112,7 +113,7 @@ public class Wallet {
                     return null;
                 }
             }
-            return new Account(ECKey.fromPrivate(accounts.get(addr)));
+            return new Account(ECKeyBC.fromPrivate(accounts.get(addr)));
         }
     }
 
@@ -124,7 +125,7 @@ public class Wallet {
                 return null;
             }
 
-            return new Account(ECKey.fromPrivate(decryptAES(encrypted, passphrase.getBytes(StandardCharsets.UTF_8))));
+            return new Account(ECKeyBC.fromPrivate(decryptAES(encrypted, passphrase.getBytes(StandardCharsets.UTF_8))));
         }
     }
 
@@ -151,7 +152,7 @@ public class Wallet {
                 return false;
             }
 
-            account = new Account(ECKey.fromPrivate(decryptAES(encrypted, passphrase.getBytes(StandardCharsets.UTF_8))));
+            account = new Account(ECKeyBC.fromPrivate(decryptAES(encrypted, passphrase.getBytes(StandardCharsets.UTF_8))));
         }
 
         saveAccount(account);
@@ -175,7 +176,7 @@ public class Wallet {
     }
 
     public byte[] addAccountWithPrivateKey(byte[] privateKeyBytes) {
-        Account account = new Account(ECKey.fromPrivate(privateKeyBytes));
+        Account account = new Account(ECKeyBC.fromPrivate(privateKeyBytes));
         synchronized (accessLock) {
             RskAddress addr = addAccount(account);
             this.initialAccounts.add(addr);
@@ -184,7 +185,7 @@ public class Wallet {
     }
 
     public RskAddress addAccountWithPrivateKey(byte[] privateKeyBytes, String passphrase) {
-        Account account = new Account(ECKey.fromPrivate(privateKeyBytes));
+        Account account = new Account(ECKeyBC.fromPrivate(privateKeyBytes));
 
         saveAccount(account, passphrase);
 

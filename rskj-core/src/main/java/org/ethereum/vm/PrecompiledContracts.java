@@ -37,7 +37,9 @@ import org.ethereum.config.blockchain.upgrades.ConsensusRule;
 import org.ethereum.core.Block;
 import org.ethereum.core.Repository;
 import org.ethereum.core.Transaction;
+import org.ethereum.crypto.ECDSASignature;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.BlockStore;
 import org.ethereum.db.ReceiptStore;
@@ -311,9 +313,9 @@ public class PrecompiledContracts {
                 System.arraycopy(data, 96, s, 0, sLength);
 
                 if (isValid(r, s, v)) {
-                    ECKey.ECDSASignature signature = ECKey.ECDSASignature.fromComponents(r, s, v[31]);
+                    ECDSASignature signature = ECDSASignature.fromComponents(r, s, v[31]);
 
-                    ECKey key = ECKey.signatureToKey(h, signature);
+                    ECKey key = ECKeyBC.signatureToKey(h, signature);
                     out = DataWord.valueOf(key.getAddress());
                 }
             } catch (Exception any) {
@@ -332,7 +334,7 @@ public class PrecompiledContracts {
             BigInteger r = new BigInteger(1, rBytes);
             BigInteger s = new BigInteger(1, sBytes);
 
-            return ECKey.ECDSASignature.validateComponents(r, s, v);
+            return ECDSASignature.validateComponents(r, s, v);
         }
     }
 

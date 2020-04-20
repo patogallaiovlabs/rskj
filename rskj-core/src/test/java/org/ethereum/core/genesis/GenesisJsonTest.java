@@ -19,9 +19,9 @@
 
 package org.ethereum.core.genesis;
 
-import org.apache.commons.lang3.StringUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

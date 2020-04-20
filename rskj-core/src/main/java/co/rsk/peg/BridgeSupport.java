@@ -52,6 +52,7 @@ import org.ethereum.core.Block;
 import org.ethereum.core.Repository;
 import org.ethereum.core.Transaction;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.vm.DataWord;
 import org.ethereum.vm.PrecompiledContracts;
 import org.ethereum.vm.program.Program;
@@ -1646,7 +1647,7 @@ public class BridgeSupport {
                 ECKey publicKeyEc;
                 try {
                     publicKey = BtcECKey.fromPublicOnly(publicKeyBytes);
-                    publicKeyEc = ECKey.fromPublicOnly(publicKeyBytes);
+                    publicKeyEc = ECKeyBC.fromPublicOnly(publicKeyBytes);
                 } catch (Exception e) {
                     throw new BridgeIllegalArgumentException("Public key could not be parsed " + Hex.toHexString(publicKeyBytes), e);
                 }
@@ -1663,13 +1664,13 @@ public class BridgeSupport {
                 }
 
                 try {
-                    rskPublicKey = ECKey.fromPublicOnly(callSpec.getArguments()[1]);
+                    rskPublicKey = ECKeyBC.fromPublicOnly(callSpec.getArguments()[1]);
                 } catch (Exception e) {
                     throw new BridgeIllegalArgumentException("RSK public key could not be parsed " + Hex.toHexString(callSpec.getArguments()[1]), e);
                 }
 
                 try {
-                    mstPublicKey = ECKey.fromPublicOnly(callSpec.getArguments()[2]);
+                    mstPublicKey = ECKeyBC.fromPublicOnly(callSpec.getArguments()[2]);
                 } catch (Exception e) {
                     throw new BridgeIllegalArgumentException("MST public key could not be parsed " + Hex.toHexString(callSpec.getArguments()[2]), e);
                 }

@@ -22,6 +22,7 @@ package org.ethereum.core;
 import co.rsk.core.Coin;
 import co.rsk.crypto.Keccak256;
 import co.rsk.trie.Trie;
+import org.bouncycastle.util.encoders.Hex;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -31,7 +32,6 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.util.Set;

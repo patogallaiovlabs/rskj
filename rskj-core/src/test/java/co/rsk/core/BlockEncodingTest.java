@@ -26,7 +26,7 @@ import org.ethereum.core.Block;
 import org.ethereum.core.BlockFactory;
 import org.ethereum.core.Bloom;
 import org.ethereum.core.Transaction;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.RLP;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class BlockEncodingTest {
                 BigInteger.ZERO.toByteArray(),
                 BigInteger.ONE.toByteArray(),
                 BigInteger.valueOf(21000).toByteArray(),
-                new ECKey().getAddress(),
+                new ECKeyBC().getAddress(),
                 BigInteger.valueOf(1000).toByteArray(),
                 null);
 

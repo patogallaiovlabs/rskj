@@ -33,6 +33,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.*;
 import org.ethereum.core.genesis.GenesisLoader;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.db.BlockStore;
 import org.ethereum.listener.CompositeEthereumListener;
@@ -47,8 +48,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlockChainImplTest {
-    private ECKey cowKey = ECKey.fromPrivate(Keccak256Helper.keccak256("cow".getBytes()));
-    private ECKey catKey = ECKey.fromPrivate(Keccak256Helper.keccak256("cat".getBytes()));
+    private ECKey cowKey = ECKeyBC.fromPrivate(Keccak256Helper.keccak256("cow".getBytes()));
+    private ECKey catKey = ECKeyBC.fromPrivate(Keccak256Helper.keccak256("cat".getBytes()));
 
     private RskTestFactory objects;
     private RskSystemProperties config;

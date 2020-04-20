@@ -32,8 +32,8 @@ import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.config.Constants;
 import org.ethereum.config.blockchain.upgrades.ActivationConfig;
-import org.ethereum.config.blockchain.upgrades.ConsensusRule;
 import org.ethereum.config.blockchain.upgrades.ActivationConfigsForTest;
+import org.ethereum.config.blockchain.upgrades.ConsensusRule;
 import org.ethereum.core.*;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.ByteUtil;
@@ -45,7 +45,6 @@ import java.math.BigInteger;
 import java.util.*;
 
 import static org.ethereum.core.Genesis.getZeroHash;
-import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
 
 /**
  * Created by ajlopez on 5/10/2016.
@@ -86,7 +85,7 @@ public class BlockGenerator {
         ECKey ecKey;
         byte[] address;
         SecureRandom rand =new InsecureRandom(0);
-        ecKey = new ECKey(rand);
+        ecKey = new ECKeyBC(rand);
         address = ecKey.getAddress();
         */
         byte[] coinbase    = Hex.decode("e94aef644e428941ee0a3741f28d80255fddba7f");

@@ -37,7 +37,9 @@ import co.rsk.rpc.Web3InformationRetriever;
 import co.rsk.rpc.Web3RskImpl;
 import co.rsk.rpc.modules.debug.DebugModule;
 import co.rsk.rpc.modules.debug.DebugModuleImpl;
-import co.rsk.rpc.modules.eth.*;
+import co.rsk.rpc.modules.eth.EthModule;
+import co.rsk.rpc.modules.eth.EthModuleTransactionBase;
+import co.rsk.rpc.modules.eth.EthModuleWalletEnabled;
 import co.rsk.rpc.modules.personal.PersonalModule;
 import co.rsk.rpc.modules.personal.PersonalModuleWalletDisabled;
 import co.rsk.rpc.modules.personal.PersonalModuleWalletEnabled;
@@ -52,9 +54,9 @@ import co.rsk.test.builders.TransactionBuilder;
 import co.rsk.util.TestContract;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.TestUtils;
-import org.ethereum.config.SystemProperties;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.datasource.HashMapDB;
@@ -67,19 +69,19 @@ import org.ethereum.net.server.ChannelManager;
 import org.ethereum.net.server.PeerServer;
 import org.ethereum.rpc.Simples.*;
 import org.ethereum.rpc.dto.BlockResultDTO;
-import org.ethereum.rpc.dto.CompilationResultDTO;
 import org.ethereum.rpc.dto.TransactionReceiptDTO;
 import org.ethereum.rpc.dto.TransactionResultDTO;
 import org.ethereum.rpc.exception.RskJsonRpcRequestException;
-import org.ethereum.solidity.compiler.SolidityCompiler;
 import org.ethereum.util.BuildInfo;
 import org.ethereum.vm.program.ProgramResult;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.is;
@@ -1488,11 +1490,11 @@ public class Web3ImplTest {
     {
         Web3Impl web3 = createWeb3();
 
-        ECKey eckey = new ECKey();
+        ECKey eckey = new ECKeyBC();
 
         byte[] privKeyBytes = eckey.getPrivKeyBytes();
 
-        ECKey privKey = ECKey.fromPrivate(privKeyBytes);
+        ECKey privKey = ECKeyBC.fromPrivate(privKeyBytes);
 
         RskAddress addr = new RskAddress(privKey.getAddress());
 
@@ -1515,7 +1517,7 @@ public class Web3ImplTest {
     public void dumpRawKey() throws Exception {
         Web3Impl web3 = createWeb3();
 
-        ECKey eckey = new ECKey();
+        ECKey eckey = new ECKeyBC();
 
         String address = web3.personal_importRawKey(Hex.toHexString(eckey.getPrivKeyBytes()), "passphrase1");
         assertTrue(web3.personal_unlockAccount(address, "passphrase1", ""));

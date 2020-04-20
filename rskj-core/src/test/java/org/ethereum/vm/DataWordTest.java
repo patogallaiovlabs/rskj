@@ -19,18 +19,14 @@
 
 package org.ethereum.vm;
 
-import co.rsk.crypto.Keccak256;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.crypto.HashUtil;
 import org.junit.Test;
-
-import org.bouncycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class DataWordTest {
 

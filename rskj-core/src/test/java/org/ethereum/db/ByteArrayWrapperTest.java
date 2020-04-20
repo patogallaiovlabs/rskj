@@ -19,19 +19,17 @@
 
 package org.ethereum.db;
 
-import org.ethereum.util.FastByteComparisons;
-
 import com.google.common.primitives.UnsignedBytes;
-
+import org.bouncycastle.util.encoders.Hex;
+import org.ethereum.util.FastByteComparisons;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import org.bouncycastle.util.encoders.Hex;
 
 import java.util.Arrays;
 import java.util.Comparator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ByteArrayWrapperTest {
 

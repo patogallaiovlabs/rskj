@@ -19,7 +19,9 @@
 
 package org.ethereum.net.rlpx;
 
+import org.ethereum.crypto.ECDSASignature;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPList;
@@ -37,7 +39,7 @@ import static org.bouncycastle.util.BigIntegers.asUnsignedByteArray;
  */
 public class AuthInitiateMessageV4 {
 
-    ECKey.ECDSASignature signature; // 65 bytes
+    ECDSASignature signature; // 65 bytes
     ECPoint publicKey; // 64 bytes - uncompressed and no type byte
     byte[] nonce; // 32 bytes
     int version = 4; // 4 bytes
@@ -59,13 +61,13 @@ public class AuthInitiateMessageV4 {
         System.arraycopy(signatureBytes, offset, s, 0, 32);
         offset += 32;
         int v = signatureBytes[offset] + 27;
-        message.signature = ECKey.ECDSASignature.fromComponents(r, s, (byte)v);
+        message.signature = ECDSASignature.fromComponents(r, s, (byte)v);
 
         byte[] publicKeyBytes = params.get(1).getRLPData();
         byte[] bytes = new byte[65];
         System.arraycopy(publicKeyBytes, 0, bytes, 1, 64);
         bytes[0] = 0x04; // uncompressed
-        message.publicKey = ECKey.CURVE.getCurve().decodePoint(bytes);
+        message.publicKey = ECKeyBC.CURVE.getCurve().decodePoint(bytes);
 
         message.nonce = params.get(2).getRLPData();
 

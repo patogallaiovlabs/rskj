@@ -26,7 +26,7 @@ import co.rsk.peg.performance.CombinedExecutionStats;
 import co.rsk.peg.performance.ExecutionStats;
 import co.rsk.peg.performance.PrecompiledContractPerformanceTestCase;
 import org.ethereum.core.CallTransaction;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.vm.PrecompiledContracts;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -80,7 +80,7 @@ public class DeriveExtendedPublicKeyPerformanceTestCase extends PrecompiledContr
         ABIEncoder abiEncoder = (int executionIndex) -> {
             rnd.nextBytes(chainCode);
             DeterministicKey key = HDKeyDerivation.createMasterPubKeyFromBytes(
-                    new ECKey().getPubKey(true),
+                    new ECKeyBC().getPubKey(true),
                     chainCode
             );
             int[] pathParts = new int[pathLength];
@@ -100,7 +100,7 @@ public class DeriveExtendedPublicKeyPerformanceTestCase extends PrecompiledContr
                 times,
                 environmentBuilder,
                 abiEncoder,
-                Helper.getZeroValueTxBuilder(new ECKey()),
+                Helper.getZeroValueTxBuilder(new ECKeyBC()),
                 Helper.getRandomHeightProvider(10),
                 stats,
                 (EnvironmentBuilder.Environment environment, byte[] result) -> {

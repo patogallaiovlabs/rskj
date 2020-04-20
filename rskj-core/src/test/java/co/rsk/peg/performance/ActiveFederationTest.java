@@ -26,7 +26,7 @@ import co.rsk.peg.Federation;
 import co.rsk.peg.FederationMember;
 import org.ethereum.core.CallTransaction;
 import org.ethereum.core.Repository;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -41,7 +41,7 @@ public class ActiveFederationTest extends BridgePerformanceTestCase {
     public static List<FederationMember> getNRandomFederationMembers(int n) {
         List<FederationMember> result = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            result.add(new FederationMember(new BtcECKey(), new ECKey(), new ECKey()));
+            result.add(new FederationMember(new BtcECKey(), new ECKeyBC(), new ECKeyBC()));
         }
         return result;
     }

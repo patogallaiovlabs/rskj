@@ -20,6 +20,7 @@
 package org.ethereum.net.rlpx;
 
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPList;
@@ -49,7 +50,7 @@ public class AuthResponseMessageV4 {
         byte[] bytes = new byte[65];
         System.arraycopy(pubKeyBytes, 0, bytes, 1, 64);
         bytes[0] = 0x04; // uncompressed
-        message.ephemeralPublicKey = ECKey.CURVE.getCurve().decodePoint(bytes);
+        message.ephemeralPublicKey = ECKeyBC.CURVE.getCurve().decodePoint(bytes);
 
         message.nonce = params.get(1).getRLPData();
 

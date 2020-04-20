@@ -20,7 +20,9 @@ package co.rsk.net.discovery.message;
 
 import co.rsk.net.NodeID;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.ethereum.crypto.ECDSASignature;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.util.RLPElement;
@@ -65,7 +67,7 @@ public abstract class PeerDiscoveryMessage {
         byte[] forSig = HashUtil.keccak256(payload);
 
         /* [2] Crate signature*/
-        ECKey.ECDSASignature ecdsaSignature = privKey.sign(forSig);
+        ECDSASignature ecdsaSignature = privKey.sign(forSig);
 
         ecdsaSignature.v -= 27;
 
@@ -108,7 +110,7 @@ public abstract class PeerDiscoveryMessage {
 
         ECKey outKey = null;
         try {
-            outKey = ECKey.signatureToKey(msgHash, ECKey.ECDSASignature.fromComponents(r, s, v));
+            outKey = ECKeyBC.signatureToKey(msgHash, ECDSASignature.fromComponents(r, s, v));
         } catch (SignatureException e) {
             logger.error("Error generating key from message", e);
         }

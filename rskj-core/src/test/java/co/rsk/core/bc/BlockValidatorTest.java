@@ -31,7 +31,6 @@ import co.rsk.validators.BlockHeaderParentDependantValidationRule;
 import co.rsk.validators.ProofOfWorkRule;
 import org.ethereum.TestUtils;
 import org.ethereum.core.*;
-import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.HashMapDB;
 import org.ethereum.db.BlockStore;
 import org.ethereum.db.IndexedBlockStore;
@@ -41,7 +40,10 @@ import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

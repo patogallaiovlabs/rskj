@@ -22,7 +22,6 @@ package co.rsk.pcc.bto;
 import co.rsk.bitcoinj.core.BtcECKey;
 import co.rsk.pcc.ExecutionEnvironment;
 import co.rsk.pcc.NativeContractIllegalArgumentException;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.CallTransaction;
 import org.ethereum.solidity.SolidityType;

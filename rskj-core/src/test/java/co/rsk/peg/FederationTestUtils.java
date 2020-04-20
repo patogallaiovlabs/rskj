@@ -20,6 +20,7 @@ package co.rsk.peg;
 
 import co.rsk.bitcoinj.core.BtcECKey;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -33,8 +34,8 @@ public class FederationTestUtils {
         for (int i = 1; i <= memberCount; i++) {
             result.add(new FederationMember(
                     BtcECKey.fromPrivate(BigInteger.valueOf((i) * 100)),
-                    ECKey.fromPrivate(BigInteger.valueOf((i) * 101)),
-                    ECKey.fromPrivate(BigInteger.valueOf((i) * 102))
+                    ECKeyBC.fromPrivate(BigInteger.valueOf((i) * 101)),
+                    ECKeyBC.fromPrivate(BigInteger.valueOf((i) * 102))
             ));
         }
         result.sort(FederationMember.BTC_RSK_MST_PUBKEYS_COMPARATOR);
@@ -44,14 +45,14 @@ public class FederationTestUtils {
     public static List<FederationMember> getFederationMembersFromPks(Integer... pks) {
         return Arrays.stream(pks).map(n -> new FederationMember(
                 BtcECKey.fromPrivate(BigInteger.valueOf(n)),
-                ECKey.fromPrivate(BigInteger.valueOf(n+1)),
-                ECKey.fromPrivate(BigInteger.valueOf(n+2))
+                ECKeyBC.fromPrivate(BigInteger.valueOf(n+1)),
+                ECKeyBC.fromPrivate(BigInteger.valueOf(n+2))
         )).collect(Collectors.toList());
     }
 
     public static List<FederationMember> getFederationMembersWithBtcKeys(List<BtcECKey> keys) {
         return keys.stream().map(btcKey ->
-                new FederationMember(btcKey, new ECKey(), new ECKey())
+                new FederationMember(btcKey, new ECKeyBC(), new ECKeyBC())
         ).collect(Collectors.toList());
     }
 
@@ -60,7 +61,7 @@ public class FederationTestUtils {
     }
 
     public static FederationMember getFederationMemberWithKey(BtcECKey pk) {
-        ECKey ethKey = ECKey.fromPublicOnly(pk.getPubKey());
+        ECKey ethKey = ECKeyBC.fromPublicOnly(pk.getPubKey());
         return new FederationMember(pk, ethKey, ethKey);
     }
 }

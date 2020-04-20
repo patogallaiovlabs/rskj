@@ -26,6 +26,7 @@ import co.rsk.peg.Federation;
 import co.rsk.peg.FederationMember;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -76,7 +77,7 @@ public class BridgeTestNetConstants extends BridgeConstants {
                 "04d9052c2022f6f35da53f04f02856ff5e59f9836eec03daad0328d12c5c66140205da540498e46cd05bf63c1201382dd84c100f0d52a10654159965aea452c3f2",
                 "04bf889f2035c8c441d7d1054b6a449742edd04d202f44a29348b4140b34e2a81ce66e388f40046636fd012bd7e3cecd9b951ffe28422334722d20a1cf6c7926fb",
                 "047e707e4f67655c40c539363fb435d89574b8fe400971ba0290de9c2adbb2bd4e1e5b35a2188b9409ff2cc102292616efc113623483056bb8d8a02bf7695670ea"
-        }).map(hex -> ECKey.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
+        }).map(hex -> ECKeyBC.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
 
         federationChangeAuthorizer = new AddressBasedAuthorizer(
                 federationChangeAuthorizedKeys,
@@ -86,7 +87,7 @@ public class BridgeTestNetConstants extends BridgeConstants {
         // Passphrases are kept private
         List<ECKey> lockWhitelistAuthorizedKeys = Arrays.stream(new String[]{
                 "04bf7e3bca7f7c58326382ed9c2516a8773c21f1b806984bb1c5c33bd18046502d97b28c0ea5b16433fbb2b23f14e95b36209f304841e814017f1ede1ecbdcfce3"
-        }).map(hex -> ECKey.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
+        }).map(hex -> ECKeyBC.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
 
         lockWhitelistChangeAuthorizer = new AddressBasedAuthorizer(
                 lockWhitelistAuthorizedKeys,
@@ -102,7 +103,7 @@ public class BridgeTestNetConstants extends BridgeConstants {
                 "04701d1d27f8c2ae97912d96fb1f82f10c2395fd320e7a869049268c6b53d2060dfb2e22e3248955332d88cd2ae29a398f8f3858e48dd6d8ffbc37dfd6d1aa4934",
                 "045ef89e4a5645dc68895dbc33b4c966c3a0a52bb837ecdd2ba448604c4f47266456d1191420e1d32bbe8741f8315fde4d1440908d400e5998dbed6549d499559b",
                 "0455db9b3867c14e84a6f58bd2165f13bfdba0703cb84ea85788373a6a109f3717e40483aa1f8ef947f435ccdf10e530dd8b3025aa2d4a7014f12180ee3a301d27"
-        }).map(hex -> ECKey.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
+        }).map(hex -> ECKeyBC.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
 
         feePerKbChangeAuthorizer = new AddressBasedAuthorizer(
                 feePerKbAuthorizedKeys,
@@ -117,7 +118,7 @@ public class BridgeTestNetConstants extends BridgeConstants {
                 "04701d1d27f8c2ae97912d96fb1f82f10c2395fd320e7a869049268c6b53d2060dfb2e22e3248955332d88cd2ae29a398f8f3858e48dd6d8ffbc37dfd6d1aa4934",
                 "045ef89e4a5645dc68895dbc33b4c966c3a0a52bb837ecdd2ba448604c4f47266456d1191420e1d32bbe8741f8315fde4d1440908d400e5998dbed6549d499559b",
                 "0455db9b3867c14e84a6f58bd2165f13bfdba0703cb84ea85788373a6a109f3717e40483aa1f8ef947f435ccdf10e530dd8b3025aa2d4a7014f12180ee3a301d27"
-        }).map(hex -> ECKey.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
+        }).map(hex -> ECKeyBC.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
 
         increaseLockingCapAuthorizer = new AddressBasedAuthorizer(
                 increaseLockingCapAuthorizedKeys,

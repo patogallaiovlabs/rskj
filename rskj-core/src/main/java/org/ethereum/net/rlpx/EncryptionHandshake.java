@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import org.ethereum.crypto.ECIESCoder;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.util.ByteUtil;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -54,7 +55,7 @@ public class EncryptionHandshake {
 
     public EncryptionHandshake(ECPoint remotePublicKey) {
         this.remotePublicKey = remotePublicKey;
-        ephemeralKey = new ECKey(random);
+        ephemeralKey = new ECKeyBC(random);
         initiatorNonce = new byte[NONCE_SIZE];
         random.nextBytes(initiatorNonce);
         isInitiator = true;
@@ -69,7 +70,7 @@ public class EncryptionHandshake {
     }
 
     public EncryptionHandshake() {
-        ephemeralKey = new ECKey(random);
+        ephemeralKey = new ECKeyBC(random);
         responderNonce = new byte[NONCE_SIZE];
         random.nextBytes(responderNonce);
         isInitiator = false;
@@ -152,7 +153,7 @@ public class EncryptionHandshake {
         byte[] token = ByteUtil.bigIntegerToBytes(secretScalar, NONCE_SIZE);
         byte[] signed = xor(token, initiatorNonce);
 
-        ECKey ephemeral = ECKey.recoverFromSignature(recIdFromSignatureV(initiate.signature.v),
+        ECKey ephemeral = ECKeyBC.recoverFromSignature(recIdFromSignatureV(initiate.signature.v),
                 initiate.signature, signed, false);
         if (ephemeral == null) {
             throw new RuntimeException("failed to recover signatue from message");
@@ -308,7 +309,7 @@ public class EncryptionHandshake {
         byte[] token = ByteUtil.bigIntegerToBytes(secretScalar, NONCE_SIZE);
         byte[] signed = xor(token, initiatorNonce);
 
-        ECKey ephemeral = ECKey.recoverFromSignature(recIdFromSignatureV(initiate.signature.v),
+        ECKey ephemeral = ECKeyBC.recoverFromSignature(recIdFromSignatureV(initiate.signature.v),
                 initiate.signature, signed, false);
         if (ephemeral == null) {
             throw new RuntimeException("failed to recover signatue from message");

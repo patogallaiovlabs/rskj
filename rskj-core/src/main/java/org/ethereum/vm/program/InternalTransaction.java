@@ -21,6 +21,7 @@ package org.ethereum.vm.program;
 
 import org.ethereum.core.Transaction;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.util.RLP;
 import org.ethereum.vm.DataWord;
@@ -111,7 +112,7 @@ public class InternalTransaction extends Transaction {
     }
 
     @Override
-    public void sign(byte[] privKeyBytes) throws ECKey.MissingPrivateKeyException {
+    public void sign(byte[] privKeyBytes) throws ECKeyBC.MissingPrivateKeyException {
         throw new UnsupportedOperationException("Cannot sign internal transaction.");
     }
 }

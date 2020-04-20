@@ -34,7 +34,6 @@ import org.ethereum.core.Repository;
 import org.ethereum.vm.PrecompiledContracts;
 import org.junit.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

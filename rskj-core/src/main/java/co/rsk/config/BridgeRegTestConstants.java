@@ -26,6 +26,7 @@ import co.rsk.peg.Federation;
 import co.rsk.peg.FederationMember;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 
 import java.nio.charset.StandardCharsets;
@@ -81,7 +82,7 @@ public class BridgeRegTestConstants extends BridgeConstants {
                 "045d4dedf9c69ab3ea139d0f0da0ad00160b7663d01ce7a6155cd44a3567d360112b0480ab6f31cac7345b5f64862205ea7ccf555fcf218f87fa0d801008fecb61",
                 "04709f002ac4642b6a87ea0a9dc76eeaa93f71b3185985817ec1827eae34b46b5d869320efb5c5cbe2a5c13f96463fe0210710b53352a4314188daffe07bd54154",
                 "04aff62315e9c18004392a5d9e39496ff5794b2d9f43ab4e8ade64740d7fdfe896969be859b43f26ef5aa4b5a0d11808277b4abfa1a07cc39f2839b89cc2bc6b4c"
-        }).map(hex -> ECKey.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
+        }).map(hex -> ECKeyBC.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
 
         federationChangeAuthorizer = new AddressBasedAuthorizer(
                 federationChangeAuthorizedKeys,
@@ -96,7 +97,7 @@ public class BridgeRegTestConstants extends BridgeConstants {
         // Key generated with GenNodeKey using generator 'auth-lock-whitelist'
         List<ECKey> lockWhitelistAuthorizedKeys = Arrays.stream(new String[]{
                 "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
-        }).map(hex -> ECKey.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
+        }).map(hex -> ECKeyBC.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
 
         lockWhitelistChangeAuthorizer = new AddressBasedAuthorizer(
                 lockWhitelistAuthorizedKeys,
@@ -106,7 +107,7 @@ public class BridgeRegTestConstants extends BridgeConstants {
         // Key generated with GenNodeKey using generator 'auth-fee-per-kb'
         List<ECKey> feePerKbAuthorizedKeys = Arrays.stream(new String[]{
                 "0430c7d0146029db553d60cf11e8d39df1c63979ee2e4cd1e4d4289a5d88cfcbf3a09b06b5cbc88b5bfeb4b87a94cefab81c8d44655e7e813fc3e18f51cfe7e8a0"
-        }).map(hex -> ECKey.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
+        }).map(hex -> ECKeyBC.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
 
         feePerKbChangeAuthorizer = new AddressBasedAuthorizer(
                 feePerKbAuthorizedKeys,
@@ -124,7 +125,7 @@ public class BridgeRegTestConstants extends BridgeConstants {
         // Key generated with GenNodeKey using generator 'auth-increase_locking_cap'
         List<ECKey> increaseLockingCapAuthorizedKeys = Arrays.stream(new String[]{
                 "04450bbaab83ec48b3cb8fbb077c950ee079733041c039a8c4f1539e5181ca1a27589eeaf0fbf430e49d2909f14c767bf6909ad6845831f683416ee12b832e36ed"
-        }).map(hex -> ECKey.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
+        }).map(hex -> ECKeyBC.fromPublicOnly(Hex.decode(hex))).collect(Collectors.toList());
 
         increaseLockingCapAuthorizer = new AddressBasedAuthorizer(
                 increaseLockingCapAuthorizedKeys,

@@ -23,10 +23,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 
 import static org.bouncycastle.util.encoders.Hex.decode;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(Parameterized.class)
 public class TrieIteratorTest {

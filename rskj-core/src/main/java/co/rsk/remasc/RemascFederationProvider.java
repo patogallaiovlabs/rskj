@@ -25,6 +25,7 @@ import org.ethereum.config.blockchain.upgrades.ActivationConfig;
 import org.ethereum.core.Block;
 import org.ethereum.core.Repository;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.vm.PrecompiledContracts;
 
 /**
@@ -53,6 +54,6 @@ public class RemascFederationProvider {
 
     public RskAddress getFederatorAddress(int n) {
         byte[] publicKey = this.federationSupport.getFederatorBtcPublicKey(n);
-        return new RskAddress(ECKey.fromPublicOnly(publicKey).getAddress());
+        return new RskAddress(ECKeyBC.fromPublicOnly(publicKey).getAddress());
     }
 }

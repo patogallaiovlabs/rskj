@@ -25,7 +25,7 @@ import co.rsk.config.TestSystemProperties;
 import co.rsk.peg.performance.ExecutionStats;
 import co.rsk.peg.performance.PrecompiledContractPerformanceTestCase;
 import org.ethereum.core.CallTransaction;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.vm.PrecompiledContracts;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -58,7 +58,7 @@ public class ExtractPublicKeyFromExtendedPublicKeyPerformanceTestCase extends Pr
         byte[] chainCode = new byte[32];
         NetworkParameters networkParameters = NetworkParameters.fromID(NetworkParameters.ID_MAINNET);
 
-        byte[] publicKey = new ECKey().getPubKey(true);
+        byte[] publicKey = new ECKeyBC().getPubKey(true);
         String expectedHexPublicKey = Hex.toHexString(publicKey);
 
         ABIEncoder abiEncoder = (int executionIndex) -> {
@@ -78,7 +78,7 @@ public class ExtractPublicKeyFromExtendedPublicKeyPerformanceTestCase extends Pr
                 times,
                 environmentBuilder,
                 abiEncoder,
-                Helper.getZeroValueTxBuilder(new ECKey()),
+                Helper.getZeroValueTxBuilder(new ECKeyBC()),
                 Helper.getRandomHeightProvider(10),
                 stats,
                 (EnvironmentBuilder.Environment environment, byte[] result) -> {

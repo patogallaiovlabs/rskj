@@ -35,7 +35,8 @@ import java.util.Arrays;
 
 import static java.lang.System.arraycopy;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
 
 public class BlockHeaderTest {
     @Test

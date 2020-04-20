@@ -23,6 +23,7 @@ import co.rsk.net.discovery.message.PingPeerMessage;
 import co.rsk.net.discovery.message.PongPeerMessage;
 import co.rsk.net.discovery.table.PeerDiscoveryRequestBuilder;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,7 +39,7 @@ public class PeerDiscoveryRequestTest {
 
     @Test
     public void create() {
-        ECKey key = new ECKey();
+        ECKey key = new ECKeyBC();
         String check = UUID.randomUUID().toString();
         PingPeerMessage pingPeerMessage = PingPeerMessage.create("localhost", 80, check, key, NETWORK_ID);
         PongPeerMessage pongPeerMessage = PongPeerMessage.create("localhost", 80, check, key, NETWORK_ID);

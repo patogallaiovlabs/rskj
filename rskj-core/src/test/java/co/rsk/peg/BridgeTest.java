@@ -22,11 +22,8 @@ import java.math.BigInteger;
 
 import static org.ethereum.config.blockchain.upgrades.ConsensusRule.RSKIP134;
 import static org.ethereum.config.blockchain.upgrades.ConsensusRule.RSKIP143;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.mock;
 
 public class BridgeTest {
 

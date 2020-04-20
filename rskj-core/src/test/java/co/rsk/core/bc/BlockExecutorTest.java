@@ -39,6 +39,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.config.blockchain.upgrades.ConsensusRule;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.crypto.cryptohash.Keccak256;
 import org.ethereum.datasource.HashMapDB;
@@ -497,7 +498,7 @@ public class BlockExecutorTest {
 
     public static Account createAccount(String seed) {
         byte[] privateKeyBytes = HashUtil.keccak256(seed.getBytes());
-        ECKey key = ECKey.fromPrivate(privateKeyBytes);
+        ECKey key = ECKeyBC.fromPrivate(privateKeyBytes);
         Account account = new Account(key);
         return account;
     }

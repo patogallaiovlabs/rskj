@@ -20,13 +20,13 @@
 package org.ethereum.jsontestsuite;
 
 
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;

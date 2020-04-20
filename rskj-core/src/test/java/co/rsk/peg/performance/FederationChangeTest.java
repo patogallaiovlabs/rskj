@@ -24,6 +24,7 @@ import co.rsk.core.RskAddress;
 import co.rsk.peg.*;
 import org.ethereum.core.Repository;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -45,7 +46,7 @@ public class FederationChangeTest extends BridgePerformanceTestCase {
             "auth-c",
             "auth-d",
             "auth-e",
-    }).map(generator -> ECKey.fromPrivate(HashUtil.keccak256(generator.getBytes(StandardCharsets.UTF_8)))).collect(Collectors.toList());
+    }).map(generator -> ECKeyBC.fromPrivate(HashUtil.keccak256(generator.getBytes(StandardCharsets.UTF_8)))).collect(Collectors.toList());
 
     private ECKey winnerKeyToTry;
     private PendingFederation pendingFederation;
@@ -195,7 +196,7 @@ public class FederationChangeTest extends BridgePerformanceTestCase {
 
                 List<FederationMember> pendingFederationMembers = new ArrayList<>();
                 for (int i = 0; i < numKeys; i++) {
-                    pendingFederationMembers.add(new FederationMember(new BtcECKey(), new ECKey(), new ECKey()));
+                    pendingFederationMembers.add(new FederationMember(new BtcECKey(), new ECKeyBC(), new ECKeyBC()));
                 }
                 pendingFederation = new PendingFederation(pendingFederationMembers);
                 provider.setPendingFederation(pendingFederation);

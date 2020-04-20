@@ -20,11 +20,11 @@
 package org.ethereum.vm;
 
 import co.rsk.config.TestSystemProperties;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.util.BIUtil;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.vm.PrecompiledContracts.PrecompiledContract;
 import org.junit.Test;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 

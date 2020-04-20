@@ -8,6 +8,7 @@ import co.rsk.config.BridgeRegTestConstants;
 import co.rsk.core.RskAddress;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,7 +42,7 @@ public class BtcLockSenderProviderTest {
 
         BtcTransaction tx = new BtcTransaction(BridgeRegTestConstants.getInstance().getBtcParams(), Hex.decode(rawTx));
 
-        org.ethereum.crypto.ECKey key = org.ethereum.crypto.ECKey.fromPublicOnly(Hex.decode("027bb07922f9266efc9eb650d94133b995bfcfa80d49011d52807c81ab700247ac"));
+        org.ethereum.crypto.ECKey key = org.ethereum.crypto.ECKeyBC.fromPublicOnly(Hex.decode("027bb07922f9266efc9eb650d94133b995bfcfa80d49011d52807c81ab700247ac"));
         RskAddress senderAddress = new RskAddress(key.getAddress());
 
         Optional<BtcLockSender> result = provider.tryGetBtcLockSender(tx);
@@ -68,7 +69,7 @@ public class BtcLockSenderProviderTest {
         byte[] scriptHash = Hex.decode("bf79dcd97426a127d4ed39385fa58feeb7272387");
         // "2NAhf36HTnrkKAx6RddHAdgJwPsqEgngUwe"
         Assert.assertEquals(new Address(tx.getParams(), tx.getParams().getP2SHHeader(), scriptHash), btcLockSender.getBTCAddress());
-        Assert.assertEquals(new RskAddress(ECKey.fromPublicOnly(key.getPubKey()).getAddress()), btcLockSender.getRskAddress());
+        Assert.assertEquals(new RskAddress(ECKeyBC.fromPublicOnly(key.getPubKey()).getAddress()), btcLockSender.getRskAddress());
         Assert.assertEquals(BtcLockSender.TxType.P2SHP2WPKH, btcLockSender.getType());
     }
 }

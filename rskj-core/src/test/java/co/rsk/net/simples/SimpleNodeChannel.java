@@ -18,8 +18,8 @@
 
 package co.rsk.net.simples;
 
-import co.rsk.net.Peer;
 import co.rsk.net.NodeID;
+import co.rsk.net.Peer;
 import co.rsk.net.messages.Message;
 import co.rsk.net.messages.MessageType;
 

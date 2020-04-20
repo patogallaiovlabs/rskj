@@ -19,12 +19,6 @@
 
 package org.ethereum.crypto;
 
-import org.ethereum.util.Utils;
-
-import org.junit.Test;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.BufferedBlockCipher;
 import org.bouncycastle.crypto.KeyEncoder;
@@ -41,11 +35,14 @@ import org.bouncycastle.crypto.modes.SICBlockCipher;
 import org.bouncycastle.crypto.params.*;
 import org.bouncycastle.crypto.parsers.ECIESPublicKeyParser;
 import org.bouncycastle.util.encoders.Hex;
+import org.ethereum.util.Utils;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-import static org.ethereum.crypto.HashUtil.keccak256;
 import static org.junit.Assert.assertEquals;
 
 public class CryptoTest {
@@ -70,7 +67,7 @@ public class CryptoTest {
     @Test
     public void test3() {
         BigInteger privKey = new BigInteger("cd244b3015703ddf545595da06ada5516628c5feadbf49dc66049c4b370cc5d8", 16);
-        byte[] addr = ECKey.fromPrivate(privKey).getAddress();
+        byte[] addr = ECKeyBC.fromPrivate(privKey).getAddress();
         assertEquals("89b44e4d3c81ede05d0f5de8d1a68f754d73d997", Hex.toHexString(addr));
     }
 
@@ -78,14 +75,14 @@ public class CryptoTest {
     @Test
     public void test4() {
         byte[] cowBytes = HashUtil.keccak256("cow".getBytes());
-        byte[] addr = ECKey.fromPrivate(cowBytes).getAddress();
+        byte[] addr = ECKeyBC.fromPrivate(cowBytes).getAddress();
         assertEquals("CD2A3D9F938E13CD947EC05ABC7FE734DF8DD826", Hex.toHexString(addr).toUpperCase());
     }
 
     @Test
     public void test5() {
         byte[] horseBytes = HashUtil.keccak256("horse".getBytes());
-        byte[] addr = ECKey.fromPrivate(horseBytes).getAddress();
+        byte[] addr = ECKeyBC.fromPrivate(horseBytes).getAddress();
         assertEquals("13978AEE95F38490E9769C39B2773ED763D9CD5F", Hex.toHexString(addr).toUpperCase());
     }
 
@@ -97,7 +94,7 @@ public class CryptoTest {
         for (int i = 0; i < 1000; ++i) {
 
             byte[] horseBytes = HashUtil.keccak256("horse".getBytes());
-            byte[] addr = ECKey.fromPrivate(horseBytes).getAddress();
+            byte[] addr = ECKeyBC.fromPrivate(horseBytes).getAddress();
             assertEquals("13978AEE95F38490E9769C39B2773ED763D9CD5F", Hex.toHexString(addr).toUpperCase());
         }
         long secondTime = System.currentTimeMillis();
@@ -137,7 +134,7 @@ public class CryptoTest {
     @Test
     public void test10() {
         BigInteger privKey = new BigInteger("74ef8a796480dda87b4bc550b94c408ad386af0f65926a392136286784d63858", 16);
-        byte[] addr = ECKey.fromPrivate(privKey).getAddress();
+        byte[] addr = ECKeyBC.fromPrivate(privKey).getAddress();
         assertEquals("ba73facb4f8291f09f27f90fe1213537b910065e", Hex.toHexString(addr));
     }
 
@@ -221,7 +218,7 @@ public class CryptoTest {
 //        us.address() 47d8cb63a7965d98b547b9f0333a654b60ffa190
 
 
-        ECKey key = ECKey.fromPrivate(Hex.decode("a4627abc2a3c25315bff732cb22bc128f203912dd2a840f31e66efb27a47d2b1"));
+        ECKey key = ECKeyBC.fromPrivate(Hex.decode("a4627abc2a3c25315bff732cb22bc128f203912dd2a840f31e66efb27a47d2b1"));
 
         String address = Hex.toHexString(key.getAddress());
         String pubkey  = Hex.toHexString(key.getPubKeyPoint().getXCoord().getEncoded()) +  // X cord
@@ -255,7 +252,7 @@ public class CryptoTest {
         ParametersWithIV parametersWithIV = new ParametersWithIV(p, new byte[16]);
 
         ECKeyPairGenerator eGen = new ECKeyPairGenerator();
-        KeyGenerationParameters gParam = new ECKeyGenerationParameters(ECKey.CURVE, new SecureRandom());
+        KeyGenerationParameters gParam = new ECKeyGenerationParameters(ECKeyBC.CURVE, new SecureRandom());
 
         eGen.init(gParam);
 
@@ -264,12 +261,12 @@ public class CryptoTest {
         AsymmetricCipherKeyPair p2 = eGen.generateKeyPair();
 
 
-        ECKeyGenerationParameters keygenParams = new ECKeyGenerationParameters(ECKey.CURVE, new SecureRandom());
+        ECKeyGenerationParameters keygenParams = new ECKeyGenerationParameters(ECKeyBC.CURVE, new SecureRandom());
         ECKeyPairGenerator generator = new ECKeyPairGenerator();
         generator.init(keygenParams);
 
         ECKeyPairGenerator gen = new ECKeyPairGenerator();
-        gen.init(new ECKeyGenerationParameters(ECKey.CURVE, new SecureRandom()));
+        gen.init(new ECKeyGenerationParameters(ECKeyBC.CURVE, new SecureRandom()));
 
         iesEngine.init(true, p1.getPrivate(), p2.getPublic(), parametersWithIV);
 
@@ -301,10 +298,10 @@ public class CryptoTest {
 
         byte[] privKey = Hex.decode("a4627abc2a3c25315bff732cb22bc128f203912dd2a840f31e66efb27a47d2b1");
 
-        ECKey ecKey = ECKey.fromPrivate(privKey);
+        ECKey ecKey = ECKeyBC.fromPrivate(privKey);
 
-        ECPrivateKeyParameters ecPrivKey = new ECPrivateKeyParameters(ecKey.getPrivKey(), ECKey.CURVE);
-        ECPublicKeyParameters  ecPubKey  = new ECPublicKeyParameters(ecKey.getPubKeyPoint(), ECKey.CURVE);
+        ECPrivateKeyParameters ecPrivKey = new ECPrivateKeyParameters(ecKey.getPrivKey(), ECKeyBC.CURVE);
+        ECPublicKeyParameters  ecPubKey  = new ECPublicKeyParameters(ecKey.getPubKeyPoint(), ECKeyBC.CURVE);
 
         AsymmetricCipherKeyPair myKey = new AsymmetricCipherKeyPair(ecPubKey, ecPrivKey);
 
@@ -325,11 +322,11 @@ public class CryptoTest {
         ParametersWithIV parametersWithIV = new ParametersWithIV(p, new byte[16]);
 
         ECKeyPairGenerator eGen = new ECKeyPairGenerator();
-        KeyGenerationParameters gParam = new ECKeyGenerationParameters(ECKey.CURVE, new SecureRandom());
+        KeyGenerationParameters gParam = new ECKeyGenerationParameters(ECKeyBC.CURVE, new SecureRandom());
 
         eGen.init(gParam);
 
-        ECKeyGenerationParameters keygenParams = new ECKeyGenerationParameters(ECKey.CURVE, new SecureRandom());
+        ECKeyGenerationParameters keygenParams = new ECKeyGenerationParameters(ECKeyBC.CURVE, new SecureRandom());
         ECKeyPairGenerator generator = new ECKeyPairGenerator();
         generator.init(keygenParams);
 
@@ -343,7 +340,7 @@ public class CryptoTest {
 
 
         ECKeyPairGenerator gen = new ECKeyPairGenerator();
-        gen.init(new ECKeyGenerationParameters(ECKey.CURVE, new SecureRandom()));
+        gen.init(new ECKeyGenerationParameters(ECKeyBC.CURVE, new SecureRandom()));
 
         iesEngine.init(myKey.getPublic(), parametersWithIV, kGen);
 
@@ -361,7 +358,7 @@ public class CryptoTest {
                 new HMac(new SHA256Digest()),
                 new BufferedBlockCipher(new SICBlockCipher(aesEngine)));
 
-        decryptorIES_Engine.init(myKey.getPrivate(), parametersWithIV, new ECIESPublicKeyParser(ECKey.CURVE));
+        decryptorIES_Engine.init(myKey.getPrivate(), parametersWithIV, new ECIESPublicKeyParser(ECKeyBC.CURVE));
 
         byte[] orig = decryptorIES_Engine.processBlock(cipher, 0, cipher.length);
 

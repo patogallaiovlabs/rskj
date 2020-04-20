@@ -25,13 +25,12 @@ import co.rsk.core.Coin;
 import co.rsk.core.RskAddress;
 import co.rsk.crypto.Keccak256;
 import co.rsk.trie.Trie;
-import org.ethereum.crypto.HashUtil;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.util.RskTestFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.util.Map;

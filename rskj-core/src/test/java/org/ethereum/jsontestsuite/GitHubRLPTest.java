@@ -19,8 +19,8 @@
 
 package org.ethereum.jsontestsuite;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.parser.ParseException;
 import org.junit.*;
 import org.junit.runners.MethodSorters;

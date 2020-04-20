@@ -28,6 +28,7 @@ import co.rsk.peg.ReleaseRequestQueue;
 import org.ethereum.core.Denomination;
 import org.ethereum.core.Repository;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -63,7 +64,7 @@ public class ReleaseBtcTest extends BridgePerformanceTestCase {
         TxBuilder txBuilder = (int executionIndex) -> {
             long satoshis = Coin.CENT.multiply(Helper.randomInRange(minCentsBtc, maxCentsBtc)).getValue();
             BigInteger weis = Denomination.satoshisToWeis(BigInteger.valueOf(satoshis));
-            ECKey sender = new ECKey();
+            ECKey sender = new ECKeyBC();
 
             return Helper.buildSendValueTx(sender, weis);
         };

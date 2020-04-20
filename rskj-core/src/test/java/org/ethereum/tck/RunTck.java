@@ -19,7 +19,9 @@
 
 package org.ethereum.tck;
 
-import org.ethereum.jsontestsuite.*;
+import org.ethereum.jsontestsuite.JSONReader;
+import org.ethereum.jsontestsuite.StateTestCase;
+import org.ethereum.jsontestsuite.StateTestSuite;
 import org.ethereum.jsontestsuite.runners.StateTestRunner;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;

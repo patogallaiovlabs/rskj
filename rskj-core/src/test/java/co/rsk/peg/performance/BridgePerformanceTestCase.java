@@ -33,6 +33,7 @@ import org.ethereum.core.Blockchain;
 import org.ethereum.core.Repository;
 import org.ethereum.core.Transaction;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.HashMapDB;
 import org.ethereum.vm.LogInfo;
@@ -62,7 +63,7 @@ public abstract class BridgePerformanceTestCase extends PrecompiledContractPerfo
                 "federator1",
                 "federator2",
                 "federator3"
-        }).map(generator -> ECKey.fromPrivate(HashUtil.keccak256(generator.getBytes(StandardCharsets.UTF_8)))).collect(Collectors.toList());
+        }).map(generator -> ECKeyBC.fromPrivate(HashUtil.keccak256(generator.getBytes(StandardCharsets.UTF_8)))).collect(Collectors.toList());
 
         public static ECKey getRandomFederatorECKey() {
             return Helper.FEDERATOR_ECKEYS.get(Helper.randomInRange(0, Helper.FEDERATOR_ECKEYS.size()-1));
@@ -124,7 +125,7 @@ public abstract class BridgePerformanceTestCase extends PrecompiledContractPerfo
         }
 
         public static TxBuilder getZeroValueRandomSenderTxBuilder() {
-            return (int executionIndex) -> Helper.buildTx(new ECKey());
+            return (int executionIndex) -> Helper.buildTx(new ECKeyBC());
         }
 
         public static BridgeStorageProviderInitializer buildNoopInitializer() {

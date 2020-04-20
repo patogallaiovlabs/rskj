@@ -3,16 +3,16 @@ package co.rsk.net.discovery;
 import co.rsk.net.discovery.message.*;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.util.RLP;
 import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.UUID;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.ethereum.util.ByteUtil.intToBytes;
 import static org.ethereum.util.ByteUtil.stripLeadingZeroes;
@@ -49,7 +49,7 @@ public class MessageDecoderTest {
         exceptionRule.expect(PeerDiscoveryException.class);
         exceptionRule.expectMessage(NeighborsPeerMessage.MORE_DATA);
         String check = UUID.randomUUID().toString();
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
         NeighborsPeerMessage neighborsPeerMessage = NeighborsPeerMessage.create(
                 new ArrayList<>(),
                 check,
@@ -66,7 +66,7 @@ public class MessageDecoderTest {
         exceptionRule.expect(PeerDiscoveryException.class);
         exceptionRule.expectMessage(PingPeerMessage.MORE_DATA);
         String check = UUID.randomUUID().toString();
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
         //String host, int port, String check, ECKey privKey, Integer networkId) {
         PingPeerMessage pingPeerMessage = PingPeerMessage.create(
                 LOCALHOST,
@@ -86,7 +86,7 @@ public class MessageDecoderTest {
         exceptionRule.expect(PeerDiscoveryException.class);
         exceptionRule.expectMessage(PingPeerMessage.MORE_FROM_DATA);
         String check = UUID.randomUUID().toString();
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
         //String host, int port, String check, ECKey privKey, Integer networkId) {
         PingPeerMessage pingPeerMessage = PingPeerMessage.create(
                 LOCALHOST,
@@ -108,7 +108,7 @@ public class MessageDecoderTest {
         exceptionRule.expect(PeerDiscoveryException.class);
         exceptionRule.expectMessage(PongPeerMessage.MORE_DATA);
         String check = UUID.randomUUID().toString();
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
         //String host, int port, String check, ECKey privKey, Integer networkId) {
         PongPeerMessage pongPeerMessage = PongPeerMessage.create(
                 LOCALHOST,
@@ -127,7 +127,7 @@ public class MessageDecoderTest {
         exceptionRule.expect(PeerDiscoveryException.class);
         exceptionRule.expectMessage(PongPeerMessage.MORE_FROM_DATA);
         String check = UUID.randomUUID().toString();
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
         //String host, int port, String check, ECKey privKey, Integer networkId) {
         PongPeerMessage pongPeerMessage = PongPeerMessage.create(
                 LOCALHOST,
@@ -149,7 +149,7 @@ public class MessageDecoderTest {
         exceptionRule.expect(PeerDiscoveryException.class);
         exceptionRule.expectMessage(FindNodePeerMessage.MORE_DATA);
         String check = UUID.randomUUID().toString();
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
         //String host, int port, String check, ECKey privKey, Integer networkId) {
         FindNodePeerMessage findNodePeerMessage = FindNodePeerMessage.create(key1.getNodeId(), check, key1, NETWORK_ID);
         byte[] type = new byte[]{(byte) DiscoveryMessageType.FIND_NODE.getTypeValue()};
@@ -161,7 +161,7 @@ public class MessageDecoderTest {
     @Test
     public void decode() {
         String check = UUID.randomUUID().toString();
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
 
         PingPeerMessage expectedPingMessage = PingPeerMessage.create(
                 LOCALHOST,

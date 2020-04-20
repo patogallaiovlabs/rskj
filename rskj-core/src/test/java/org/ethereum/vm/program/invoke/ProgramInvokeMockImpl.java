@@ -23,14 +23,14 @@ import co.rsk.core.Coin;
 import co.rsk.core.RskAddress;
 import co.rsk.db.MutableTrieImpl;
 import co.rsk.trie.Trie;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.Repository;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.BlockStore;
 import org.ethereum.db.BlockStoreDummy;
 import org.ethereum.db.MutableRepository;
 import org.ethereum.vm.DataWord;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -110,7 +110,7 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     public DataWord getOriginAddress() {
 
         byte[] cowPrivKey = HashUtil.keccak256("horse".getBytes(StandardCharsets.UTF_8));
-        byte[] addr = ECKey.fromPrivate(cowPrivKey).getAddress();
+        byte[] addr = ECKeyBC.fromPrivate(cowPrivKey).getAddress();
 
         return DataWord.valueOf(addr);
     }
@@ -119,7 +119,7 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     public DataWord getCallerAddress() {
 
         byte[] cowPrivKey = HashUtil.keccak256("monkey".getBytes(StandardCharsets.UTF_8));
-        byte[] addr = ECKey.fromPrivate(cowPrivKey).getAddress();
+        byte[] addr = ECKeyBC.fromPrivate(cowPrivKey).getAddress();
 
         return DataWord.valueOf(addr);
     }

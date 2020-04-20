@@ -18,7 +18,7 @@
 
 package co.rsk.peg.performance;
 
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.vm.PrecompiledContracts;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class IdentityPerformanceTestCase extends PrecompiledContractPerformanceT
                 numCases,
                 environmentBuilder,
                 abiEncoder,
-                Helper.getZeroValueTxBuilder(new ECKey()),
+                Helper.getZeroValueTxBuilder(new ECKeyBC()),
                 Helper.getRandomHeightProvider(10),
                 stats,
                 null

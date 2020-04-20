@@ -34,6 +34,7 @@ import org.ethereum.core.Block;
 import org.ethereum.core.CallTransaction;
 import org.ethereum.core.Transaction;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.util.RLP;
 import org.ethereum.vm.DataWord;
 import org.ethereum.vm.LogInfo;
@@ -92,7 +93,7 @@ public class BridgeEventLoggerImpl implements BridgeEventLogger {
 
     public void logAddSignature(BtcECKey federatorPublicKey, BtcTransaction btcTx, byte[] rskTxHash) {
         if (activations.isActive(ConsensusRule.RSKIP146)) {
-            ECKey key = ECKey.fromPublicOnly(federatorPublicKey.getPubKey());
+            ECKey key = ECKeyBC.fromPublicOnly(federatorPublicKey.getPubKey());
             String federatorRskAddress = Hex.toHexString(key.getAddress());
             logAddSignatureInSolidityFormat(rskTxHash, federatorRskAddress, federatorPublicKey);
         } else {

@@ -7,7 +7,7 @@ import co.rsk.net.discovery.message.PongPeerMessage;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
 
 public class PeerMessagesTest {
 

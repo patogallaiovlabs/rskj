@@ -27,6 +27,7 @@ import co.rsk.peg.whitelist.UnlimitedWhiteListEntry;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.util.BigIntegers;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
@@ -328,8 +329,8 @@ public class BridgeSerializationUtils {
         }
 
         BtcECKey btcKey = BtcECKey.fromPublicOnly(rlpList.get(FEDERATION_MEMBER_BTC_KEY_INDEX).getRLPData());
-        ECKey rskKey = ECKey.fromPublicOnly(rlpList.get(FEDERATION_MEMBER_RSK_KEY_INDEX).getRLPData());
-        ECKey mstKey = ECKey.fromPublicOnly(rlpList.get(FEDERATION_MEMBER_MST_KEY_INDEX).getRLPData());
+        ECKey rskKey = ECKeyBC.fromPublicOnly(rlpList.get(FEDERATION_MEMBER_RSK_KEY_INDEX).getRLPData());
+        ECKey mstKey = ECKeyBC.fromPublicOnly(rlpList.get(FEDERATION_MEMBER_MST_KEY_INDEX).getRLPData());
 
         return new FederationMember(btcKey, rskKey, mstKey);
     }

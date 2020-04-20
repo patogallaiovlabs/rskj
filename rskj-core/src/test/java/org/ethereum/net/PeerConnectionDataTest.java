@@ -19,15 +19,12 @@
 
 package org.ethereum.net;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.net.client.Capability;
 import org.ethereum.net.p2p.PeerConnectionData;
-
 import org.junit.Test;
 
-import org.bouncycastle.util.encoders.Hex;
-
 import java.net.InetAddress;
-
 import java.util.ArrayList;
 import java.util.List;
 

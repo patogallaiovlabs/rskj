@@ -33,8 +33,10 @@ import co.rsk.trie.TrieStore;
 import co.rsk.trie.TrieStoreImpl;
 import org.bouncycastle.util.BigIntegers;
 import org.bouncycastle.util.encoders.Hex;
+import org.ethereum.crypto.ECDSASignature;
 import org.ethereum.crypto.ECKey;
-import org.ethereum.crypto.ECKey.MissingPrivateKeyException;
+import org.ethereum.crypto.ECKeyBC;
+import org.ethereum.crypto.ECKeyBC.MissingPrivateKeyException;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.HashMapDB;
 import org.ethereum.db.BlockStore;
@@ -76,7 +78,7 @@ public class TransactionTest {
         // String txRLPRawData = "f82804881bc16d674ec8000094cd2a3d9f938e13cd947ec05abc7fe734df8dd8268609184e72a0006480";
 
         byte[] cowPrivKey = Hex.decode("c85ef7d79691fe79573b1a7064c19c1a9819ebdbd1faaab1a8ec92344438aaf4");
-        ECKey key = ECKey.fromPrivate(cowPrivKey);
+        ECKey key = ECKeyBC.fromPrivate(cowPrivKey);
 
         byte[] data = Hex.decode(txRLPRawData);
 
@@ -84,7 +86,7 @@ public class TransactionTest {
         // step 2: hash = sha3(step1)
         byte[] txHash = HashUtil.keccak256(data);
 
-        ECKey.ECDSASignature signature = key.doSign(txHash);
+        ECDSASignature signature = key.doSign(txHash);
         System.out.println(signature);
     }
 
@@ -98,7 +100,7 @@ public class TransactionTest {
         BigInteger value = new BigInteger("1000000000000000000000");
 
         byte[] privKey = HashUtil.keccak256("cat".getBytes());
-        ECKey ecKey = ECKey.fromPrivate(privKey);
+        ECKey ecKey = ECKeyBC.fromPrivate(privKey);
 
         byte[] senderPrivKey = HashUtil.keccak256("cow".getBytes());
 
@@ -119,7 +121,7 @@ public class TransactionTest {
         System.out.println("RLP encoded tx\t\t: " + Hex.toHexString(tx.getEncoded()));
 
         // retrieve the signer/sender of the transaction
-        ECKey key = ECKey.signatureToKey(tx.getHash().getBytes(), tx.getSignature());
+        ECKey key = ECKeyBC.signatureToKey(tx.getHash().getBytes(), tx.getSignature());
 
         System.out.println("Tx unsigned RLP\t\t: " + Hex.toHexString(tx.getEncodedRaw()));
         System.out.println("Tx signed   RLP\t\t: " + Hex.toHexString(tx.getEncoded()));
@@ -140,7 +142,7 @@ public class TransactionTest {
         // cat --> 79b08ad8787060333663d19704909ee7b1903e58
         // cow --> cd2a3d9f938e13cd947ec05abc7fe734df8dd826
 
-        ECKey ecKey = ECKey.fromPrivate(HashUtil.keccak256("cat".getBytes()));
+        ECKey ecKey = ECKeyBC.fromPrivate(HashUtil.keccak256("cat".getBytes()));
         byte[] senderPrivKey = HashUtil.keccak256("cow".getBytes());
 
         byte[] nonce = {0x01};
@@ -160,7 +162,7 @@ public class TransactionTest {
         System.out.println("RLP encoded tx\t\t: " + Hex.toHexString(tx.getEncoded()));
 
         // retrieve the signer/sender of the transaction
-        ECKey key = ECKey.signatureToKey(tx.getHash().getBytes(), tx.getSignature());
+        ECKey key = ECKeyBC.signatureToKey(tx.getHash().getBytes(), tx.getSignature());
 
         System.out.println("Tx unsigned RLP\t\t: " + Hex.toHexString(tx.getEncodedRaw()));
         System.out.println("Tx signed   RLP\t\t: " + Hex.toHexString(tx.getEncoded()));
@@ -605,7 +607,7 @@ public class TransactionTest {
                 config, repository, blockStore, trieStore
         );
 
-        ECKey sender = ECKey.fromPrivate(Hex.decode("3ec771c31cac8c0dba77a69e503765701d3c2bb62435888d4ffa38fed60c445c"));
+        ECKey sender = ECKeyBC.fromPrivate(Hex.decode("3ec771c31cac8c0dba77a69e503765701d3c2bb62435888d4ffa38fed60c445c"));
         System.out.println("address: " + Hex.toHexString(sender.getAddress()));
 
         String code = "6060604052341561000c57fe5b5b6102938061001c6000396000f3006060604052361561004a576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806309e587a514610053578063de990da914610065575b6100515b5b565b005b341561005b57fe5b610063610077565b005b341561006d57fe5b610075610092565b005b3373ffffffffffffffffffffffffffffffffffffffff16ff5b565b60003090508073ffffffffffffffffffffffffffffffffffffffff166309e587a56040518163ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401809050600060405180830381600087803b15156100fa57fe5b60325a03f1151561010757fe5b5050508073ffffffffffffffffffffffffffffffffffffffff166309e587a56040518163ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401809050600060405180830381600087803b151561016d57fe5b60325a03f1151561017a57fe5b5050508073ffffffffffffffffffffffffffffffffffffffff166309e587a56040518163ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401809050600060405180830381600087803b15156101e057fe5b60325a03f115156101ed57fe5b5050508073ffffffffffffffffffffffffffffffffffffffff166309e587a56040518163ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401809050600060405180830381600087803b151561025357fe5b60325a03f1151561026057fe5b5050505b505600a165627a7a72305820084e74021c556522723b6725354378df2fb4b6732f82dd33f5daa29e2820b37c0029";
@@ -684,7 +686,7 @@ public class TransactionTest {
                 config, repository, blockStore, trieStore
         );
 
-        ECKey sender = ECKey.fromPrivate(Hex.decode("3ec771c31cac8c0dba77a69e503765701d3c2bb62435888d4ffa38fed60c445c"));
+        ECKey sender = ECKeyBC.fromPrivate(Hex.decode("3ec771c31cac8c0dba77a69e503765701d3c2bb62435888d4ffa38fed60c445c"));
         System.out.println("address: " + Hex.toHexString(sender.getAddress()));
 
         // First contract code TestEventInvoked

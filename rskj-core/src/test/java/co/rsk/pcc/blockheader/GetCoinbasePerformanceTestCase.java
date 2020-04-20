@@ -36,7 +36,7 @@ import org.bouncycastle.util.Arrays;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockFactory;
 import org.ethereum.core.CallTransaction;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -79,7 +79,7 @@ public class GetCoinbasePerformanceTestCase extends PrecompiledContractPerforman
                 numCases,
                 environmentBuilder,
                 abiEncoder,
-                Helper.getZeroValueTxBuilder(new ECKey()),
+                Helper.getZeroValueTxBuilder(new ECKeyBC()),
                 Helper.getRandomHeightProvider(10),
                 stats,
                 (EnvironmentBuilder.Environment environment, byte[] result) -> {

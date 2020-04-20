@@ -19,7 +19,10 @@
 package org.ethereum.rpc.Simples;
 
 import co.rsk.core.Coin;
-import org.ethereum.core.*;
+import org.ethereum.core.Block;
+import org.ethereum.core.Blockchain;
+import org.ethereum.core.ImportResult;
+import org.ethereum.core.Transaction;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.CompositeEthereumListener;
 import org.ethereum.listener.EthereumListener;

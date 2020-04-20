@@ -21,6 +21,7 @@ package co.rsk.peg;
 import co.rsk.core.RskAddress;
 import org.ethereum.core.Transaction;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -73,21 +74,21 @@ public class AddressBasedAuthorizerTest {
     @Test
     public void isAuthorized() {
         AddressBasedAuthorizer auth = new AddressBasedAuthorizer(Arrays.asList(
-                ECKey.fromPrivate(BigInteger.valueOf(100L)),
-                ECKey.fromPrivate(BigInteger.valueOf(101L)),
-                ECKey.fromPrivate(BigInteger.valueOf(102L))
+                ECKeyBC.fromPrivate(BigInteger.valueOf(100L)),
+                ECKeyBC.fromPrivate(BigInteger.valueOf(101L)),
+                ECKeyBC.fromPrivate(BigInteger.valueOf(102L))
         ), AddressBasedAuthorizer.MinimumRequiredCalculation.MAJORITY);
 
         for (long n = 100L; n <= 102L; n++) {
             Transaction mockedTx = mock(Transaction.class);
-            when(mockedTx.getSender()).thenReturn(new RskAddress(ECKey.fromPrivate(BigInteger.valueOf(n)).getAddress()));
-            Assert.assertTrue(auth.isAuthorized(new RskAddress(ECKey.fromPrivate(BigInteger.valueOf(n)).getAddress())));
+            when(mockedTx.getSender()).thenReturn(new RskAddress(ECKeyBC.fromPrivate(BigInteger.valueOf(n)).getAddress()));
+            Assert.assertTrue(auth.isAuthorized(new RskAddress(ECKeyBC.fromPrivate(BigInteger.valueOf(n)).getAddress())));
             Assert.assertTrue(auth.isAuthorized(mockedTx));
         }
 
-        Assert.assertFalse(auth.isAuthorized(new RskAddress(ECKey.fromPrivate(BigInteger.valueOf(50L)).getAddress())));
+        Assert.assertFalse(auth.isAuthorized(new RskAddress(ECKeyBC.fromPrivate(BigInteger.valueOf(50L)).getAddress())));
         Transaction mockedTx = mock(Transaction.class);
-        when(mockedTx.getSender()).thenReturn(new RskAddress(ECKey.fromPrivate(BigInteger.valueOf(50L)).getAddress()));
+        when(mockedTx.getSender()).thenReturn(new RskAddress(ECKeyBC.fromPrivate(BigInteger.valueOf(50L)).getAddress()));
         Assert.assertFalse(auth.isAuthorized(mockedTx));
     }
 }

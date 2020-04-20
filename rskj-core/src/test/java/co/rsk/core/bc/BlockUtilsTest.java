@@ -23,7 +23,10 @@ import co.rsk.crypto.Keccak256;
 import co.rsk.net.NetBlockStore;
 import co.rsk.test.builders.BlockBuilder;
 import co.rsk.test.builders.BlockChainBuilder;
-import org.ethereum.core.*;
+import org.ethereum.core.Block;
+import org.ethereum.core.BlockHeader;
+import org.ethereum.core.Genesis;
+import org.ethereum.core.ImportResult;
 import org.junit.Assert;
 import org.junit.Test;
 

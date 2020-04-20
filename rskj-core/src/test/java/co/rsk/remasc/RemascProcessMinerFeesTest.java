@@ -42,6 +42,7 @@ import org.ethereum.config.blockchain.upgrades.ActivationConfigsForTest;
 import org.ethereum.config.blockchain.upgrades.ConsensusRule;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.datasource.HashMapDB;
 import org.ethereum.db.BlockStore;
@@ -67,7 +68,7 @@ public class RemascProcessMinerFeesTest {
     private long initialGasLimit = 10000000L;
     private long minerFee = 21000;
     private long txValue = 10000;
-    private ECKey cowKey = ECKey.fromPrivate(Keccak256Helper.keccak256("cow".getBytes()));
+    private ECKey cowKey = ECKeyBC.fromPrivate(Keccak256Helper.keccak256("cow".getBytes()));
     private byte[] cowAddress = cowKey.getAddress();
     private static RskAddress coinbaseA = TestUtils.randomAddress();
     private static RskAddress coinbaseB = TestUtils.randomAddress();

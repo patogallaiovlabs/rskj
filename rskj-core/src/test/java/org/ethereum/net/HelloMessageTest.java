@@ -19,18 +19,15 @@
 
 package org.ethereum.net;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.net.client.Capability;
 import org.ethereum.net.eth.EthVersion;
 import org.ethereum.net.p2p.HelloMessage;
 import org.ethereum.net.p2p.P2pHandler;
 import org.ethereum.net.p2p.P2pMessageCodes;
-
 import org.junit.Test;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.bouncycastle.util.encoders.Hex;
 
 import java.util.Arrays;
 import java.util.List;

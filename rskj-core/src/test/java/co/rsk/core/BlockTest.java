@@ -27,7 +27,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.TestUtils;
 import org.ethereum.config.blockchain.upgrades.ActivationConfigsForTest;
 import org.ethereum.core.*;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.RLP;
 import org.ethereum.vm.PrecompiledContracts;
@@ -52,10 +52,10 @@ public class BlockTest {
                 BigInteger.ZERO.toByteArray(),
                 BigInteger.ONE.toByteArray(),
                 BigInteger.valueOf(21000).toByteArray(),
-                new ECKey().getAddress() ,
+                new ECKeyBC().getAddress() ,
                 BigInteger.valueOf(1000).toByteArray(),
                 null);
-        txNotToRemasc.sign(new ECKey().getPrivKeyBytes());
+        txNotToRemasc.sign(new ECKeyBC().getPrivKeyBytes());
         txs.add(txNotToRemasc);
 
         Transaction txToRemascThatIsNotTheLatestTx = new Transaction(
@@ -65,7 +65,7 @@ public class BlockTest {
                 PrecompiledContracts.REMASC_ADDR.getBytes(),
                 BigInteger.valueOf(1000).toByteArray(),
                 null);
-        txToRemascThatIsNotTheLatestTx.sign(new ECKey().getPrivKeyBytes());
+        txToRemascThatIsNotTheLatestTx.sign(new ECKeyBC().getPrivKeyBytes());
         txs.add(txToRemascThatIsNotTheLatestTx);
 
         Transaction remascTx = new RemascTransaction(1);

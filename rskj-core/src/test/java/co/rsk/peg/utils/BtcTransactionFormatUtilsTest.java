@@ -21,12 +21,11 @@ package co.rsk.peg.utils;
 import co.rsk.bitcoinj.core.*;
 import co.rsk.bitcoinj.script.Script;
 import co.rsk.config.BridgeRegTestConstants;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
 import org.junit.Test;
-import org.bouncycastle.util.encoders.Hex;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
 
 public class BtcTransactionFormatUtilsTest {
 

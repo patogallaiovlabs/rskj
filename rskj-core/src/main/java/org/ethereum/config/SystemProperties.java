@@ -29,6 +29,7 @@ import com.typesafe.config.ConfigRenderOptions;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.config.blockchain.upgrades.ActivationConfig;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.net.p2p.P2pHandler;
 import org.ethereum.net.rlpx.MessageCodec;
@@ -240,7 +241,7 @@ public abstract class SystemProperties {
             if (configObject.toConfig().hasPath("nodeName")) {
                 String nodeName = configObject.toConfig().getString("nodeName").trim();
                 // FIXME should be sha3-512 here ?
-                byte[] nodeId = ECKey.fromPrivate(Keccak256Helper.keccak256(nodeName.getBytes(StandardCharsets.UTF_8))).getNodeId();
+                byte[] nodeId = ECKeyBC.fromPrivate(Keccak256Helper.keccak256(nodeName.getBytes(StandardCharsets.UTF_8))).getNodeId();
                 return new Node(nodeId, ip, port);
             }
 
@@ -359,7 +360,7 @@ public abstract class SystemProperties {
             if (file.canRead()) {
                 props.load(new FileReader(file));
             } else {
-                ECKey key = new ECKey();
+                ECKey key = new ECKeyBC();
                 props.setProperty("nodeIdPrivateKey", Hex.toHexString(key.getPrivKeyBytes()));
                 props.setProperty("nodeId", Hex.toHexString(key.getNodeId()));
                 file.getParentFile().mkdirs();
@@ -374,7 +375,7 @@ public abstract class SystemProperties {
     }
 
     public ECKey getMyKey() {
-        return ECKey.fromPrivate(Hex.decode(privateKey())).decompress();
+        return ECKeyBC.fromPrivate(Hex.decode(privateKey())).decompress();
     }
 
     /**

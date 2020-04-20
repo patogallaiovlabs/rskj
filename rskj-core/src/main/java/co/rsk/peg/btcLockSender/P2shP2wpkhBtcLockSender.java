@@ -66,7 +66,7 @@ public class P2shP2wpkhBtcLockSender implements BtcLockSender {
             byte[] scriptPubKey = HashUtil.ripemd160(Sha256Hash.hash(redeemScript));
 
             this.btcAddress = new Address(btcTx.getParams(), btcTx.getParams().getP2SHHeader(), scriptPubKey);
-            this.rskAddress = new RskAddress(org.ethereum.crypto.ECKey.fromPublicOnly(pubKey).getAddress());
+            this.rskAddress = new RskAddress(org.ethereum.crypto.ECKeyBC.fromPublicOnly(pubKey).getAddress());
         } catch (Exception e) {
             return false;
         }

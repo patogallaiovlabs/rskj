@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Created by ajlopez on 08/01/2017.

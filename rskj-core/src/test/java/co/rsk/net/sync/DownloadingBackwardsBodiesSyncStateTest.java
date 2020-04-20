@@ -4,12 +4,14 @@ import co.rsk.core.BlockDifficulty;
 import co.rsk.crypto.Keccak256;
 import co.rsk.net.Peer;
 import co.rsk.net.messages.BodyResponseMessage;
-import org.ethereum.core.*;
+import org.ethereum.core.Block;
+import org.ethereum.core.BlockFactory;
+import org.ethereum.core.BlockHeader;
+import org.ethereum.core.Genesis;
 import org.ethereum.db.BlockStore;
 import org.ethereum.util.ByteUtil;
 import org.junit.Before;
 import org.junit.Test;
-
 
 import java.math.BigInteger;
 import java.util.LinkedList;

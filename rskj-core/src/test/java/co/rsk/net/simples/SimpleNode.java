@@ -24,13 +24,9 @@ import co.rsk.net.*;
 import co.rsk.net.messages.Message;
 import co.rsk.net.messages.StatusMessage;
 import co.rsk.test.World;
-import co.rsk.validators.DummyBlockValidationRule;
 import org.ethereum.core.Block;
 import org.ethereum.core.Blockchain;
 import org.ethereum.crypto.HashUtil;
-import org.ethereum.db.BlockStore;
-
-import static org.mockito.Mockito.mock;
 
 /**
  * Created by ajlopez on 5/14/2016.

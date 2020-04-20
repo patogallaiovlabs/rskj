@@ -25,7 +25,6 @@ import co.rsk.mine.MinerServer;
 import co.rsk.net.MessageHandler;
 import co.rsk.net.NodeMessageHandler;
 import org.ethereum.core.Blockchain;
-import org.ethereum.core.Repository;
 import org.ethereum.core.TransactionPool;
 import org.ethereum.db.BlockStore;
 import org.ethereum.facade.Ethereum;

@@ -34,11 +34,9 @@ import org.mapdb.DBMaker;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
-import static junit.framework.TestCase.*;
-import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 
 public final class TestUtils {
 

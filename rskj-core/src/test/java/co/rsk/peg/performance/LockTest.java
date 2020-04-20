@@ -22,14 +22,13 @@ import co.rsk.bitcoinj.core.Sha256Hash;
 import co.rsk.bitcoinj.store.BtcBlockStore;
 import co.rsk.peg.Bridge;
 import co.rsk.peg.BridgeStorageProvider;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.Repository;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Map;
 import java.util.Random;
 
 // Everything related to locking that is not

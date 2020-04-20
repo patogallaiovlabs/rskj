@@ -19,14 +19,14 @@
 
 package org.ethereum.util;
 
+import org.bouncycastle.util.BigIntegers;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.net.client.Capability;
 import org.ethereum.net.p2p.HelloMessage;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.bouncycastle.util.BigIntegers;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -22,12 +22,12 @@ import co.rsk.bitcoinj.core.Coin;
 import co.rsk.config.BridgeRegTestConstants;
 import co.rsk.peg.Bridge;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
@@ -47,7 +47,7 @@ public class VoteFeePerKbChangeTest extends BridgePerformanceTestCase {
 
         TxBuilder txBuilder = (int executionIndex) -> {
             String generator = "auth-fee-per-kb";
-            ECKey sender = ECKey.fromPrivate(HashUtil.keccak256(generator.getBytes(StandardCharsets.UTF_8)));
+            ECKey sender = ECKeyBC.fromPrivate(HashUtil.keccak256(generator.getBytes(StandardCharsets.UTF_8)));
 
             return Helper.buildTx(sender);
         };
@@ -77,7 +77,7 @@ public class VoteFeePerKbChangeTest extends BridgePerformanceTestCase {
 
         TxBuilder txBuilder = (int executionIndex) -> {
             String generator = "unauthorized";
-            ECKey sender = ECKey.fromPrivate(HashUtil.keccak256(generator.getBytes(StandardCharsets.UTF_8)));
+            ECKey sender = ECKeyBC.fromPrivate(HashUtil.keccak256(generator.getBytes(StandardCharsets.UTF_8)));
 
             return Helper.buildTx(sender);
         };

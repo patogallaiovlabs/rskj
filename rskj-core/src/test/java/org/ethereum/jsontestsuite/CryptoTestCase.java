@@ -19,11 +19,12 @@
 
 package org.ethereum.jsontestsuite;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.crypto.ECIESCoder;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 
@@ -50,7 +51,7 @@ public class CryptoTestCase {
         byte[] key = Hex.decode(this.key);
         byte[] cipher = Hex.decode(this.cipher);
 
-        ECKey ecKey = ECKey.fromPrivate(key);
+        ECKey ecKey = ECKeyBC.fromPrivate(key);
 
         byte[] resultPayload = new byte[0];
         if (decryption_type.equals("aes_ctr"))

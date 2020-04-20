@@ -26,7 +26,6 @@ import org.ethereum.config.blockchain.upgrades.ActivationConfigsForTest;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockFactory;
 import org.ethereum.core.BlockHeader;
-import org.ethereum.core.Bloom;
 import org.junit.Assert;
 import org.junit.Test;
 

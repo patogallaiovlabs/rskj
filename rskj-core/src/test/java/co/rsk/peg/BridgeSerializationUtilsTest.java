@@ -26,7 +26,7 @@ import co.rsk.peg.whitelist.OneOffWhiteListEntry;
 import com.google.common.primitives.UnsignedBytes;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.util.encoders.Hex;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPList;
 import org.junit.Assert;
@@ -43,7 +43,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -231,7 +230,7 @@ public class BridgeSerializationUtilsTest {
             int numMembers = randomInRange(2, 14);
             List<FederationMember> members = new ArrayList<>();
             for (int j = 0; j < numMembers; j++) {
-                members.add(new FederationMember(new BtcECKey(), new ECKey(), new ECKey()));
+                members.add(new FederationMember(new BtcECKey(), new ECKeyBC(), new ECKeyBC()));
             }
             Federation testFederation = new Federation(members, Instant.now(), 123, networkParameters);
 
@@ -252,7 +251,7 @@ public class BridgeSerializationUtilsTest {
 
         List<FederationMember> members = new ArrayList<>();
         for (int j = 0; j < NUM_MEMBERS; j++) {
-            members.add(new FederationMember(new BtcECKey(), new ECKey(), new ECKey()));
+            members.add(new FederationMember(new BtcECKey(), new ECKeyBC(), new ECKeyBC()));
         }
 
         Federation testFederation = new Federation(
@@ -315,7 +314,7 @@ public class BridgeSerializationUtilsTest {
             int numMembers = randomInRange(2, 14);
             List<FederationMember> members = new ArrayList<>();
             for (int j = 0; j < numMembers; j++) {
-                members.add(new FederationMember(new BtcECKey(), new ECKey(), new ECKey()));
+                members.add(new FederationMember(new BtcECKey(), new ECKeyBC(), new ECKeyBC()));
             }
             PendingFederation testPendingFederation = new PendingFederation(members);
 
@@ -336,7 +335,7 @@ public class BridgeSerializationUtilsTest {
 
         List<FederationMember> members = new ArrayList<>();
         for (int j = 0; j < NUM_MEMBERS; j++) {
-            members.add(new FederationMember(new BtcECKey(), new ECKey(), new ECKey()));
+            members.add(new FederationMember(new BtcECKey(), new ECKeyBC(), new ECKeyBC()));
         }
 
         PendingFederation testPendingFederation = new PendingFederation(members);

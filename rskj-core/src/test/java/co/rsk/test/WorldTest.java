@@ -21,7 +21,7 @@ package co.rsk.test;
 import co.rsk.blockchain.utils.BlockGenerator;
 import org.ethereum.core.Account;
 import org.ethereum.core.Block;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.util.Utils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -81,7 +81,7 @@ public class WorldTest {
     public void saveAndGetAccount() {
         World world = new World();
 
-        Account account = new Account(new ECKey(Utils.getRandom()));
+        Account account = new Account(new ECKeyBC(Utils.getRandom()));
 
         world.saveAccount("acc1", account);
         Assert.assertSame(account, world.getAccountByName("acc1"));

@@ -8,7 +8,6 @@ import co.rsk.bitcoinj.store.BlockStoreException;
 import co.rsk.blockchain.utils.BlockGenerator;
 import co.rsk.config.BridgeConstants;
 import co.rsk.config.BridgeRegTestConstants;
-import co.rsk.core.BlockDifficulty;
 import co.rsk.core.RskAddress;
 import co.rsk.crypto.Keccak256;
 import co.rsk.db.MutableTrieCache;
@@ -33,6 +32,7 @@ import org.ethereum.core.Block;
 import org.ethereum.core.Repository;
 import org.ethereum.core.Transaction;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.db.MutableRepository;
@@ -621,7 +621,7 @@ public class BridgeSupportTest {
 
         Transaction releaseTx = new Transaction(PrecompiledContracts.BRIDGE_ADDR.toString(),
                 co.rsk.core.Coin.fromBitcoin(Coin.COIN).asBigInteger(), NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        releaseTx.sign(new ECKey().getPrivKeyBytes());
+        releaseTx.sign(new ECKeyBC().getPrivKeyBytes());
         bridgeSupport.releaseBtc(releaseTx);
 
         Transaction rskTx = new Transaction(TO_ADDRESS, DUST_AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
@@ -656,7 +656,7 @@ public class BridgeSupportTest {
 
         Transaction releaseTx = new Transaction(PrecompiledContracts.BRIDGE_ADDR.toString(),
                 co.rsk.core.Coin.fromBitcoin(Coin.COIN).asBigInteger(), NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        releaseTx.sign(new ECKey().getPrivKeyBytes());
+        releaseTx.sign(new ECKeyBC().getPrivKeyBytes());
         bridgeSupport.releaseBtc(releaseTx);
 
         Transaction rskTx = new Transaction(TO_ADDRESS, DUST_AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
@@ -691,7 +691,7 @@ public class BridgeSupportTest {
 
         Transaction releaseTx = new Transaction(PrecompiledContracts.BRIDGE_ADDR.toString(),
                 co.rsk.core.Coin.fromBitcoin(Coin.COIN).asBigInteger(), NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        releaseTx.sign(new ECKey().getPrivKeyBytes());
+        releaseTx.sign(new ECKeyBC().getPrivKeyBytes());
         bridgeSupport.releaseBtc(releaseTx);
 
         activations = mock(ActivationConfig.ForBlock.class);
@@ -732,11 +732,11 @@ public class BridgeSupportTest {
 
         Transaction releaseTx = new Transaction(PrecompiledContracts.BRIDGE_ADDR.toString(),
                 co.rsk.core.Coin.fromBitcoin(Coin.COIN).asBigInteger(), NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        releaseTx.sign(new ECKey().getPrivKeyBytes());
+        releaseTx.sign(new ECKeyBC().getPrivKeyBytes());
         bridgeSupport.releaseBtc(releaseTx);
 
         Transaction rskTx = new Transaction(TO_ADDRESS, DUST_AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        rskTx.sign(new ECKey().getPrivKeyBytes());
+        rskTx.sign(new ECKeyBC().getPrivKeyBytes());
         bridgeSupport.updateCollections(rskTx);
 
         Assert.assertEquals(1, provider.getReleaseTransactionSet().getEntries().size());
@@ -772,11 +772,11 @@ public class BridgeSupportTest {
 
         Transaction releaseTx = new Transaction(PrecompiledContracts.BRIDGE_ADDR.toString(),
                 co.rsk.core.Coin.fromBitcoin(Coin.COIN).asBigInteger(), NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        releaseTx.sign(new ECKey().getPrivKeyBytes());
+        releaseTx.sign(new ECKeyBC().getPrivKeyBytes());
         bridgeSupport.releaseBtc(releaseTx);
 
         Transaction rskTx = new Transaction(TO_ADDRESS, DUST_AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        rskTx.sign(new ECKey().getPrivKeyBytes());
+        rskTx.sign(new ECKeyBC().getPrivKeyBytes());
         bridgeSupport.updateCollections(rskTx);
 
         Assert.assertEquals(1, provider.getReleaseTransactionSet().getEntries().size());
@@ -876,9 +876,9 @@ public class BridgeSupportTest {
 
         track.commit();
 
-        RskAddress srcKey1RskAddress = new RskAddress(org.ethereum.crypto.ECKey.fromPrivate(srcKey1.getPrivKey()).getAddress());
-        RskAddress srcKey2RskAddress = new RskAddress(org.ethereum.crypto.ECKey.fromPrivate(srcKey2.getPrivKey()).getAddress());
-        RskAddress srcKey3RskAddress = new RskAddress(org.ethereum.crypto.ECKey.fromPrivate(srcKey3.getPrivKey()).getAddress());
+        RskAddress srcKey1RskAddress = new RskAddress(org.ethereum.crypto.ECKeyBC.fromPrivate(srcKey1.getPrivKey()).getAddress());
+        RskAddress srcKey2RskAddress = new RskAddress(org.ethereum.crypto.ECKeyBC.fromPrivate(srcKey2.getPrivKey()).getAddress());
+        RskAddress srcKey3RskAddress = new RskAddress(org.ethereum.crypto.ECKeyBC.fromPrivate(srcKey3.getPrivKey()).getAddress());
 
         Assert.assertEquals(0, repository.getBalance(srcKey1RskAddress).asBigInteger().intValue());
         Assert.assertEquals(0, repository.getBalance(srcKey2RskAddress).asBigInteger().intValue());
@@ -1025,9 +1025,9 @@ public class BridgeSupportTest {
 
         track.commit();
 
-        RskAddress srcKey1RskAddress = new RskAddress(org.ethereum.crypto.ECKey.fromPrivate(srcKey1.getPrivKey()).getAddress());
-        RskAddress srcKey2RskAddress = new RskAddress(org.ethereum.crypto.ECKey.fromPrivate(srcKey2.getPrivKey()).getAddress());
-        RskAddress srcKey3RskAddress = new RskAddress(org.ethereum.crypto.ECKey.fromPrivate(srcKey3.getPrivKey()).getAddress());
+        RskAddress srcKey1RskAddress = new RskAddress(org.ethereum.crypto.ECKeyBC.fromPrivate(srcKey1.getPrivKey()).getAddress());
+        RskAddress srcKey2RskAddress = new RskAddress(org.ethereum.crypto.ECKeyBC.fromPrivate(srcKey2.getPrivKey()).getAddress());
+        RskAddress srcKey3RskAddress = new RskAddress(org.ethereum.crypto.ECKeyBC.fromPrivate(srcKey3.getPrivKey()).getAddress());
 
         Assert.assertEquals(0, repository.getBalance(srcKey1RskAddress).asBigInteger().intValue());
         Assert.assertEquals(0, repository.getBalance(srcKey2RskAddress).asBigInteger().intValue());
@@ -1100,7 +1100,7 @@ public class BridgeSupportTest {
 
         // first input spends P2PKH
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         txWithWitness.addInput(PegTestUtils.createHash(1), 0, ScriptBuilder.createInputScript(null, srcKey1));
 
         // second input spends P2SH-P2PWKH (actually, just has a witness doesn't matter if it truly spends a witness for the test's sake)
@@ -1203,7 +1203,7 @@ public class BridgeSupportTest {
 
         Federation oldFederation = bridgeConstants.getGenesisFederation();
         BtcECKey key = new BtcECKey(new SecureRandom());
-        FederationMember member = new FederationMember(key, new ECKey(), new ECKey());
+        FederationMember member = new FederationMember(key, new ECKeyBC(), new ECKeyBC());
         Federation newFederation = new Federation(
                 Collections.singletonList(member),
                 Instant.EPOCH,
@@ -1256,7 +1256,7 @@ public class BridgeSupportTest {
 
         Federation oldFederation = bridgeConstants.getGenesisFederation();
         BtcECKey key = new BtcECKey(new SecureRandom());
-        FederationMember member = new FederationMember(key, new ECKey(), new ECKey());
+        FederationMember member = new FederationMember(key, new ECKeyBC(), new ECKeyBC());
         Federation newFederation = new Federation(
                 Collections.singletonList(member),
                 Instant.EPOCH,
@@ -1280,7 +1280,7 @@ public class BridgeSupportTest {
         // Old federation will be in migration age at block 35
         org.ethereum.core.Block rskCurrentBlock = blockGenerator.createBlock(35, 1);
         Transaction tx = new Transaction(TO_ADDRESS, DUST_AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        tx.sign(new ECKey().getPrivKeyBytes());
+        tx.sign(new ECKeyBC().getPrivKeyBytes());
 
         Repository repository = createRepository();
         Repository track = repository.startTracking();
@@ -1311,7 +1311,7 @@ public class BridgeSupportTest {
 
         Federation oldFederation = bridgeConstants.getGenesisFederation();
         BtcECKey key = new BtcECKey(new SecureRandom());
-        FederationMember member = new FederationMember(key, new ECKey(), new ECKey());
+        FederationMember member = new FederationMember(key, new ECKeyBC(), new ECKeyBC());
         Federation newFederation = new Federation(
                 Collections.singletonList(member),
                 Instant.EPOCH,
@@ -1364,7 +1364,7 @@ public class BridgeSupportTest {
 
         Federation oldFederation = bridgeConstants.getGenesisFederation();
         BtcECKey key = new BtcECKey(new SecureRandom());
-        FederationMember member = new FederationMember(key, new ECKey(), new ECKey());
+        FederationMember member = new FederationMember(key, new ECKeyBC(), new ECKeyBC());
         Federation newFederation = new Federation(
                 Collections.singletonList(member),
                 Instant.EPOCH,
@@ -1523,7 +1523,7 @@ public class BridgeSupportTest {
         Repository track = repository.startTracking();
 
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         RskAddress rskAddress = new RskAddress(key.getAddress());
         Coin amountToLock = Coin.COIN.multiply(5);
 
@@ -1613,7 +1613,7 @@ public class BridgeSupportTest {
         Repository track = repository.startTracking();
 
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
         Coin amountToLock = Coin.COIN.multiply(5);
@@ -1714,7 +1714,7 @@ public class BridgeSupportTest {
         // First transaction goes only to the first federation
         BtcTransaction tx1 = new BtcTransaction(btcParams);
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
         Coin amountToLock = Coin.COIN.multiply(5);
@@ -1820,7 +1820,7 @@ public class BridgeSupportTest {
         Repository track = repository.startTracking();
 
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
 
@@ -1918,7 +1918,7 @@ public class BridgeSupportTest {
         Repository track = repository.startTracking();
 
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
 
@@ -2010,7 +2010,7 @@ public class BridgeSupportTest {
         // First transaction goes only to the first federation
         BtcTransaction tx1 = new BtcTransaction(btcParams);
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
         Coin amountToLock = Coin.COIN.multiply(5);
@@ -2109,7 +2109,7 @@ public class BridgeSupportTest {
         // First transaction goes only to the first federation
         BtcTransaction tx1 = new BtcTransaction(btcParams);
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
         Coin amountToLock = Coin.COIN.multiply(5);
@@ -2213,7 +2213,7 @@ public class BridgeSupportTest {
         Repository track = repository.startTracking();
 
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
 
@@ -2404,7 +2404,7 @@ public class BridgeSupportTest {
         Repository track = repository.startTracking();
 
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
         Coin amountToLock = Coin.COIN.multiply(5);
@@ -2658,7 +2658,7 @@ public class BridgeSupportTest {
 
         BtcTransaction tx1 = new BtcTransaction(btcParams);
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
 
@@ -2764,7 +2764,7 @@ public class BridgeSupportTest {
 
         BtcTransaction tx1 = new BtcTransaction(btcParams);
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
 
@@ -2851,7 +2851,7 @@ public class BridgeSupportTest {
 
         BtcTransaction tx1 = new BtcTransaction(btcParams);
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
 
@@ -2941,7 +2941,7 @@ public class BridgeSupportTest {
 
         BtcTransaction tx1 = new BtcTransaction(btcParams);
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
 
@@ -3033,7 +3033,7 @@ public class BridgeSupportTest {
 
         BtcTransaction tx1 = new BtcTransaction(btcParams);
         BtcECKey srcKey1 = new BtcECKey();
-        ECKey key = ECKey.fromPublicOnly(srcKey1.getPubKey());
+        ECKey key = ECKeyBC.fromPublicOnly(srcKey1.getPubKey());
         Address btcAddress = srcKey1.toAddress(btcParams);
         RskAddress rskAddress = new RskAddress(key.getAddress());
 
@@ -4272,7 +4272,7 @@ public class BridgeSupportTest {
         assertTrue(bridgeSupport.isBtcTxHashAlreadyProcessed(tx.getHash()));
 
         co.rsk.core.Coin totalAmountExpectedToHaveBeenLocked = co.rsk.core.Coin.fromBitcoin(shouldLock ? lockValue : Coin.ZERO);
-        RskAddress srcKeyRskAddress = new RskAddress(org.ethereum.crypto.ECKey.fromPrivate(srcKey.getPrivKey()).getAddress());
+        RskAddress srcKeyRskAddress = new RskAddress(org.ethereum.crypto.ECKeyBC.fromPrivate(srcKey.getPrivKey()).getAddress());
 
         // Verify amount was locked
         Assert.assertEquals(totalAmountExpectedToHaveBeenLocked, repository.getBalance(srcKeyRskAddress));

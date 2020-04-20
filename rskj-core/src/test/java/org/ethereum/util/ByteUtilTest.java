@@ -19,16 +19,13 @@
 
 package org.ethereum.util;
 
+import org.bouncycastle.util.BigIntegers;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
 import org.junit.Test;
 
-import org.bouncycastle.util.BigIntegers;
-import org.bouncycastle.util.encoders.Hex;
-
 import java.math.BigInteger;
-
 import java.nio.ByteBuffer;
-
 import java.util.ArrayList;
 import java.util.List;
 

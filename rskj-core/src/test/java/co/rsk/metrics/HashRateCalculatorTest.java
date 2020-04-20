@@ -18,8 +18,8 @@
 
 package co.rsk.metrics;
 
-import co.rsk.core.RskAddress;
 import co.rsk.core.BlockDifficulty;
+import co.rsk.core.RskAddress;
 import co.rsk.crypto.Keccak256;
 import co.rsk.util.RskCustomCache;
 import org.ethereum.TestUtils;

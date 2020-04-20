@@ -33,6 +33,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.config.SystemProperties;
 import org.ethereum.crypto.ECIESCoder;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.net.client.Capability;
 import org.ethereum.net.client.ConfigCapabilities;
 import org.ethereum.net.eth.EthVersion;
@@ -128,7 +129,7 @@ public class HandshakeHandler extends ByteToMessageDecoder {
         byte[] remotePublicBytes = new byte[remoteId.length + 1];
         System.arraycopy(remoteId, 0, remotePublicBytes, 1, remoteId.length);
         remotePublicBytes[0] = 0x04; // uncompressed
-        ECPoint remotePublic = ECKey.fromPublicOnly(remotePublicBytes).getPubKeyPoint();
+        ECPoint remotePublic = ECKeyBC.fromPublicOnly(remotePublicBytes).getPubKeyPoint();
         handshake = new EncryptionHandshake(remotePublic);
 
         Object msg;
@@ -337,7 +338,7 @@ public class HandshakeHandler extends ByteToMessageDecoder {
      * connection (e.g. for peer discovery)
      */
     public void generateTempKey() {
-        myKey = new ECKey();
+        myKey = new ECKeyBC();
     }
 
     @Override

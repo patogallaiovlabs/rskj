@@ -3,7 +3,8 @@ package org.ethereum.datasource;
 import org.ethereum.TestUtils;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.util.ByteUtil;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -14,7 +15,7 @@ import java.util.*;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 @RunWith(Parameterized.class)
 public class KeyValueDataSourceTest {

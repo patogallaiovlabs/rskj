@@ -24,7 +24,6 @@ import org.ethereum.net.eth.EthVersion;
 import org.ethereum.net.eth.message.EthMessageCodes;
 import org.ethereum.net.p2p.P2pMessageCodes;
 import org.ethereum.net.rlpx.MessageCodesResolver;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -32,9 +31,8 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.ethereum.net.eth.EthVersion.V62;
 import static org.junit.Assert.assertEquals;
-
-import static org.ethereum.net.eth.EthVersion.*;
 
 /**
  * @author Roman Mandeleil

@@ -33,7 +33,6 @@ import co.rsk.validators.BlockValidationRule;
 import org.ethereum.TestUtils;
 import org.ethereum.config.Constants;
 import org.ethereum.config.blockchain.upgrades.ActivationConfig;
-import org.ethereum.config.blockchain.upgrades.ActivationConfigsForTest;
 import org.ethereum.config.blockchain.upgrades.ConsensusRule;
 import org.ethereum.core.*;
 import org.ethereum.db.BlockStore;
@@ -53,6 +52,7 @@ import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)

@@ -26,7 +26,7 @@ import org.ethereum.config.blockchain.upgrades.ActivationConfigsForTest;
 import org.ethereum.config.blockchain.upgrades.ConsensusRule;
 import org.ethereum.core.AccountState;
 import org.ethereum.core.Transaction;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.vm.PrecompiledContracts;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,29 +50,29 @@ public class TxValidatorIntrinsicGasLimitValidatorTest {
         Transaction tx1 = new Transaction(BigInteger.ZERO.toByteArray(),
                             BigInteger.ZERO.toByteArray(),
                             BigInteger.valueOf(21000).toByteArray(),
-                            new ECKey().getAddress(),
+                            new ECKeyBC().getAddress(),
                             BigInteger.ZERO.toByteArray(),
                             null,
                 Constants.REGTEST_CHAIN_ID);
-        tx1.sign(new ECKey().getPrivKeyBytes());
+        tx1.sign(new ECKeyBC().getPrivKeyBytes());
 
         Transaction tx2 = new Transaction(BigInteger.ZERO.toByteArray(),
                 BigInteger.ZERO.toByteArray(),
                 BigInteger.valueOf(30000).toByteArray(),
-                new ECKey().getAddress(),
+                new ECKeyBC().getAddress(),
                 BigInteger.ZERO.toByteArray(),
                 Hex.decode("0001"),
                 Constants.REGTEST_CHAIN_ID);
-        tx2.sign(new ECKey().getPrivKeyBytes());
+        tx2.sign(new ECKeyBC().getPrivKeyBytes());
 
         Transaction tx3 = new Transaction(BigInteger.ZERO.toByteArray(),
                 BigInteger.ZERO.toByteArray(),
                 BigInteger.valueOf(21072).toByteArray(),
-                new ECKey().getAddress(),
+                new ECKeyBC().getAddress(),
                 BigInteger.ZERO.toByteArray(),
                 Hex.decode("0001"),
                 Constants.REGTEST_CHAIN_ID);
-        tx3.sign(new ECKey().getPrivKeyBytes());
+        tx3.sign(new ECKeyBC().getPrivKeyBytes());
 
         Transaction tx4 = new Transaction(BigInteger.ZERO.toByteArray(),
                 BigInteger.ZERO.toByteArray(),
@@ -99,38 +99,38 @@ public class TxValidatorIntrinsicGasLimitValidatorTest {
         Transaction tx1 = new Transaction(BigInteger.ZERO.toByteArray(),
                 BigInteger.ZERO.toByteArray(),
                 BigInteger.valueOf(21071).toByteArray(),
-                new ECKey().getAddress(),
+                new ECKeyBC().getAddress(),
                 BigInteger.ZERO.toByteArray(),
                 Hex.decode("0001"),
                 Constants.REGTEST_CHAIN_ID);
-        tx1.sign(new ECKey().getPrivKeyBytes());
+        tx1.sign(new ECKeyBC().getPrivKeyBytes());
 
         Transaction tx2 = new Transaction(BigInteger.ZERO.toByteArray(),
                 BigInteger.ZERO.toByteArray(),
                 BigInteger.valueOf(20999).toByteArray(),
-                new ECKey().getAddress(),
+                new ECKeyBC().getAddress(),
                 BigInteger.ZERO.toByteArray(),
                 null,
                 Constants.REGTEST_CHAIN_ID);
-        tx2.sign(new ECKey().getPrivKeyBytes());
+        tx2.sign(new ECKeyBC().getPrivKeyBytes());
 
         Transaction tx3 = new Transaction(BigInteger.ZERO.toByteArray(),
                 BigInteger.ZERO.toByteArray(),
                 BigInteger.ZERO.toByteArray(),
-                new ECKey().getAddress(),
+                new ECKeyBC().getAddress(),
                 BigInteger.ZERO.toByteArray(),
                 Hex.decode("0001"),
                 Constants.REGTEST_CHAIN_ID);
-        tx3.sign(new ECKey().getPrivKeyBytes());
+        tx3.sign(new ECKeyBC().getPrivKeyBytes());
 
         Transaction tx4 = new Transaction(BigInteger.ZERO.toByteArray(),
                 BigInteger.ZERO.toByteArray(),
                 BigInteger.ZERO.toByteArray(),
-                new ECKey().getAddress(),
+                new ECKeyBC().getAddress(),
                 BigInteger.ZERO.toByteArray(),
                 null,
                 Constants.REGTEST_CHAIN_ID);
-        tx4.sign(new ECKey().getPrivKeyBytes());
+        tx4.sign(new ECKeyBC().getPrivKeyBytes());
 
         TxValidatorIntrinsicGasLimitValidator tvigpv = new TxValidatorIntrinsicGasLimitValidator(constants, activationConfig);
 

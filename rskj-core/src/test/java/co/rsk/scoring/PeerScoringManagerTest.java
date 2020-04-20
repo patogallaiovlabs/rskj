@@ -1,9 +1,9 @@
 package co.rsk.scoring;
 
 import co.rsk.net.NodeID;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
 import org.junit.Test;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

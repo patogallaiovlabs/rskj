@@ -20,9 +20,8 @@
 package org.ethereum.core;
 
 import co.rsk.core.Coin;
-import org.junit.Test;
-
 import org.bouncycastle.util.encoders.Hex;
+import org.junit.Test;
 
 import java.math.BigInteger;
 

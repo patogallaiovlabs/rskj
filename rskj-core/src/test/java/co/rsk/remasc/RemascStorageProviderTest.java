@@ -37,6 +37,7 @@ import org.ethereum.config.blockchain.upgrades.ActivationConfigsForTest;
 import org.ethereum.config.blockchain.upgrades.ConsensusRule;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.datasource.HashMapDB;
 import org.ethereum.db.MutableRepository;
@@ -58,7 +59,7 @@ import static org.mockito.Mockito.when;
  */
 public class RemascStorageProviderTest {
 
-    private ECKey cowKey = ECKey.fromPrivate(Keccak256Helper.keccak256("cow".getBytes()));
+    private ECKey cowKey = ECKeyBC.fromPrivate(Keccak256Helper.keccak256("cow".getBytes()));
     private Coin cowInitialBalance = new Coin(new BigInteger("1000000000000000000"));
     private long initialGasLimit = 10000000L;
     private byte[] cowAddress = cowKey.getAddress();

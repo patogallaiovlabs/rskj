@@ -1,7 +1,6 @@
 package org.ethereum.net.server;
 
 import co.rsk.net.eth.RskWireProtocol;
-import co.rsk.net.messages.Message;
 import org.ethereum.net.MessageQueue;
 import org.ethereum.net.NodeManager;
 import org.ethereum.net.eth.message.Eth62MessageFactory;
@@ -13,9 +12,9 @@ import org.junit.Test;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 public class ChannelTest {
 

@@ -46,6 +46,7 @@ import co.rsk.validators.ProofOfWorkRule;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.datasource.HashMapDB;
 import org.ethereum.db.BlockStore;
@@ -256,7 +257,7 @@ public class TransactionModuleTest {
     }
 
     private Web3.CallArguments getTransactionParameters(Web3Impl web3, RepositorySnapshot repository) {
-        RskAddress addr1 = new RskAddress(ECKey.fromPrivate(Keccak256Helper.keccak256("cow".getBytes())).getAddress());
+        RskAddress addr1 = new RskAddress(ECKeyBC.fromPrivate(Keccak256Helper.keccak256("cow".getBytes())).getAddress());
         String addr2 = web3.personal_newAccountWithSeed("addr2");
         BigInteger value = BigInteger.valueOf(7);
         BigInteger gasPrice = BigInteger.valueOf(8);

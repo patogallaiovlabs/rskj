@@ -8,7 +8,6 @@ import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
 import org.ethereum.core.BlockIdentifier;
 
-import javax.annotation.Nonnull;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;

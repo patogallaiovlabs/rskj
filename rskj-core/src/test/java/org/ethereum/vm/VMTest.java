@@ -19,7 +19,6 @@
 
 package org.ethereum.vm;
 
-import co.rsk.asm.EVMAssembler;
 import co.rsk.config.TestSystemProperties;
 import co.rsk.config.VmConfig;
 import co.rsk.core.RskAddress;

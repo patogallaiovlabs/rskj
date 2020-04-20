@@ -52,7 +52,8 @@ import static co.rsk.core.BlockDifficulty.ZERO;
 import static org.ethereum.TestUtils.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 public class IndexedBlockStoreTest {

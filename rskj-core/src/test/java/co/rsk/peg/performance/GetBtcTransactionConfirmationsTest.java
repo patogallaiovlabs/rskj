@@ -4,7 +4,10 @@ import co.rsk.bitcoinj.core.*;
 import co.rsk.bitcoinj.store.BlockStoreException;
 import co.rsk.bitcoinj.store.BtcBlockStore;
 import co.rsk.core.RskAddress;
-import co.rsk.peg.*;
+import co.rsk.peg.Bridge;
+import co.rsk.peg.BridgeStorageProvider;
+import co.rsk.peg.BridgeSupport;
+import co.rsk.peg.RepositoryBtcBlockStoreWithCache;
 import co.rsk.peg.bitcoin.MerkleBranch;
 import org.ethereum.config.Constants;
 import org.ethereum.config.blockchain.upgrades.ActivationConfigsForTest;
@@ -22,7 +25,6 @@ import java.util.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 @Ignore
 public class GetBtcTransactionConfirmationsTest extends BridgePerformanceTestCase {

@@ -20,6 +20,7 @@
 package co.rsk;
 
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -39,9 +40,9 @@ public class GenNodeKeyId {
 
         ECKey key;
         if (generator.equals("")) {
-            key = new ECKey();
+            key = new ECKeyBC();
         } else {
-            key = ECKey.fromPrivate(HashUtil.keccak256(generator.getBytes(StandardCharsets.UTF_8)));
+            key = ECKeyBC.fromPrivate(HashUtil.keccak256(generator.getBytes(StandardCharsets.UTF_8)));
         }
 
         String keybytes = Hex.toHexString(key.getPrivKeyBytes());

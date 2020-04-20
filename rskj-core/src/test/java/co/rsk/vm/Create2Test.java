@@ -46,7 +46,8 @@ import java.math.BigInteger;
 import java.util.HashSet;
 
 import static org.ethereum.config.blockchain.upgrades.ConsensusRule.RSKIP125;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 /**

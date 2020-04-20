@@ -19,7 +19,7 @@
 package co.rsk.core;
 
 import org.ethereum.core.Account;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.Keccak256Helper;
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class WalletTest {
 
         Assert.assertNotNull(address);
 
-        byte[] calculatedAddress = ECKey.fromPrivate(Keccak256Helper.keccak256("seed".getBytes())).getAddress();
+        byte[] calculatedAddress = ECKeyBC.fromPrivate(Keccak256Helper.keccak256("seed".getBytes())).getAddress();
 
         Assert.assertArrayEquals(calculatedAddress, address);
 
@@ -304,7 +304,7 @@ public class WalletTest {
 
         Assert.assertNotNull(address);
 
-        byte[] calculatedAddress = ECKey.fromPrivate(Keccak256Helper.keccak256("seed".getBytes())).getAddress();
+        byte[] calculatedAddress = ECKeyBC.fromPrivate(Keccak256Helper.keccak256("seed".getBytes())).getAddress();
 
         Assert.assertArrayEquals(calculatedAddress, address);
 

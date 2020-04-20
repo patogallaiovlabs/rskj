@@ -5,11 +5,11 @@ package co.rsk.core;
  */
 
 import com.google.common.collect.Lists;
+import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
+import org.bouncycastle.util.BigIntegers;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPList;
-import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
-import org.bouncycastle.util.BigIntegers;
 
 import java.math.BigInteger;
 import java.util.List;

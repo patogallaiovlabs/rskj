@@ -19,9 +19,11 @@
 
 package org.ethereum.net.rlpx;
 
+import org.ethereum.crypto.ECDSASignature;
 import org.ethereum.crypto.ECKey;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.util.encoders.Hex;
+import org.ethereum.crypto.ECKeyBC;
 
 import static org.ethereum.util.ByteUtil.merge;
 import static org.bouncycastle.util.BigIntegers.asUnsignedByteArray;
@@ -32,7 +34,7 @@ import static org.bouncycastle.util.BigIntegers.asUnsignedByteArray;
  * Created by devrandom on 2015-04-07.
  */
 public class AuthInitiateMessage {
-    ECKey.ECDSASignature signature; // 65 bytes
+    ECDSASignature signature; // 65 bytes
     byte[] ephemeralPublicHash; // 32 bytes
     ECPoint publicKey; // 64 bytes - uncompressed and no type byte
     byte[] nonce; // 32 bytes
@@ -56,7 +58,7 @@ public class AuthInitiateMessage {
         offset += 32;
         int v = wire[offset] + 27;
         offset += 1;
-        message.signature = ECKey.ECDSASignature.fromComponents(r, s, (byte)v);
+        message.signature = ECDSASignature.fromComponents(r, s, (byte)v);
         message.ephemeralPublicHash = new byte[32];
         System.arraycopy(wire, offset, message.ephemeralPublicHash, 0, 32);
         offset += 32;
@@ -64,7 +66,7 @@ public class AuthInitiateMessage {
         System.arraycopy(wire, offset, bytes, 1, 64);
         offset += 64;
         bytes[0] = 0x04; // uncompressed
-        message.publicKey = ECKey.CURVE.getCurve().decodePoint(bytes);
+        message.publicKey = ECKeyBC.CURVE.getCurve().decodePoint(bytes);
         message.nonce = new byte[32];
         System.arraycopy(wire, offset, message.nonce, 0, 32);
         offset += message.nonce.length;

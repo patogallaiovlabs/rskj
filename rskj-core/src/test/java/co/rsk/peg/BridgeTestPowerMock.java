@@ -48,11 +48,11 @@ import org.ethereum.config.blockchain.upgrades.ActivationConfig;
 import org.ethereum.config.blockchain.upgrades.ActivationConfigsForTest;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.HashMapDB;
 import org.ethereum.db.MutableRepository;
 import org.ethereum.rpc.TypeConverter;
-import org.ethereum.solidity.SolidityType;
 import org.ethereum.vm.PrecompiledContracts;
 import org.ethereum.vm.VM;
 import org.ethereum.vm.program.Program;
@@ -118,7 +118,7 @@ public class BridgeTestPowerMock {
         bridgeConstants = BridgeRegTestConstants.getInstance();
         networkParameters = bridgeConstants.getBtcParams();
         BtcECKey fedBTCPrivateKey = BridgeRegTestConstants.REGTEST_FEDERATION_PRIVATE_KEYS.get(0);
-        fedECPrivateKey = ECKey.fromPrivate(fedBTCPrivateKey.getPrivKey());
+        fedECPrivateKey = ECKeyBC.fromPrivate(fedBTCPrivateKey.getPrivKey());
     }
 
     @Before
@@ -150,7 +150,7 @@ public class BridgeTestPowerMock {
         track = repository.startTracking();
 
         Transaction rskTx = new Transaction(PrecompiledContracts.BRIDGE_ADDR_STR, AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        rskTx.sign(new ECKey().getPrivKeyBytes());
+        rskTx.sign(new ECKeyBC().getPrivKeyBytes());
 
         BridgeSupportFactory bridgeSupportFactory = new BridgeSupportFactory(
                 new RepositoryBtcBlockStoreWithCache.Factory(bridgeConstants.getBtcParams()),
@@ -419,7 +419,7 @@ public class BridgeTestPowerMock {
     @Test
     public void receiveHeadersNotFromTheFederation() {
         Transaction rskTx = new Transaction(PrecompiledContracts.BRIDGE_ADDR_STR, AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        rskTx.sign(new ECKey().getPrivKeyBytes());
+        rskTx.sign(new ECKeyBC().getPrivKeyBytes());
 
         BridgeSupportFactory bridgeSupportFactory = new BridgeSupportFactory(
                 new RepositoryBtcBlockStoreWithCache.Factory(bridgeConstants.getBtcParams()),
@@ -526,7 +526,7 @@ public class BridgeTestPowerMock {
         Repository track = repository.startTracking();
 
         Transaction rskTx = new Transaction(PrecompiledContracts.BRIDGE_ADDR_STR, AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        rskTx.sign(new ECKey().getPrivKeyBytes());
+        rskTx.sign(new ECKeyBC().getPrivKeyBytes());
 
 
         BridgeSupportFactory bridgeSupportFactoryMock = mock(BridgeSupportFactory.class);
@@ -605,7 +605,7 @@ public class BridgeTestPowerMock {
         Repository track = repository.startTracking();
 
         Transaction rskTx = new Transaction(PrecompiledContracts.BRIDGE_ADDR_STR, AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        rskTx.sign(new ECKey().getPrivKeyBytes());
+        rskTx.sign(new ECKeyBC().getPrivKeyBytes());
 
         BridgeSupportFactory bridgeSupportFactory = new BridgeSupportFactory(
                 new RepositoryBtcBlockStoreWithCache.Factory(constants.getBridgeConstants().getBtcParams()),
@@ -954,7 +954,7 @@ public class BridgeTestPowerMock {
         Repository track = repository.startTracking();
 
         Transaction rskTx = new Transaction(PrecompiledContracts.BRIDGE_ADDR_STR, AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        rskTx.sign(new ECKey().getPrivKeyBytes());
+        rskTx.sign(new ECKeyBC().getPrivKeyBytes());
 
         BridgeSupportFactory bridgeSupportFactory = new BridgeSupportFactory(
                 new RepositoryBtcBlockStoreWithCache.Factory(bridgeConstants.getBtcParams()),
@@ -3064,7 +3064,7 @@ public class BridgeTestPowerMock {
     public void receiveHeadersAccess_beforePublic_accessIfFromFederationMember() throws Exception {
         doReturn(false).when(activationConfig).isActive(eq(RSKIP124), anyLong());
 
-        RskAddress sender = new RskAddress(ECKey.fromPrivate(HashUtil.keccak256("federator1".getBytes(StandardCharsets.UTF_8))).getAddress());
+        RskAddress sender = new RskAddress(ECKeyBC.fromPrivate(HashUtil.keccak256("federator1".getBytes(StandardCharsets.UTF_8))).getAddress());
         Transaction txMock = mock(Transaction.class);
         when(txMock.getReceiveAddress()).thenReturn(PrecompiledContracts.BRIDGE_ADDR);
         when(txMock.getSender()).thenReturn(sender);
@@ -3098,7 +3098,7 @@ public class BridgeTestPowerMock {
 
         Transaction txMock = mock(Transaction.class);
         when(txMock.getReceiveAddress()).thenReturn(PrecompiledContracts.BRIDGE_ADDR);
-        when(txMock.getSender()).thenReturn(new RskAddress(new ECKey().getAddress()));
+        when(txMock.getSender()).thenReturn(new RskAddress(new ECKeyBC().getAddress()));
 
         BridgeSupport bridgeSupportMock = mock(BridgeSupport.class);
         when(bridgeSupportMock.getRetiringFederation()).thenReturn(null);

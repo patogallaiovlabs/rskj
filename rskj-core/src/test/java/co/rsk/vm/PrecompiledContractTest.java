@@ -20,10 +20,10 @@ package co.rsk.vm;
 
 import co.rsk.config.TestSystemProperties;
 import co.rsk.pcc.blockheader.BlockHeaderContract;
+import co.rsk.pcc.bto.HDWalletUtils;
 import co.rsk.peg.Bridge;
 import org.ethereum.config.blockchain.upgrades.ActivationConfig;
 import org.ethereum.config.blockchain.upgrades.ConsensusRule;
-import co.rsk.pcc.bto.HDWalletUtils;
 import org.ethereum.vm.DataWord;
 import org.ethereum.vm.PrecompiledContracts;
 import org.ethereum.vm.PrecompiledContracts.PrecompiledContract;

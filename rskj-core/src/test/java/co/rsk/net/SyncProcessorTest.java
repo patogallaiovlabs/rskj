@@ -23,6 +23,7 @@ import co.rsk.validators.*;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.HashMapDB;
 import org.ethereum.db.BlockStore;
@@ -38,8 +39,6 @@ import java.math.BigInteger;
 import java.time.Duration;
 import java.util.*;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -1123,7 +1122,7 @@ public class SyncProcessorTest {
 
     private static Account createAccount(String seed) {
         byte[] privateKeyBytes = HashUtil.keccak256(seed.getBytes());
-        ECKey key = ECKey.fromPrivate(privateKeyBytes);
+        ECKey key = ECKeyBC.fromPrivate(privateKeyBytes);
         Account account = new Account(key);
         return account;
     }

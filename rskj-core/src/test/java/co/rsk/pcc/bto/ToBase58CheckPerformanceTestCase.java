@@ -22,7 +22,7 @@ import co.rsk.config.TestSystemProperties;
 import co.rsk.peg.performance.ExecutionStats;
 import co.rsk.peg.performance.PrecompiledContractPerformanceTestCase;
 import org.ethereum.core.CallTransaction;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.vm.PrecompiledContracts;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -74,7 +74,7 @@ public class ToBase58CheckPerformanceTestCase extends PrecompiledContractPerform
                 times,
                 environmentBuilder,
                 abiEncoder,
-                Helper.getZeroValueTxBuilder(new ECKey()),
+                Helper.getZeroValueTxBuilder(new ECKeyBC()),
                 Helper.getRandomHeightProvider(10),
                 stats,
                 (EnvironmentBuilder.Environment environment, byte[] result) -> {

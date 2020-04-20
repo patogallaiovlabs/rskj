@@ -24,6 +24,7 @@ import co.rsk.bitcoinj.script.Script;
 import co.rsk.bitcoinj.script.ScriptBuilder;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +35,10 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,7 +72,7 @@ public class FederationTest {
         }).sorted(BtcECKey.PUBKEY_COMPARATOR).collect(Collectors.toList());
 
         rskPubKeys = Stream.of(101, 201, 301, 401, 501, 601)
-                .map(i -> ECKey.fromPrivate(BigInteger.valueOf(i)))
+                .map(i -> ECKeyBC.fromPrivate(BigInteger.valueOf(i)))
                 .collect(Collectors.toList());
 
         rskAddresses = rskPubKeys
@@ -81,7 +85,7 @@ public class FederationTest {
     public void membersImmutable() {
         boolean exception = false;
         try {
-            federation.getMembers().add(new FederationMember(new BtcECKey(), new ECKey(), new ECKey()));
+            federation.getMembers().add(new FederationMember(new BtcECKey(), new ECKeyBC(), new ECKeyBC()));
         } catch (Exception e) {
             exception = true;
         }
@@ -224,7 +228,7 @@ public class FederationTest {
     public void testEquals_differentMembers() {
         List<FederationMember> members = FederationTestUtils.getFederationMembersFromPks(100, 200, 300, 400, 500);
 
-        members.add(new FederationMember(BtcECKey.fromPrivate(BigInteger.valueOf(610)), ECKey.fromPrivate(BigInteger.valueOf(600)), ECKey.fromPrivate(BigInteger.valueOf(620))));
+        members.add(new FederationMember(BtcECKey.fromPrivate(BigInteger.valueOf(610)), ECKeyBC.fromPrivate(BigInteger.valueOf(600)), ECKeyBC.fromPrivate(BigInteger.valueOf(620))));
         Federation otherFederation = new Federation(
                 members,
                 ZonedDateTime.parse("2017-06-10T02:30:00Z").toInstant(),
@@ -233,7 +237,7 @@ public class FederationTest {
         );
 
         members.remove(members.size()-1);
-        members.add(new FederationMember(BtcECKey.fromPrivate(BigInteger.valueOf(600)), ECKey.fromPrivate(BigInteger.valueOf(610)), ECKey.fromPrivate(BigInteger.valueOf(620))));
+        members.add(new FederationMember(BtcECKey.fromPrivate(BigInteger.valueOf(600)), ECKeyBC.fromPrivate(BigInteger.valueOf(610)), ECKeyBC.fromPrivate(BigInteger.valueOf(620))));
         Federation yetOtherFederation = new Federation(
                 members,
                 ZonedDateTime.parse("2017-06-10T02:30:00Z").toInstant(),
@@ -279,7 +283,7 @@ public class FederationTest {
             Assert.assertTrue(federation.hasMemberWithRskAddress(rskAddresses.get(i)));
         }
 
-        byte[] nonFederateRskAddress = ECKey.fromPrivate(BigInteger.valueOf(1234)).getAddress();
+        byte[] nonFederateRskAddress = ECKeyBC.fromPrivate(BigInteger.valueOf(1234)).getAddress();
         Assert.assertFalse(federation.hasMemberWithRskAddress(nonFederateRskAddress));
     }
 
@@ -297,7 +301,7 @@ public class FederationTest {
         byte[] b = new byte[20];
         new Random().nextBytes(b);
 
-        ECKey invalidRskKey = ECKey.fromPrivate(b);
+        ECKey invalidRskKey = ECKeyBC.fromPrivate(b);
         BtcECKey invalidBtcKey = BtcECKey.fromPrivate(b);
 
         // Valid PubKey, invalid rskAddress

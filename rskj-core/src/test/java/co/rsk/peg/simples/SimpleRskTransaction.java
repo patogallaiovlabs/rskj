@@ -24,6 +24,7 @@ import co.rsk.crypto.Keccak256;
 import org.ethereum.TestUtils;
 import org.ethereum.core.Transaction;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.Keccak256Helper;
 
 /**
@@ -35,7 +36,7 @@ public class SimpleRskTransaction extends Transaction {
     public SimpleRskTransaction(byte[] hash) {
         super(null, null, null, TestUtils.randomAddress().getBytes(), null, null);
         this.hash = hash == null ? null : new Keccak256(hash);
-        this.sender = new RskAddress(ECKey.fromPrivate(Keccak256Helper.keccak256("cow".getBytes())).getAddress());
+        this.sender = new RskAddress(ECKeyBC.fromPrivate(Keccak256Helper.keccak256("cow".getBytes())).getAddress());
     }
 
     @Override

@@ -28,7 +28,6 @@ import org.ethereum.core.BlockHeader;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;

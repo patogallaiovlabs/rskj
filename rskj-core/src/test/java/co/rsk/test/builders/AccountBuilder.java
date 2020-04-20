@@ -28,6 +28,7 @@ import org.ethereum.core.Block;
 import org.ethereum.core.Blockchain;
 import org.ethereum.core.Repository;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.BlockStore;
 
@@ -72,7 +73,7 @@ public class AccountBuilder {
 
     public Account build() {
         byte[] privateKeyBytes = HashUtil.keccak256(name.getBytes());
-        ECKey key = ECKey.fromPrivate(privateKeyBytes);
+        ECKey key = ECKeyBC.fromPrivate(privateKeyBytes);
         Account account = new Account(key);
 
         if (blockChain != null) {

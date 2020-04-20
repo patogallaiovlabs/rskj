@@ -18,8 +18,8 @@
 
 package co.rsk.jsontestsuite;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ethereum.jsontestsuite.CryptoTestCase;
 import org.ethereum.jsontestsuite.JSONReader;
 import org.json.simple.parser.ParseException;

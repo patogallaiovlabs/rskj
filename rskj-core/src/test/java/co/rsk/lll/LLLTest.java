@@ -21,8 +21,8 @@ package co.rsk.lll;
 import co.rsk.asm.EVMDissasembler;
 import co.rsk.lll.asm.CodeBlock;
 import co.rsk.lll.asm.EVMAssemblerHelper;
-import org.junit.Test;
 import org.bouncycastle.util.encoders.Hex;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

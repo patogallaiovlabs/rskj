@@ -20,6 +20,7 @@
 package org.ethereum.net.rlpx;
 
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,8 +37,8 @@ public class EncryptionHandshakeTest {
 
     @Before
     public void setUp() {
-        remoteKey = new ECKey();
-        myKey = new ECKey();
+        remoteKey = new ECKeyBC();
+        myKey = new ECKeyBC();
         initiator = new EncryptionHandshake(remoteKey.getPubKeyPoint());
     }
 

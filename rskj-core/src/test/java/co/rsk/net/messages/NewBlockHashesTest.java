@@ -23,7 +23,6 @@ import org.ethereum.core.Block;
 import org.ethereum.core.BlockIdentifier;
 import org.junit.Assert;
 import org.junit.Test;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.util.LinkedList;
 import java.util.List;

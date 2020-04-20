@@ -31,6 +31,7 @@ import co.rsk.util.MaxSizeHashMap;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.Repository;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.vm.PrecompiledContracts;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -42,7 +43,7 @@ import java.math.BigInteger;
 public class LockWhitelistTest extends BridgePerformanceTestCase {
     private LockWhitelist lockWhitelist;
 
-    private static final ECKey authorizedWhitelistChanger = ECKey.fromPrivate(Hex.decode("3890187a3071327cee08467ba1b44ed4c13adb2da0d5ffcc0563c371fa88259c"));
+    private static final ECKey authorizedWhitelistChanger = ECKeyBC.fromPrivate(Hex.decode("3890187a3071327cee08467ba1b44ed4c13adb2da0d5ffcc0563c371fa88259c"));
 
     @Test
     public void getLockWhitelistSize() throws IOException {

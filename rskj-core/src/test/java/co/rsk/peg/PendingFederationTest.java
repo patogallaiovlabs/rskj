@@ -21,7 +21,7 @@ package co.rsk.peg;
 import co.rsk.bitcoinj.core.BtcECKey;
 import co.rsk.bitcoinj.core.NetworkParameters;
 import co.rsk.crypto.Keccak256;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,7 +48,7 @@ public class PendingFederationTest {
     public void membersImmutable() {
         boolean exception = false;
         try {
-            pendingFederation.getMembers().add(new FederationMember(new BtcECKey(), new ECKey(), new ECKey()));
+            pendingFederation.getMembers().add(new FederationMember(new BtcECKey(), new ECKeyBC(), new ECKeyBC()));
         } catch (Exception e) {
             exception = true;
         }
@@ -93,11 +93,11 @@ public class PendingFederationTest {
     public void testEquals_differentMembers() {
         List<FederationMember> members = FederationTestUtils.getFederationMembersFromPks(100, 200, 300, 400, 500);
 
-        members.add(new FederationMember(BtcECKey.fromPrivate(BigInteger.valueOf(610)), ECKey.fromPrivate(BigInteger.valueOf(600)), ECKey.fromPrivate(BigInteger.valueOf(620))));
+        members.add(new FederationMember(BtcECKey.fromPrivate(BigInteger.valueOf(610)), ECKeyBC.fromPrivate(BigInteger.valueOf(600)), ECKeyBC.fromPrivate(BigInteger.valueOf(620))));
         PendingFederation otherPendingFederation = new PendingFederation(members);
 
         members.remove(members.size()-1);
-        members.add(new FederationMember(BtcECKey.fromPrivate(BigInteger.valueOf(600)), ECKey.fromPrivate(BigInteger.valueOf(610)), ECKey.fromPrivate(BigInteger.valueOf(630))));
+        members.add(new FederationMember(BtcECKey.fromPrivate(BigInteger.valueOf(600)), ECKeyBC.fromPrivate(BigInteger.valueOf(610)), ECKeyBC.fromPrivate(BigInteger.valueOf(630))));
         PendingFederation yetOtherPendingFederation = new PendingFederation(members);
 
         Assert.assertFalse(otherPendingFederation.equals(yetOtherPendingFederation));

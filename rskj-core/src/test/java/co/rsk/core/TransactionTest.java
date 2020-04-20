@@ -25,6 +25,7 @@ import org.bouncycastle.util.BigIntegers;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.BlockStoreDummy;
 import org.ethereum.jsontestsuite.StateTestSuite;
@@ -57,7 +58,7 @@ public class TransactionTest {
         BigInteger value = new BigInteger("1000000000000000000000");
 
         byte[] privKey = HashUtil.keccak256("cat".getBytes());
-        ECKey ecKey = ECKey.fromPrivate(privKey);
+        ECKey ecKey = ECKeyBC.fromPrivate(privKey);
 
         byte[] senderPrivKey = HashUtil.keccak256("cow".getBytes());
 
@@ -78,7 +79,7 @@ public class TransactionTest {
         System.out.println("RLP encoded tx\t\t: " + Hex.toHexString(tx.getEncoded()));
 
         // retrieve the signer/sender of the transaction
-        ECKey key = ECKey.signatureToKey(tx.getHash().getBytes(), tx.getSignature());
+        ECKey key = ECKeyBC.signatureToKey(tx.getHash().getBytes(), tx.getSignature());
 
         System.out.println("Tx unsigned RLP\t\t: " + Hex.toHexString(tx.getEncodedRaw()));
         System.out.println("Tx signed   RLP\t\t: " + Hex.toHexString(tx.getEncoded()));
@@ -97,7 +98,7 @@ public class TransactionTest {
         BigInteger value = new BigInteger("1000000000000000000000");
 
         byte[] privateKey = HashUtil.keccak256("cat".getBytes());
-        ECKey ecKey = ECKey.fromPrivate(privateKey);
+        ECKey ecKey = ECKeyBC.fromPrivate(privateKey);
 
         byte[] senderPrivateKey = HashUtil.keccak256("cow".getBytes());
 

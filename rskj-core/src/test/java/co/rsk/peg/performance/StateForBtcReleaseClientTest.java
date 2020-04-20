@@ -18,7 +18,10 @@
 
 package co.rsk.peg.performance;
 
-import co.rsk.bitcoinj.core.*;
+import co.rsk.bitcoinj.core.Address;
+import co.rsk.bitcoinj.core.BtcECKey;
+import co.rsk.bitcoinj.core.BtcTransaction;
+import co.rsk.bitcoinj.core.Coin;
 import co.rsk.bitcoinj.store.BtcBlockStore;
 import co.rsk.crypto.Keccak256;
 import co.rsk.peg.Bridge;
@@ -32,7 +35,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Map;
+import java.util.Random;
 
 @Ignore
 public class StateForBtcReleaseClientTest extends BridgePerformanceTestCase {

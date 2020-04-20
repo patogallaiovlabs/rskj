@@ -1,12 +1,12 @@
 package co.rsk.util;
 
+import org.bouncycastle.util.BigIntegers;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.bouncycastle.util.BigIntegers;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

@@ -23,7 +23,6 @@ import co.rsk.config.RskSystemProperties;
 import co.rsk.config.TestSystemProperties;
 import co.rsk.crypto.Keccak256;
 import co.rsk.net.NodeID;
-import co.rsk.net.messages.MessageWithId;
 import org.ethereum.core.Block;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.net.NodeManager;

@@ -21,6 +21,7 @@ package org.ethereum.net.rlpx;
 
 import com.google.common.collect.Lists;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.net.client.Capability;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,8 +47,8 @@ public class RlpxConnectionTest {
 
     @Before
     public void setUp() throws Exception {
-        ECKey remoteKey = new ECKey();
-        ECKey myKey = new ECKey();
+        ECKey remoteKey = new ECKeyBC();
+        ECKey myKey = new ECKeyBC();
         initiator = new EncryptionHandshake(remoteKey.getPubKeyPoint());
         responder = new EncryptionHandshake();
         AuthInitiateMessage initiate = initiator.createAuthInitiate(null, myKey);

@@ -27,7 +27,8 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class FullNodeRunnerTest {
     private List<InternalService> internalServices;

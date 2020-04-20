@@ -29,9 +29,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.apache.commons.lang3.ArrayUtils.getLength;
-import static org.apache.commons.lang3.ArrayUtils.isEmpty;
-import static org.apache.commons.lang3.ArrayUtils.nullToEmpty;
+import static org.apache.commons.lang3.ArrayUtils.*;
 
 /**
  * Created by Sergio on 25/10/2016.

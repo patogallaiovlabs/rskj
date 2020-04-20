@@ -23,6 +23,7 @@ import co.rsk.net.discovery.table.NodeDistanceTable;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.net.rlpx.Node;
 import org.ethereum.net.server.Channel;
 import org.junit.Assert;
@@ -68,9 +69,9 @@ public class UDPServerTest {
 
     @Test
     public void run3NodesFullTest() throws InterruptedException {
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
-        ECKey key2 = ECKey.fromPrivate(Hex.decode(KEY_2)).decompress();
-        ECKey key3 = ECKey.fromPrivate(Hex.decode(KEY_3)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key2 = ECKeyBC.fromPrivate(Hex.decode(KEY_2)).decompress();
+        ECKey key3 = ECKeyBC.fromPrivate(Hex.decode(KEY_3)).decompress();
 
         List<String> node1BootNode = new ArrayList<>();
         node1BootNode.add(HOST + ":5555");

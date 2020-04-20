@@ -20,18 +20,14 @@ package co.rsk.core;
 
 import co.rsk.config.RskMiningConstants;
 import co.rsk.crypto.Keccak256;
-import co.rsk.peg.PegTestUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.TestUtils;
 import org.ethereum.config.blockchain.upgrades.ActivationConfig;
 import org.ethereum.config.blockchain.upgrades.ConsensusRule;
 import org.ethereum.core.BlockFactory;
 import org.ethereum.core.BlockHeader;
-import org.ethereum.core.Bloom;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.RLP;
-import org.ethereum.util.RLPElement;
-import org.ethereum.util.RLPItem;
 import org.ethereum.util.RLPList;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +37,8 @@ import java.util.Arrays;
 
 import static org.ethereum.config.blockchain.upgrades.ConsensusRule.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.AdditionalMatchers.geq;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;

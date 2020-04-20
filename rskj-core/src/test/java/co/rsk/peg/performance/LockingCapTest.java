@@ -1,6 +1,8 @@
 package co.rsk.peg.performance;
 
-import co.rsk.bitcoinj.core.*;
+import co.rsk.bitcoinj.core.BtcBlockChain;
+import co.rsk.bitcoinj.core.Coin;
+import co.rsk.bitcoinj.core.Context;
 import co.rsk.bitcoinj.store.BlockStoreException;
 import co.rsk.bitcoinj.store.BtcBlockStore;
 import co.rsk.config.BridgeRegTestConstants;
@@ -13,6 +15,7 @@ import org.ethereum.config.Constants;
 import org.ethereum.config.blockchain.upgrades.ActivationConfigsForTest;
 import org.ethereum.core.Repository;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.vm.PrecompiledContracts;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -25,8 +28,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @Ignore
 public class LockingCapTest extends BridgePerformanceTestCase {
 
-    private static final ECKey authorizedLockingCapChanger = ECKey.fromPrivate(Hex.decode("da6a5451bfd74829307ec6d4a8c55174d4859169f162a8ed8fcba8f7636e77cc"));
-    private static final ECKey unauthorizedLockingCapChanger = ECKey.fromPrivate(Hex.decode("f18ad1e830dd746ba350f4a43b3067e85634b5138a8515246441a453ec7460e9"));
+    private static final ECKey authorizedLockingCapChanger = ECKeyBC.fromPrivate(Hex.decode("da6a5451bfd74829307ec6d4a8c55174d4859169f162a8ed8fcba8f7636e77cc"));
+    private static final ECKey unauthorizedLockingCapChanger = ECKeyBC.fromPrivate(Hex.decode("f18ad1e830dd746ba350f4a43b3067e85634b5138a8515246441a453ec7460e9"));
 
     private static final Coin INITIAL_LOCKING_CAP = BridgeRegTestConstants.getInstance().getInitialLockingCap();
 

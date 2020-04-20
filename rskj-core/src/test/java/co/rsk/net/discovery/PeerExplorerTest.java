@@ -24,15 +24,19 @@ import co.rsk.net.discovery.table.NodeDistanceTable;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.net.rlpx.Node;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by mario on 15/02/17.
@@ -73,9 +77,9 @@ public class PeerExplorerTest {
 
     @Test
     public void sendInitialMessageToNodesNoNodes() {
-        Node node = new Node(new ECKey().getNodeId(), HOST_2, PORT_2);
+        Node node = new Node(new ECKeyBC().getNodeId(), HOST_2, PORT_2);
         NodeDistanceTable distanceTable = new NodeDistanceTable(KademliaOptions.BINS, KademliaOptions.BUCKET_SIZE, node);
-        PeerExplorer peerExplorer = new PeerExplorer(new ArrayList<>(), node, distanceTable, new ECKey(), TIMEOUT, UPDATE, CLEAN, NETWORK_ID1);
+        PeerExplorer peerExplorer = new PeerExplorer(new ArrayList<>(), node, distanceTable, new ECKeyBC(), TIMEOUT, UPDATE, CLEAN, NETWORK_ID1);
 
         peerExplorer.setUDPChannel(Mockito.mock(UDPChannel.class));
 
@@ -83,7 +87,7 @@ public class PeerExplorerTest {
 
         Assert.assertTrue(nodesWithMessage.isEmpty());
 
-        peerExplorer = new PeerExplorer(new ArrayList<>(), node, distanceTable, new ECKey(), TIMEOUT, UPDATE, CLEAN, NETWORK_ID1);
+        peerExplorer = new PeerExplorer(new ArrayList<>(), node, distanceTable, new ECKeyBC(), TIMEOUT, UPDATE, CLEAN, NETWORK_ID1);
         peerExplorer.setUDPChannel(Mockito.mock(UDPChannel.class));
 
         nodesWithMessage = peerExplorer.startConversationWithNewNodes();
@@ -101,10 +105,10 @@ public class PeerExplorerTest {
         nodes.add("");
         nodes.add(null);
 
-        Node node = new Node(new ECKey().getNodeId(), HOST_1, PORT_1);
+        Node node = new Node(new ECKeyBC().getNodeId(), HOST_1, PORT_1);
         NodeDistanceTable distanceTable = new NodeDistanceTable(KademliaOptions.BINS, KademliaOptions.BUCKET_SIZE, node);
 
-        PeerExplorer peerExplorer = new PeerExplorer(nodes, node, distanceTable, new ECKey(), TIMEOUT, UPDATE, CLEAN, NETWORK_ID1);
+        PeerExplorer peerExplorer = new PeerExplorer(nodes, node, distanceTable, new ECKeyBC(), TIMEOUT, UPDATE, CLEAN, NETWORK_ID1);
 
         UDPChannel channel = new UDPChannel(Mockito.mock(Channel.class), peerExplorer);
         peerExplorer.setUDPChannel(channel);
@@ -120,7 +124,7 @@ public class PeerExplorerTest {
     public void handlePingMessageFromDifferentNetwork() throws Exception {
         List<String> nodes = new ArrayList<>();
 
-        ECKey key2 = ECKey.fromPrivate(Hex.decode(KEY_2)).decompress();
+        ECKey key2 = ECKeyBC.fromPrivate(Hex.decode(KEY_2)).decompress();
 
         Node node = new Node(key2.getNodeId(), HOST_2, PORT_2);
         NodeDistanceTable distanceTable = new NodeDistanceTable(KademliaOptions.BINS, KademliaOptions.BUCKET_SIZE, node);
@@ -133,7 +137,7 @@ public class PeerExplorerTest {
 
         Assert.assertTrue(peerExplorer.getNodes().isEmpty());
 
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
         String check = UUID.randomUUID().toString();
         PingPeerMessage pingPeerMessageWithDifferentNetwork = PingPeerMessage.create(HOST_1, PORT_1, check, key1, this.NETWORK_ID2);
         DiscoveryEvent incomingPingEvent = new DiscoveryEvent(pingPeerMessageWithDifferentNetwork, new InetSocketAddress(HOST_1, PORT_1));
@@ -149,7 +153,7 @@ public class PeerExplorerTest {
     public void handlePingMessage() throws Exception {
         List<String> nodes = new ArrayList<>();
 
-        ECKey key2 = ECKey.fromPrivate(Hex.decode(KEY_2)).decompress();
+        ECKey key2 = ECKeyBC.fromPrivate(Hex.decode(KEY_2)).decompress();
 
         Node node = new Node(key2.getNodeId(), HOST_2, PORT_2);
         NodeDistanceTable distanceTable = new NodeDistanceTable(KademliaOptions.BINS, KademliaOptions.BUCKET_SIZE, node);
@@ -163,7 +167,7 @@ public class PeerExplorerTest {
 
         Assert.assertTrue(peerExplorer.getNodes().isEmpty());
 
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
         String check = UUID.randomUUID().toString();
         PingPeerMessage nodeMessage = PingPeerMessage.create(HOST_1, PORT_1, check, key1, this.NETWORK_ID1);
         DiscoveryEvent incomingPingEvent = new DiscoveryEvent(nodeMessage, new InetSocketAddress(HOST_1, PORT_1));
@@ -204,9 +208,9 @@ public class PeerExplorerTest {
         nodes.add(HOST_1 + ":" + PORT_1);
         nodes.add(HOST_3 + ":" + PORT_3);
 
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
-        ECKey key2 = ECKey.fromPrivate(Hex.decode(KEY_2)).decompress();
-        ECKey key4 = ECKey.fromPrivate(Hex.decode(KEY_4)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key2 = ECKeyBC.fromPrivate(Hex.decode(KEY_2)).decompress();
+        ECKey key4 = ECKeyBC.fromPrivate(Hex.decode(KEY_4)).decompress();
 
         Node node = new Node(key2.getNodeId(), HOST_2, PORT_2);
         NodeDistanceTable distanceTable = new NodeDistanceTable(KademliaOptions.BINS, KademliaOptions.BUCKET_SIZE, node);
@@ -255,8 +259,8 @@ public class PeerExplorerTest {
         nodes.add(HOST_1 + ":" + PORT_1);
         nodes.add(HOST_3 + ":" + PORT_3);
 
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
-        ECKey key2 = ECKey.fromPrivate(Hex.decode(KEY_2)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key2 = ECKeyBC.fromPrivate(Hex.decode(KEY_2)).decompress();
 
         Node node = new Node(key2.getNodeId(), HOST_2, PORT_2);
         NodeDistanceTable distanceTable = new NodeDistanceTable(KademliaOptions.BINS, KademliaOptions.BUCKET_SIZE, node);
@@ -302,9 +306,9 @@ public class PeerExplorerTest {
         nodes.add(HOST_1 + ":" + PORT_1);
         nodes.add(HOST_3 + ":" + PORT_3);
 
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
-        ECKey key2 = ECKey.fromPrivate(Hex.decode(KEY_2)).decompress();
-        ECKey key3 = ECKey.fromPrivate(Hex.decode(KEY_3)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key2 = ECKeyBC.fromPrivate(Hex.decode(KEY_2)).decompress();
+        ECKey key3 = ECKeyBC.fromPrivate(Hex.decode(KEY_3)).decompress();
 
         Node node = new Node(key2.getNodeId(), HOST_2, PORT_2);
         NodeDistanceTable distanceTable = new NodeDistanceTable(KademliaOptions.BINS, KademliaOptions.BUCKET_SIZE, node);
@@ -359,8 +363,8 @@ public class PeerExplorerTest {
         List<String> nodes = new ArrayList<>();
         nodes.add(HOST_1 + ":" + PORT_1);
 
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
-        ECKey key2 = ECKey.fromPrivate(Hex.decode(KEY_2)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key2 = ECKeyBC.fromPrivate(Hex.decode(KEY_2)).decompress();
 
         Node node1 = new Node(key1.getNodeId(), HOST_1, PORT_1);
         Node node2 = new Node(key2.getNodeId(), HOST_2, PORT_2);
@@ -431,9 +435,9 @@ public class PeerExplorerTest {
         nodes.add(HOST_1 + ":" + PORT_1);
         nodes.add(HOST_3 + ":" + PORT_3);
 
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
-        ECKey key2 = ECKey.fromPrivate(Hex.decode(KEY_2)).decompress();
-        ECKey key3 = ECKey.fromPrivate(Hex.decode(KEY_3)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key2 = ECKeyBC.fromPrivate(Hex.decode(KEY_2)).decompress();
+        ECKey key3 = ECKeyBC.fromPrivate(Hex.decode(KEY_3)).decompress();
 
         Node node = new Node(key2.getNodeId(), HOST_2, PORT_2);
         NodeDistanceTable distanceTable = new NodeDistanceTable(1, 1, node);

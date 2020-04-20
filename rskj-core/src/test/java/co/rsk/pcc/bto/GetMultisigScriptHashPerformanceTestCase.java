@@ -25,7 +25,7 @@ import co.rsk.peg.performance.CombinedExecutionStats;
 import co.rsk.peg.performance.ExecutionStats;
 import co.rsk.peg.performance.PrecompiledContractPerformanceTestCase;
 import org.ethereum.core.CallTransaction;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.vm.PrecompiledContracts;
 import org.junit.Assert;
 import org.junit.Before;
@@ -96,7 +96,7 @@ public class GetMultisigScriptHashPerformanceTestCase extends PrecompiledContrac
         int minimumSignatures = rnd.nextInt(numberOfKeys) + 1;
         byte[][] publicKeys = new byte[numberOfKeys][];
         for (int i = 0; i < numberOfKeys; i++) {
-            publicKeys[i] = new ECKey().getPubKey(true);
+            publicKeys[i] = new ECKeyBC().getPubKey(true);
         }
 
         String expectedHashHex = Hex.toHexString(ScriptBuilder.createP2SHOutputScript(
@@ -113,7 +113,7 @@ public class GetMultisigScriptHashPerformanceTestCase extends PrecompiledContrac
                 times,
                 environmentBuilder,
                 abiEncoder,
-                Helper.getZeroValueTxBuilder(new ECKey()),
+                Helper.getZeroValueTxBuilder(new ECKeyBC()),
                 Helper.getRandomHeightProvider(10),
                 stats,
                 (EnvironmentBuilder.Environment environment, byte[] result) -> {

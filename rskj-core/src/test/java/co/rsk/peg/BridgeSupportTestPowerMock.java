@@ -63,8 +63,8 @@ import org.ethereum.config.blockchain.upgrades.ActivationConfigsForTest;
 import org.ethereum.config.blockchain.upgrades.ConsensusRule;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
-import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.db.MutableRepository;
 import org.ethereum.db.ReceiptStore;
 import org.ethereum.util.RLP;
@@ -332,7 +332,7 @@ public class BridgeSupportTestPowerMock {
         BridgeSupport bridgeSupport = getBridgeSupport(bridgeConstants, provider, track, eventLogger, rskCurrentBlock, null);
 
         Transaction tx = new Transaction(TO_ADDRESS, DUST_AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        ECKey key = new ECKey();
+        ECKey key = new ECKeyBC();
         tx.sign(key.getPrivKeyBytes());
 
         bridgeSupport.updateCollections(tx);
@@ -374,7 +374,7 @@ public class BridgeSupportTestPowerMock {
 
         org.ethereum.core.Block rskCurrentBlock = blocks.get(9);
         Transaction tx = new Transaction(TO_ADDRESS, DUST_AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        tx.sign(new ECKey().getPrivKeyBytes());
+        tx.sign(new ECKeyBC().getPrivKeyBytes());
 
         BridgeStorageProvider providerForSupport = new BridgeStorageProvider(
                 track,
@@ -441,7 +441,7 @@ public class BridgeSupportTestPowerMock {
 
         org.ethereum.core.Block rskCurrentBlock = blocks.get(9);
         Transaction tx = new Transaction(TO_ADDRESS, DUST_AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        tx.sign(new ECKey().getPrivKeyBytes());
+        tx.sign(new ECKeyBC().getPrivKeyBytes());
 
         BridgeStorageProvider providerForSupport = new BridgeStorageProvider(
                 track,
@@ -515,7 +515,7 @@ public class BridgeSupportTestPowerMock {
         ReceiptStore rskReceiptStore = null;
         org.ethereum.db.BlockStore rskBlockStore = builder.getBlockStore();
         Transaction tx = new Transaction(TO_ADDRESS, DUST_AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        tx.sign(new ECKey().getPrivKeyBytes());
+        tx.sign(new ECKeyBC().getPrivKeyBytes());
 
         BridgeStorageProvider providerForSupport = new BridgeStorageProvider(
                 track,
@@ -552,7 +552,7 @@ public class BridgeSupportTestPowerMock {
     public void minimumProcessFundsMigrationValue() throws IOException {
         Federation oldFederation = bridgeConstants.getGenesisFederation();
         BtcECKey key = new BtcECKey(new SecureRandom());
-        FederationMember member = new FederationMember(key, new ECKey(), new ECKey());
+        FederationMember member = new FederationMember(key, new ECKeyBC(), new ECKeyBC());
         Federation newFederation = new Federation(
                 Collections.singletonList(member),
                 Instant.EPOCH,
@@ -665,7 +665,7 @@ public class BridgeSupportTestPowerMock {
 
         track = repository.startTracking();
         Transaction tx = new Transaction(TO_ADDRESS, DUST_AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        tx.sign(new ECKey().getPrivKeyBytes());
+        tx.sign(new ECKeyBC().getPrivKeyBytes());
 
         BridgeStorageProvider providerForSupport = new BridgeStorageProvider(
                 track,
@@ -751,7 +751,7 @@ public class BridgeSupportTestPowerMock {
 
         org.ethereum.core.Block rskCurrentBlock = blocks.get(9);
         Transaction rskTx = new Transaction(TO_ADDRESS, DUST_AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        rskTx.sign(new ECKey().getPrivKeyBytes());
+        rskTx.sign(new ECKeyBC().getPrivKeyBytes());
 
         BridgeSupport bridgeSupport = getBridgeSupport(
                 bridgeConstants,
@@ -1222,7 +1222,7 @@ public class BridgeSupportTestPowerMock {
         org.ethereum.core.Transaction tx = new org.ethereum.core.Transaction(TO_ADDRESS, DUST_AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
         ;
 
-        tx.sign(new org.ethereum.crypto.ECKey().getPrivKeyBytes());
+        tx.sign(new org.ethereum.crypto.ECKeyBC().getPrivKeyBytes());
 
         BridgeStorageProvider provider = new BridgeStorageProvider(track, PrecompiledContracts.BRIDGE_ADDR, bridgeConstants, activationsBeforeForks);
         BridgeSupport bridgeSupport = getBridgeSupport(provider, track);
@@ -1247,7 +1247,7 @@ public class BridgeSupportTestPowerMock {
         org.ethereum.core.Transaction tx = new org.ethereum.core.Transaction(TO_ADDRESS, AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
         ;
 
-        tx.sign(new org.ethereum.crypto.ECKey().getPrivKeyBytes());
+        tx.sign(new org.ethereum.crypto.ECKeyBC().getPrivKeyBytes());
 
         BridgeStorageProvider provider = new BridgeStorageProvider(track, PrecompiledContracts.BRIDGE_ADDR, bridgeConstants, activationsBeforeForks);
         BridgeSupport bridgeSupport = getBridgeSupport(provider, track);
@@ -1274,7 +1274,7 @@ public class BridgeSupportTestPowerMock {
                 BigIntegers.asUnsignedByteArray(NONCE),
                 DataWord.valueOf(BigIntegers.asUnsignedByteArray(GAS_PRICE)),
                 DataWord.valueOf(BigIntegers.asUnsignedByteArray(GAS_LIMIT)),
-                new RskAddress(org.ethereum.crypto.ECKey.fromPrivate(new BtcECKey().getPrivKey()).getAddress()).getBytes(),
+                new RskAddress(org.ethereum.crypto.ECKeyBC.fromPrivate(new BtcECKey().getPrivKey()).getAddress()).getBytes(),
                 Hex.decode(TO_ADDRESS),
                 BigIntegers.asUnsignedByteArray(AMOUNT),
                 Hex.decode(DATA),
@@ -1879,9 +1879,9 @@ public class BridgeSupportTestPowerMock {
         co.rsk.core.Coin totalAmountExpectedToHaveBeenLocked = amountToHaveBeenCreditedToSrc1
                 .add(amountToHaveBeenCreditedToSrc2)
                 .add(amountToHaveBeenCreditedToSrc3);
-        RskAddress srcKey1RskAddress = new RskAddress(org.ethereum.crypto.ECKey.fromPrivate(srcKey1.getPrivKey()).getAddress());
-        RskAddress srcKey2RskAddress = new RskAddress(org.ethereum.crypto.ECKey.fromPrivate(srcKey2.getPrivKey()).getAddress());
-        RskAddress srcKey3RskAddress = new RskAddress(org.ethereum.crypto.ECKey.fromPrivate(srcKey3.getPrivKey()).getAddress());
+        RskAddress srcKey1RskAddress = new RskAddress(org.ethereum.crypto.ECKeyBC.fromPrivate(srcKey1.getPrivKey()).getAddress());
+        RskAddress srcKey2RskAddress = new RskAddress(org.ethereum.crypto.ECKeyBC.fromPrivate(srcKey2.getPrivKey()).getAddress());
+        RskAddress srcKey3RskAddress = new RskAddress(org.ethereum.crypto.ECKeyBC.fromPrivate(srcKey3.getPrivKey()).getAddress());
 
         Assert.assertEquals(amountToHaveBeenCreditedToSrc1, repository.getBalance(srcKey1RskAddress));
         Assert.assertEquals(amountToHaveBeenCreditedToSrc2, repository.getBalance(srcKey2RskAddress));
@@ -2215,7 +2215,7 @@ public class BridgeSupportTestPowerMock {
         );
         ABICallSpec spec = new ABICallSpec("create", new byte[][]{});
         Transaction mockedTx = mock(Transaction.class);
-        when(mockedTx.getSender()).thenReturn(new RskAddress(ECKey.fromPrivate(BigInteger.valueOf(12L)).getAddress()));
+        when(mockedTx.getSender()).thenReturn(new RskAddress(ECKeyBC.fromPrivate(BigInteger.valueOf(12L)).getAddress()));
         Assert.assertEquals(BridgeSupport.FEDERATION_CHANGE_GENERIC_ERROR_CODE, bridgeSupport.voteFederationChange(mockedTx, spec));
     }
 
@@ -2227,7 +2227,7 @@ public class BridgeSupportTestPowerMock {
         private Transaction tx;
 
         public VotingMocksProvider(String function, byte[][] arguments, boolean mockVoteResult) {
-            byte[] voterBytes = ECKey.fromPublicOnly(Hex.decode(
+            byte[] voterBytes = ECKeyBC.fromPublicOnly(Hex.decode(
                     // Public key hex of an authorized voter in regtest, taken from BridgeRegTestConstants
                     "04dde17c5fab31ffc53c91c2390136c325bb8690dc135b0840075dd7b86910d8ab9e88baad0c32f3eea8833446a6bc5ff1cd2efa99ecb17801bcb65fc16fc7d991"
             )).getAddress();
@@ -2618,8 +2618,8 @@ public class BridgeSupportTestPowerMock {
 
         PendingFederation pendingFederation = new PendingFederation(Arrays.asList(new FederationMember(
                 BtcECKey.fromPublicOnly(Hex.decode("02ebd9e8b2caff48b10e661e69fe107d6986d2df1ce7e377f2ef927f3194a61b99")),
-                ECKey.fromPublicOnly(Hex.decode("02a23343f50363dc9a4c29f0c0a8386780cc8bf469211f4de51d50f8c0f274e9a7")),
-                ECKey.fromPublicOnly(Hex.decode("030dd584c286275ab2ce249096d0d7e6c78853e0902db061b14f2e39df068f95bc"))
+                ECKeyBC.fromPublicOnly(Hex.decode("02a23343f50363dc9a4c29f0c0a8386780cc8bf469211f4de51d50f8c0f274e9a7")),
+                ECKeyBC.fromPublicOnly(Hex.decode("030dd584c286275ab2ce249096d0d7e6c78853e0902db061b14f2e39df068f95bc"))
         )));
         BridgeSupport bridgeSupport = getBridgeSupportWithMocksForFederationTests(
                 false,
@@ -2690,8 +2690,8 @@ public class BridgeSupportTestPowerMock {
 
         PendingFederation pendingFederation = new PendingFederation(Arrays.asList(new FederationMember(
                 BtcECKey.fromPublicOnly(Hex.decode("031da807c71c2f303b7f409dd2605b297ac494a563be3b9ca5f52d95a43d183cc5")),
-                ECKey.fromPublicOnly(Hex.decode("03981d06bd7bc419612aa09f860188f08d3c3010796dcb41cdfc43a6875600efa8")),
-                ECKey.fromPublicOnly(Hex.decode("0365e45f68d6347aaa03c76f3d6f47000df6090801e49eef6d49f547f5c19de5dd"))
+                ECKeyBC.fromPublicOnly(Hex.decode("03981d06bd7bc419612aa09f860188f08d3c3010796dcb41cdfc43a6875600efa8")),
+                ECKeyBC.fromPublicOnly(Hex.decode("0365e45f68d6347aaa03c76f3d6f47000df6090801e49eef6d49f547f5c19de5dd"))
         )));
         BridgeSupport bridgeSupport = getBridgeSupportWithMocksForFederationTests(
                 false,
@@ -2721,8 +2721,8 @@ public class BridgeSupportTestPowerMock {
 
         PendingFederation pendingFederation = new PendingFederation(Arrays.asList(new FederationMember(
                 BtcECKey.fromPublicOnly(Hex.decode("0290d68bf50a8389e541a19d47c51447b443f41a13049e0783db6a25c419d612db")),
-                ECKey.fromPublicOnly(Hex.decode("02cf0dec68ca34502e4ebd35c40a0e66ff47ba520f0418bcd7388717b12ab4b053")),
-                ECKey.fromPublicOnly(Hex.decode("0365e45f68d6347aaa03c76f3d6f47000df6090801e49eef6d49f547f5c19de5dd"))
+                ECKeyBC.fromPublicOnly(Hex.decode("02cf0dec68ca34502e4ebd35c40a0e66ff47ba520f0418bcd7388717b12ab4b053")),
+                ECKeyBC.fromPublicOnly(Hex.decode("0365e45f68d6347aaa03c76f3d6f47000df6090801e49eef6d49f547f5c19de5dd"))
         )));
         BridgeSupport bridgeSupport = getBridgeSupportWithMocksForFederationTests(
                 false,
@@ -2752,8 +2752,8 @@ public class BridgeSupportTestPowerMock {
 
         PendingFederation pendingFederation = new PendingFederation(Arrays.asList(new FederationMember(
                 BtcECKey.fromPublicOnly(Hex.decode("0290d68bf50a8389e541a19d47c51447b443f41a13049e0783db6a25c419d612db")),
-                ECKey.fromPublicOnly(Hex.decode("033174d2fb7a3d7a0c87d43fa3e9ba43d4962014960b82bcd793706c05f68111c8")),
-                ECKey.fromPublicOnly(Hex.decode("031da807c71c2f303b7f409dd2605b297ac494a563be3b9ca5f52d95a43d183cc5"))
+                ECKeyBC.fromPublicOnly(Hex.decode("033174d2fb7a3d7a0c87d43fa3e9ba43d4962014960b82bcd793706c05f68111c8")),
+                ECKeyBC.fromPublicOnly(Hex.decode("031da807c71c2f303b7f409dd2605b297ac494a563be3b9ca5f52d95a43d183cc5"))
         )));
         BridgeSupport bridgeSupport = getBridgeSupportWithMocksForFederationTests(
                 false,
@@ -3178,7 +3178,7 @@ public class BridgeSupportTestPowerMock {
     @Test
     public void addLockWhitelistAddress_ok() throws IOException {
         Transaction mockedTx = mock(Transaction.class);
-        byte[] senderBytes = ECKey.fromPublicOnly(Hex.decode(
+        byte[] senderBytes = ECKeyBC.fromPublicOnly(Hex.decode(
             // Public key hex of the authorized whitelist admin in regtest, taken from BridgeRegTestConstants
             "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
         )).getAddress();
@@ -3199,7 +3199,7 @@ public class BridgeSupportTestPowerMock {
     @Test
     public void addLockWhitelistAddress_addFails() throws IOException {
         Transaction mockedTx = mock(Transaction.class);
-        byte[] senderBytes = ECKey.fromPublicOnly(Hex.decode(
+        byte[] senderBytes = ECKeyBC.fromPublicOnly(Hex.decode(
                 // Public key hex of the authorized whitelist admin in regtest, taken from BridgeRegTestConstants
                 "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
         )).getAddress();
@@ -3232,7 +3232,7 @@ public class BridgeSupportTestPowerMock {
     @Test
     public void addLockWhitelistAddress_invalidAddress() throws IOException {
         Transaction mockedTx = mock(Transaction.class);
-        byte[] senderBytes = ECKey.fromPublicOnly(Hex.decode(
+        byte[] senderBytes = ECKeyBC.fromPublicOnly(Hex.decode(
             // Public key hex of the authorized whitelist admin in regtest, taken from BridgeRegTestConstants
             "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
         )).getAddress();
@@ -3248,7 +3248,7 @@ public class BridgeSupportTestPowerMock {
     @Test
     public void setLockWhitelistDisableBlockDelay_ok() throws IOException, BlockStoreException {
         Transaction mockedTx = mock(Transaction.class);
-        byte[] senderBytes = ECKey.fromPublicOnly(Hex.decode(
+        byte[] senderBytes = ECKeyBC.fromPublicOnly(Hex.decode(
             // Public key hex of the authorized whitelist admin in regtest, taken from BridgeRegTestConstants
             "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
         )).getAddress();
@@ -3275,7 +3275,7 @@ public class BridgeSupportTestPowerMock {
     @Test
     public void setLockWhitelistDisableBlockDelay_negativeDisableBlockBI() throws IOException, BlockStoreException {
         Transaction mockedTx = mock(Transaction.class);
-        byte[] senderBytes = ECKey.fromPublicOnly(Hex.decode(
+        byte[] senderBytes = ECKeyBC.fromPublicOnly(Hex.decode(
             // Public key hex of the authorized whitelist admin in regtest, taken from BridgeRegTestConstants
             "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
         )).getAddress();
@@ -3302,7 +3302,7 @@ public class BridgeSupportTestPowerMock {
     @Test(expected = ArithmeticException.class)
     public void setLockWhitelistDisableBlockDelay_disableBlockDelayBIBiggerThanInt() throws IOException, BlockStoreException {
         Transaction mockedTx = mock(Transaction.class);
-        byte[] senderBytes = ECKey.fromPublicOnly(Hex.decode(
+        byte[] senderBytes = ECKeyBC.fromPublicOnly(Hex.decode(
             // Public key hex of the authorized whitelist admin in regtest, taken from BridgeRegTestConstants
             "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
         )).getAddress();
@@ -3326,7 +3326,7 @@ public class BridgeSupportTestPowerMock {
     @Test
     public void setLockWhitelistDisableBlockDelay_overflow() throws IOException, BlockStoreException {
         Transaction mockedTx = mock(Transaction.class);
-        byte[] senderBytes = ECKey.fromPublicOnly(Hex.decode(
+        byte[] senderBytes = ECKeyBC.fromPublicOnly(Hex.decode(
             // Public key hex of the authorized whitelist admin in regtest, taken from BridgeRegTestConstants
             "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
         )).getAddress();
@@ -3353,7 +3353,7 @@ public class BridgeSupportTestPowerMock {
     @Test
     public void setLockWhitelistDisableBlockDelay_maxIntValueDisableBlockBI() throws IOException, BlockStoreException {
         Transaction mockedTx = mock(Transaction.class);
-        byte[] senderBytes = ECKey.fromPublicOnly(Hex.decode(
+        byte[] senderBytes = ECKeyBC.fromPublicOnly(Hex.decode(
             // Public key hex of the authorized whitelist admin in regtest, taken from BridgeRegTestConstants
             "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
         )).getAddress();
@@ -3380,7 +3380,7 @@ public class BridgeSupportTestPowerMock {
     @Test
     public void setLockWhitelistDisableBlockDelay_disabled() throws IOException, BlockStoreException {
         Transaction mockedTx = mock(Transaction.class);
-        byte[] senderBytes = ECKey.fromPublicOnly(Hex.decode(
+        byte[] senderBytes = ECKeyBC.fromPublicOnly(Hex.decode(
                 // Public key hex of the authorized whitelist admin in regtest, taken from BridgeRegTestConstants
                 "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
         )).getAddress();
@@ -3412,7 +3412,7 @@ public class BridgeSupportTestPowerMock {
     @Test
     public void removeLockWhitelistAddress_ok() throws IOException {
         Transaction mockedTx = mock(Transaction.class);
-        byte[] senderBytes = ECKey.fromPublicOnly(Hex.decode(
+        byte[] senderBytes = ECKeyBC.fromPublicOnly(Hex.decode(
                 // Public key hex of the authorized whitelist admin in regtest, taken from BridgeRegTestConstants
                 "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
         )).getAddress();
@@ -3433,7 +3433,7 @@ public class BridgeSupportTestPowerMock {
     @Test
     public void removeLockWhitelistAddress_removeFails() throws IOException {
         Transaction mockedTx = mock(Transaction.class);
-        byte[] senderBytes = ECKey.fromPublicOnly(Hex.decode(
+        byte[] senderBytes = ECKeyBC.fromPublicOnly(Hex.decode(
                 // Public key hex of the authorized whitelist admin in regtest, taken from BridgeRegTestConstants
                 "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
         )).getAddress();
@@ -3467,7 +3467,7 @@ public class BridgeSupportTestPowerMock {
     @Test
     public void removeLockWhitelistAddress_invalidAddress() throws IOException {
         Transaction mockedTx = mock(Transaction.class);
-        byte[] senderBytes = ECKey.fromPublicOnly(Hex.decode(
+        byte[] senderBytes = ECKeyBC.fromPublicOnly(Hex.decode(
             // Public key hex of the authorized whitelist admin in regtest, taken from BridgeRegTestConstants
             "04641fb250d7ca7a1cb4f530588e978013038ec4294d084d248869dd54d98873e45c61d00ceeaeeb9e35eab19fa5fbd8f07cb8a5f0ddba26b4d4b18349c09199ad"
         )).getAddress();

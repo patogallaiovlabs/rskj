@@ -19,12 +19,10 @@
 
 package org.ethereum.util;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Assert;
-import org.junit.Test;
-
 import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.encoders.Hex;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.math.BigInteger;
 

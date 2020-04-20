@@ -21,8 +21,8 @@ package org.ethereum.rpc;
 import co.rsk.config.TestSystemProperties;
 import co.rsk.core.Wallet;
 import co.rsk.core.WalletFactory;
-import co.rsk.core.bc.MiningMainchainViewImpl;
 import co.rsk.core.bc.MiningMainchainView;
+import co.rsk.core.bc.MiningMainchainViewImpl;
 import co.rsk.net.NodeID;
 import co.rsk.peg.BridgeSupportFactory;
 import co.rsk.rpc.ExecutionBlockRetriever;
@@ -47,8 +47,6 @@ import org.junit.Test;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Random;
-
-import static org.mockito.Mockito.mock;
 
 /**
  * Created by ajlopez on 12/07/2017.

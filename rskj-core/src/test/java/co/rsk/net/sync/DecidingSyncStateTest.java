@@ -14,7 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

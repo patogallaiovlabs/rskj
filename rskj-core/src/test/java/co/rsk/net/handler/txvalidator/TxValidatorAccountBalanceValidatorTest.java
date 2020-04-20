@@ -23,7 +23,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.config.Constants;
 import org.ethereum.core.AccountState;
 import org.ethereum.core.Transaction;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -77,12 +77,12 @@ public class TxValidatorAccountBalanceValidatorTest {
         Transaction tx = new Transaction(BigInteger.ZERO.toByteArray(),
                 BigInteger.ONE.toByteArray(),
                 BigInteger.valueOf(21071).toByteArray(),
-                new ECKey().getAddress(),
+                new ECKeyBC().getAddress(),
                 BigInteger.ZERO.toByteArray(),
                 Hex.decode("0001"),
                 Constants.REGTEST_CHAIN_ID);
 
-        tx.sign(new ECKey().getPrivKeyBytes());
+        tx.sign(new ECKeyBC().getPrivKeyBytes());
 
         TxValidatorAccountBalanceValidator tv = new TxValidatorAccountBalanceValidator();
 

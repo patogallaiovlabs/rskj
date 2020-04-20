@@ -18,26 +18,24 @@
 
 package co.rsk.crypto;
 
-import org.ethereum.TestUtils;
+import org.ethereum.crypto.ECDSASignature;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.junit.Assert;
 import org.junit.Test;
-import org.bouncycastle.util.encoders.Base64;
-import java.security.SignatureException;
-import static org.junit.Assert.*;
 
 public class ECKeyTest {
     private String exampleMessage = new String("This is an example of a signed message.");
 
     @Test
     public void fromComponentsWithRecoveryCalculation() {
-        ECKey key = new ECKey();
+        ECKey key = new ECKeyBC();
         byte[] hash = HashUtil.randomHash();
-        ECKey.ECDSASignature signature = key.sign(hash);
+        ECDSASignature signature = key.sign(hash);
 
         // With uncompressed public key
-        ECKey.ECDSASignature signatureWithCalculatedV = ECKey.ECDSASignature.fromComponentsWithRecoveryCalculation(
+        ECDSASignature signatureWithCalculatedV = ECDSASignature.fromComponentsWithRecoveryCalculation(
                 signature.r.toByteArray(),
                 signature.s.toByteArray(),
                 hash,
@@ -49,7 +47,7 @@ public class ECKeyTest {
         Assert.assertEquals(signature.v, signatureWithCalculatedV.v);
 
         // With compressed public key
-        signatureWithCalculatedV = ECKey.ECDSASignature.fromComponentsWithRecoveryCalculation(
+        signatureWithCalculatedV = ECDSASignature.fromComponentsWithRecoveryCalculation(
                 signature.r.toByteArray(),
                 signature.s.toByteArray(),
                 hash,

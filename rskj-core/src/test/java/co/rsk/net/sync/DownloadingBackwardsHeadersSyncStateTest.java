@@ -13,7 +13,7 @@ import org.mockito.ArgumentCaptor;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class DownloadingBackwardsHeadersSyncStateTest {

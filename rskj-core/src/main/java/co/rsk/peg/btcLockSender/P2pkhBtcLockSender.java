@@ -52,7 +52,7 @@ public class P2pkhBtcLockSender implements BtcLockSender {
             this.btcAddress = new Address(btcTx.getParams(), senderBtcKey.getPubKeyHash());
 
             //Looking for rskAddress
-            org.ethereum.crypto.ECKey key = org.ethereum.crypto.ECKey.fromPublicOnly(data);
+            org.ethereum.crypto.ECKey key = org.ethereum.crypto.ECKeyBC.fromPublicOnly(data);
             this.rskAddress = new RskAddress(key.getAddress());
         } catch(Exception e) {
             return false;

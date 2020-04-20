@@ -22,7 +22,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.config.Constants;
 import org.ethereum.core.Account;
 import org.ethereum.core.Transaction;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.Utils;
 
@@ -44,7 +44,7 @@ public class TransactionUtils {
     }
 
     public static String getAddress() {
-        Account targetAcc = new Account(new ECKey(Utils.getRandom()));
+        Account targetAcc = new Account(new ECKeyBC(Utils.getRandom()));
         return Hex.toHexString(targetAcc.getAddress().getBytes());
     }
 

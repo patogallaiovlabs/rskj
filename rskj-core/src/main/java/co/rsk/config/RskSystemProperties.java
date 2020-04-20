@@ -26,6 +26,7 @@ import org.ethereum.config.Constants;
 import org.ethereum.config.SystemProperties;
 import org.ethereum.core.Account;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 
 import javax.annotation.Nullable;
@@ -111,7 +112,7 @@ public class RskSystemProperties extends SystemProperties {
         }
 
         String coinbaseSecret = configFromFiles.getString(MINER_COINBASE_SECRET_CONFIG);
-        return new Account(ECKey.fromPrivate(HashUtil.keccak256(coinbaseSecret.getBytes(StandardCharsets.UTF_8))));
+        return new Account(ECKeyBC.fromPrivate(HashUtil.keccak256(coinbaseSecret.getBytes(StandardCharsets.UTF_8))));
     }
 
     public boolean isMinerClientEnabled() {

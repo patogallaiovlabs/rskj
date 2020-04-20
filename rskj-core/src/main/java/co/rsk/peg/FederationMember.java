@@ -21,6 +21,7 @@ package co.rsk.peg;
 import co.rsk.bitcoinj.core.BtcECKey;
 import com.google.common.primitives.UnsignedBytes;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.spongycastle.util.encoders.Hex;
 
 import java.util.Arrays;
@@ -75,7 +76,7 @@ public final class FederationMember {
     // methods to make it easier w.r.t. compatibility with the current approach
 
     public static FederationMember getFederationMemberFromKey(BtcECKey pk) {
-        ECKey ethKey = ECKey.fromPublicOnly(pk.getPubKey());
+        ECKey ethKey = ECKeyBC.fromPublicOnly(pk.getPubKey());
         return new FederationMember(pk, ethKey, ethKey);
     }
 
@@ -122,8 +123,8 @@ public final class FederationMember {
         // Copy public keys to ensure effective immutability
         // Make sure we always use compressed versions of public keys
         this.btcPublicKey = BtcECKey.fromPublicOnly(btcPublicKey.getPubKeyPoint().getEncoded(true));
-        this.rskPublicKey = ECKey.fromPublicOnly(rskPublicKey.getPubKey(true));
-        this.mstPublicKey = ECKey.fromPublicOnly(mstPublicKey.getPubKey(true));
+        this.rskPublicKey = ECKeyBC.fromPublicOnly(rskPublicKey.getPubKey(true));
+        this.mstPublicKey = ECKeyBC.fromPublicOnly(mstPublicKey.getPubKey(true));
     }
 
     public BtcECKey getBtcPublicKey() {
@@ -133,12 +134,12 @@ public final class FederationMember {
 
     public ECKey getRskPublicKey() {
         // Return a copy
-        return ECKey.fromPublicOnly(rskPublicKey.getPubKey());
+        return ECKeyBC.fromPublicOnly(rskPublicKey.getPubKey());
     }
 
     public ECKey getMstPublicKey() {
         // Return a copy
-        return ECKey.fromPublicOnly(mstPublicKey.getPubKey());
+        return ECKeyBC.fromPublicOnly(mstPublicKey.getPubKey());
     }
 
     public ECKey getPublicKey(KeyType keyType) {
@@ -149,7 +150,7 @@ public final class FederationMember {
                 return getMstPublicKey();
             case BTC:
             default:
-                return ECKey.fromPublicOnly(btcPublicKey.getPubKey());
+                return ECKeyBC.fromPublicOnly(btcPublicKey.getPubKey());
         }
     }
 

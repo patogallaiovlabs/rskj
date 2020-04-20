@@ -19,8 +19,8 @@
 
 package org.ethereum.jsontestsuite;
 
-import org.ethereum.util.ByteUtil;
 import org.bouncycastle.util.encoders.Hex;
+import org.ethereum.util.ByteUtil;
 
 import java.math.BigInteger;
 

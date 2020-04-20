@@ -44,7 +44,7 @@ import org.ethereum.core.Block;
 import org.ethereum.core.BlockFactory;
 import org.ethereum.core.CallTransaction;
 import org.ethereum.core.Transaction;
-import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.vm.DataWord;
 import org.ethereum.vm.PrecompiledContracts;
@@ -120,7 +120,7 @@ public class BlockHeaderContractTest {
 
         // invoke transaction
         rskTx = new Transaction(PrecompiledContracts.BLOCK_HEADER_ADDR_STR, AMOUNT, NONCE, GAS_PRICE, GAS_LIMIT, DATA, Constants.REGTEST_CHAIN_ID);
-        rskTx.sign(new ECKey().getPrivKeyBytes());
+        rskTx.sign(new ECKeyBC().getPrivKeyBytes());
 
         executionEnvironment = mock(ExecutionEnvironment.class);
         Whitebox.setInternalState(contract, "executionEnvironment", executionEnvironment);

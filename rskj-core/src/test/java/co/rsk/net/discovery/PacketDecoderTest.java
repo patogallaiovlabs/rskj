@@ -20,11 +20,12 @@ package co.rsk.net.discovery;
 
 import co.rsk.net.discovery.message.*;
 import io.netty.channel.ChannelHandlerContext;
+import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class PacketDecoderTest {
     @Test
     public void decode() throws Exception {
 
-        ECKey key1 = ECKey.fromPrivate(Hex.decode(KEY_1)).decompress();
+        ECKey key1 = ECKeyBC.fromPrivate(Hex.decode(KEY_1)).decompress();
         String check = UUID.randomUUID().toString();
         ChannelHandlerContext ctx = Mockito.mock(ChannelHandlerContext.class);
 

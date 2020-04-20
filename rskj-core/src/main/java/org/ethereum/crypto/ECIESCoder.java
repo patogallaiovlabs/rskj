@@ -42,7 +42,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-import static org.ethereum.crypto.ECKey.CURVE;
+import static org.ethereum.crypto.ECKeyBC.CURVE;
 
 public class ECIESCoder {
 
@@ -120,7 +120,7 @@ public class ECIESCoder {
         iesEngine.setHashMacKey(false);
 
         iesEngine.init(new ECPrivateKeyParameters(privKey, CURVE), parametersWithIV,
-                new ECIESPublicKeyParser(ECKey.CURVE));
+                new ECIESPublicKeyParser(ECKeyBC.CURVE));
 
         return iesEngine.processBlock(cipher, 0, cipher.length);
     }
@@ -151,7 +151,7 @@ public class ECIESCoder {
         generator.init(keygenParams);
 
         ECKeyPairGenerator gen = new ECKeyPairGenerator();
-        gen.init(new ECKeyGenerationParameters(ECKey.CURVE, random));
+        gen.init(new ECKeyGenerationParameters(ECKeyBC.CURVE, random));
 
         byte[] cipher;
         try {

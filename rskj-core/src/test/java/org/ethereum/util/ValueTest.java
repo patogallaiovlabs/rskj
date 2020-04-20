@@ -19,12 +19,10 @@
 
 package org.ethereum.util;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.Test;
 
-import org.bouncycastle.util.encoders.Hex;
-
 import java.math.BigInteger;
-
 import java.util.Arrays;
 import java.util.Objects;
 

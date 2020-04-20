@@ -18,7 +18,9 @@
 
 package co.rsk.peg;
 
-import co.rsk.bitcoinj.core.*;
+import co.rsk.bitcoinj.core.Address;
+import co.rsk.bitcoinj.core.AddressFormatException;
+import co.rsk.bitcoinj.core.Coin;
 import co.rsk.bitcoinj.params.RegTestParams;
 import co.rsk.config.BridgeRegTestConstants;
 import co.rsk.config.TestSystemProperties;
@@ -33,6 +35,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.config.Constants;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.db.BlockStore;
 import org.ethereum.vm.PrecompiledContracts;
 import org.ethereum.vm.program.ProgramResult;
@@ -48,7 +51,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class RskForksBridgeTest {
-    private static ECKey fedECPrivateKey = ECKey.fromPrivate(
+    private static ECKey fedECPrivateKey = ECKeyBC.fromPrivate(
             BridgeRegTestConstants.REGTEST_FEDERATION_PRIVATE_KEYS.get(0).getPrivKey()
     );
 
@@ -74,10 +77,10 @@ public class RskForksBridgeTest {
         repository = world.getRepository();
         bridgeSupportFactory = world.getBridgeSupportFactory();
 
-        whitelistManipulationKey = ECKey.fromPrivate(Hex.decode("3890187a3071327cee08467ba1b44ed4c13adb2da0d5ffcc0563c371fa88259c"));
+        whitelistManipulationKey = ECKeyBC.fromPrivate(Hex.decode("3890187a3071327cee08467ba1b44ed4c13adb2da0d5ffcc0563c371fa88259c"));
 
         genesis = (Genesis)blockChain.getBestBlock();
-        //keyHoldingRSKs = new ECKey();
+        //keyHoldingRSKs = new ECKeyBC();
         co.rsk.core.Coin balance = new co.rsk.core.Coin(new BigInteger("10000000000000000000"));
         repository.addBalance(new RskAddress(fedECPrivateKey.getAddress()), balance);
         genesis.setStateRoot(repository.getRoot());

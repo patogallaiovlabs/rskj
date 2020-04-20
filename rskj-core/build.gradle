@@ -91,6 +91,9 @@ dependencies {
     compile "co.rsk.bitcoinj:bitcoinj-thin:${bitcoinjVersion}"
     compile 'com.github.briandilley.jsonrpc4j:jsonrpc4j:1.5.1'
     compile 'co.rsk:native:1.0.1'
+    //compile 'org.bitcoin-s:bitcoin-s-secp256k1jni:0.3.0'
+    //compile 'fr.acinq.bitcoin:secp256k1-jni:1.3'
+
 
     runtime "org.slf4j:log4j-over-slf4j:${slf4jVersion}"
     runtime "ch.qos.logback:logback-classic:${logbackVersion}"

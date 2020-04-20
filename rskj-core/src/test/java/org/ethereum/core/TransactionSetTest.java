@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.ethereum.util.TransactionFactoryHelper.*;
+import static org.ethereum.util.TransactionFactoryHelper.createSampleTransaction;
 
 /**
  * Created by ajlopez on 28/02/2018.

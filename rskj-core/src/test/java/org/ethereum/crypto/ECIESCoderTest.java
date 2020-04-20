@@ -19,10 +19,10 @@
 
 package org.ethereum.crypto;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.util.encoders.Hex;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.math.BigInteger;
 
@@ -51,7 +51,7 @@ public class ECIESCoderTest {
 
         byte[] payload = Hex.decode("1122334455");
 
-        ECKey ecKey =  ECKey.fromPrivate(privKey);
+        ECKey ecKey =  ECKeyBC.fromPrivate(privKey);
         ECPoint pubKeyPoint = ecKey.getPubKeyPoint();
 
         byte[] cipher = new byte[0];

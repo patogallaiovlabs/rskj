@@ -26,6 +26,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.embedded.EmbeddedChannel;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.net.NodeStatistics;
 import org.ethereum.net.client.Capability;
@@ -99,7 +100,7 @@ public class HandshakeHandlerTest {
     // simulate a handshake initiated by a remote peer.
     // In the future, the handshake classes should be rewritten to allow unit testing.
     private void simulateHandshakeStartedByPeer(List<Capability> capabilities) throws Exception {
-        ECKey remoteKey = new ECKey();
+        ECKey remoteKey = new ECKeyBC();
         handler.setRemoteId("", channel);
         handler.internalChannelActive(ctx);
 

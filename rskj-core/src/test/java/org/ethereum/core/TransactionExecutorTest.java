@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.when;

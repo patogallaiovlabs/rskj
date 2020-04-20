@@ -34,8 +34,7 @@ import java.util.stream.IntStream;
 
 import static org.ethereum.rpc.TypeConverter.*;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class LogsNotificationTest {

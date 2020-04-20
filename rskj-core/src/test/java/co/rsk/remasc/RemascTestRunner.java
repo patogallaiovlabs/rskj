@@ -35,6 +35,7 @@ import org.ethereum.TestUtils;
 import org.ethereum.config.Constants;
 import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.ECKeyBC;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.RLP;
 import org.ethereum.vm.PrecompiledContracts;
@@ -232,7 +233,7 @@ class RemascTestRunner {
                 BigInteger.valueOf(txNonce).toByteArray(),
                 BigInteger.valueOf(gasPrice).toByteArray(),
                 BigInteger.valueOf(gasLimit).toByteArray(),
-                new ECKey().getAddress() ,
+                new ECKeyBC().getAddress() ,
                 BigInteger.valueOf(txValue).toByteArray(),
                 null,
                 //TODO(mc): inject network chain id
