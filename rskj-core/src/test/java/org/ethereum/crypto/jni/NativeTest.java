@@ -86,8 +86,8 @@ public class NativeTest {
     void testSignMessage(byte[] messageHash, byte[] privateKey) throws NativeSecp256k1Util.AssertFailException, SignatureException {
 
         LOGGER.debug("Signing with Bouncy Castle...");
-        ECDSASignature signRecoverableBC = ECKeyBC.fromPrivate(privateKey).sign(messageHash);
-        byte[] signatureRecoverableBCToNative = getNativeBytesSignature(signRecoverableBC);
+        ECDSASignature signatureRecoverableBC = ECKeyBC.fromPrivate(privateKey).sign(messageHash);
+        byte[] signatureRecoverableBCToNative = getNativeBytesSignature(signatureRecoverableBC);
         LOGGER.debug("Signature by BC: [{}] = {}", signatureRecoverableBCToNative.length, signatureRecoverableBCToNative);
 
         LOGGER.debug("Signing with Native secp256k1...");
@@ -101,7 +101,7 @@ public class NativeTest {
         byte[] pkRecoveredFromNativeByBC = ECKeyBC.signatureToKey(messageHash, signatureRecoverableNativeToBC).getPubKey();
         String pkRecoveredFromNativeByBCStr = Hex.toHexString(pkRecoveredFromNativeByBC);
         LOGGER.debug("Pub key recovered FromNativeByBC : {}", pkRecoveredFromNativeByBCStr);
-        byte[] pkRecoveredFromBCByBC = ECKeyBC.signatureToKey(messageHash, signRecoverableBC).getPubKey();
+        byte[] pkRecoveredFromBCByBC = ECKeyBC.signatureToKey(messageHash, signatureRecoverableBC).getPubKey();
         String pkRecoveredFromBCByBCStr = Hex.toHexString(pkRecoveredFromBCByBC);
         LOGGER.debug("Pub key recovered FromBCByBC : {}", pkRecoveredFromBCByBCStr);
         byte[] pkRecoveredFromBCByNative = NativeSecp256k1.ecdsaRecover(Arrays.copyOf(signatureRecoverableBCToNative, 64), messageHash, signatureRecoverableBCToNative[64]);
@@ -121,10 +121,17 @@ public class NativeTest {
         assertEquals("Address fail", address, Hex.toHexString(this.getAddress(pkRecoveredFromBCByNative)));
         assertEquals("Address fail", address, Hex.toHexString(this.getAddress(pkRecoveredFromNativeByNative)));
 
+        LOGGER.debug("Verifying with BC...");
+        ECKeyBC key = ECKeyBC.fromPublicOnly(pubKey);
+        assertTrue("Couldnt verify", key.verify(messageHash, signatureRecoverableBC, pubKey));
+        assertTrue("Couldnt verify", key.verify(messageHash, signatureRecoverableNativeToBC, pubKey));
+
+
+        LOGGER.debug("Verifying with native...");
         assertTrue("Couldnt verify", NativeSecp256k1.verify(messageHash, signatureNative, pubKey));
-        assertTrue("Couldnt verify", NativeSecp256k1.verify(messageHash, signatureRecoverableBCToNative, pkRecoveredFromBCByNative));
-        assertTrue("Couldnt verify", NativeSecp256k1.verify(messageHash, signatureRecoverableNative, pkRecoveredFromNativeByBC));
-        assertTrue("Couldnt verify", NativeSecp256k1.verify(messageHash, signatureRecoverableNative, pkRecoveredFromNativeByNative));
+        assertTrue("Couldnt verify", NativeSecp256k1.verify(messageHash, Arrays.copyOf(signatureRecoverableBCToNative, 64), pkRecoveredFromBCByNative));
+        assertTrue("Couldnt verify", NativeSecp256k1.verify(messageHash, Arrays.copyOf(signatureRecoverableNative, 64), pkRecoveredFromNativeByBC));
+        assertTrue("Couldnt verify", NativeSecp256k1.verify(messageHash, Arrays.copyOf(signatureRecoverableNative, 64), pkRecoveredFromNativeByNative));
 
 
     }
