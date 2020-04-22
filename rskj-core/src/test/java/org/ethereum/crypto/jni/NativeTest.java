@@ -17,8 +17,7 @@ import java.math.BigInteger;
 import java.security.SignatureException;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class NativeTest {
 
@@ -93,6 +92,7 @@ public class NativeTest {
 
         LOGGER.debug("Signing with Native secp256k1...");
         byte[] signatureRecoverableNative = NativeSecp256k1.signRecoverable(messageHash, privateKey);
+        byte[] signatureNative = NativeSecp256k1.sign(messageHash, privateKey);
         ECDSASignature signatureRecoverableNativeToBC = getEcdsaSignature(signatureRecoverableNative);
         LOGGER.debug("Signature by Native: [{}] = {}", signatureRecoverableNative.length, signatureRecoverableNative);
 
@@ -120,6 +120,13 @@ public class NativeTest {
         assertEquals("Address fail", address, Hex.toHexString(this.getAddress(pkRecoveredFromBCByBC)));
         assertEquals("Address fail", address, Hex.toHexString(this.getAddress(pkRecoveredFromBCByNative)));
         assertEquals("Address fail", address, Hex.toHexString(this.getAddress(pkRecoveredFromNativeByNative)));
+
+        assertTrue("Couldnt verify", NativeSecp256k1.verify(messageHash, signatureNative, pubKey));
+        assertTrue("Couldnt verify", NativeSecp256k1.verify(messageHash, signatureRecoverableBCToNative, pkRecoveredFromBCByNative));
+        assertTrue("Couldnt verify", NativeSecp256k1.verify(messageHash, signatureRecoverableNative, pkRecoveredFromNativeByBC));
+        assertTrue("Couldnt verify", NativeSecp256k1.verify(messageHash, signatureRecoverableNative, pkRecoveredFromNativeByNative));
+
+
     }
 
     ECDSASignature getEcdsaSignature(byte[] signCompact) {
