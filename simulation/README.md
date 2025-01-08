@@ -27,6 +27,19 @@ This folder contains tools for analyzing mining pool behavior in the RSK network
   - Shows distribution of blocks among miners
   - Displays statistics about known and unknown miners
 
+### Reorganization Analysis
+- `reorgs/reorgs.py`: Analyzes blockchain reorganization events from node logs
+  - Identifies chain reorganizations
+  - Tracks block numbers involved in reorgs
+  - Calculates reorg statistics
+  - Helps understand the frequency and impact of reorgs
+
+- `reorgs/reorgs.sh`: Shell script for quick reorg analysis
+  - Processes log files to find reorgs
+  - Counts total number of reorgs
+  - Shows reorg frequency relative to block count
+  - Provides a simple command-line interface for reorg analysis
+
 ## Known Miners
 Currently tracking the following mining pools:
 - F2Pool: `0x12d3178a62ef1f520944534ed04504609f7307a1`
@@ -71,6 +84,16 @@ python analyze_timestamps.py
 3. Analyze mining patterns:
 ```bash
 python analyze_miners.py
+```
+
+4. Analyze reorganizations:
+```bash
+cd reorgs
+# Using Python script
+python reorgs.py
+
+# Using Shell script
+./reorgs.sh
 ```
 
 ## Results Directory
