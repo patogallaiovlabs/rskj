@@ -1,0 +1,78 @@
+; Define the matrix to track blocks
+Blocks MATRIX ,5,2 ; Rows = miners (1-5), Columns = block types (1 = MainBlock, 2 = StaleBlock)
+
+; Define tables for block interval tabulation
+MainChainBlockIntervals5 TABLE X$IntervalMainChainBlocks,5,5,40 ; Intervals between main chain blocks
+MainChainBlockIntervals2 TABLE X$IntervalMainChainBlocks,2,2,100 ; Intervals between main chain blocks
+AllBlockIntervals       TABLE X$IntervalAllBlocks,2,2,100       ; Intervals between all blocks
+
+; Global variables for tracking last block times
+SAVEVALUE LastMainBlockTime,0
+SAVEVALUE LastBlockTime,0
+SAVEVALUE LastBlockMiner,0
+
+; Network delay function
+NetworkDelay FUNCTION RN1,C3
+0,0.5/.5,1/1,2 ; Delay between 0 and 2 seconds for other miners
+
+; Generate miners (1 transaction per miner)
+GENERATE 1,,,1 ; Miner 1
+ASSIGN MinerID,1
+TRANSFER ,MineBlock
+
+GENERATE 1,,,1 ; Miner 2
+ASSIGN MinerID,2
+TRANSFER ,MineBlock
+
+GENERATE 1,,,1 ; Miner 3
+ASSIGN MinerID,3
+TRANSFER ,MineBlock
+
+GENERATE 1,,,1 ; Miner 4
+ASSIGN MinerID,4
+TRANSFER ,MineBlock
+
+GENERATE 1,,,1 ; Miner 5
+ASSIGN MinerID,5
+TRANSFER ,MineBlock
+
+; Mining process (shared logic for all miners)
+MineBlock ASSIGN RefreshTime,(EXPONENTIAL(20,1,FN$RefreshTime)) ; Assign refresh time
+          ADVANCE (EXPONENTIAL(P$MinerID,1,FN$MiningTime)) ; Simulate block mining time
+          SPLIT 1,NewBlock
+          TRANSFER ,MineBlock
+
+; New block processing (split transaction logic)
+NewBlock ADVANCE FN$NetworkDelay
+         ASSIGN TempModulo,(M1@FN$RefreshTime) ; Calculate modulo
+         ASSIGN NewBlockTime,(M1-X$GlobalLastBlockTime) ; Time since last global block
+
+         ; Tabulate time between all blocks
+         SAVEVALUE IntervalAllBlocks,(M1-X$LastBlockTime) ; Interval since last block
+         SAVEVALUE LastBlockTime,M1 ; Update last block time
+         TABULATE AllBlockIntervals ; Record interval between all blocks
+
+         ; Determine if block is new or stale
+         TEST L P$TempModulo,P$NewBlockTime,StaleBlock ; If TempModulo < NewBlockTime
+
+MainBlock MSAVEVALUE Blocks+,P$MinerID,1,1 ; Increment main block count for this miner
+          SAVEVALUE GlobalLastBlockTime,M1 ; Update global last block time
+          SAVEVALUE LastBlockMiner,P$MinerID ; Record the miner who discovered this block
+
+          ; Tabulate time between main chain blocks
+          SAVEVALUE IntervalMainChainBlocks,(M1-X$LastMainBlockTime) ; Interval since last main block
+          SAVEVALUE LastMainBlockTime,M1 ; Update last main block time
+          TABULATE MainChainBlockIntervals2 ; Record interval between main chain blocks
+          TABULATE MainChainBlockIntervals5 ; Record interval between main chain blocks
+          TERMINATE
+
+StaleBlock MSAVEVALUE Blocks+,P$MinerID,2,1 ; Increment stale block count for this miner
+           TERMINATE
+
+; Controller transaction to terminate miners after 50,000 seconds
+GENERATE 1,,,1 ; Start controller transaction
+Controller ADVANCE 50000 ; Simulate 50,000 seconds
+           TERMINATE 6 ; Terminate all miners and itself
+
+; Start simulation with 5 miners and 1 controller
+START 6

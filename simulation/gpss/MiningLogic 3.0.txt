@@ -1,0 +1,111 @@
+; Define global variables
+SAVEVALUE CurrentBlockNumber,0 ; Track the current block number
+SAVEVALUE LastMainBlockTime,0
+SAVEVALUE LastBlockTime,0
+SAVEVALUE LastBlockMiner,0
+
+
+; Define tables for block interval tabulation
+Blocks MATRIX ,20000,2 ; Rows = block number (up to 20,000), Columns = 1 = MainBlock, 2 = StaleBlocks
+MinerBlocks MATRIX ,5,2 ; Rows = miners (1-5), Columns = 1 = Mainchain Blocks, 2 = Stale Blocks
+
+
+HistogramUnclesByBlock TABLE X$UnclesByBlock,1,1,10 ; Tabulate uncles by block
+MainChainBlockIntervals5 TABLE X$IntervalMainChainBlocks,5,5,40 ; Intervals between main chain blocks
+MainChainBlockIntervals2 TABLE X$IntervalMainChainBlocks,2,2,100 ; Intervals between main chain blocks
+AllBlockIntervals       TABLE X$IntervalAllBlocks,2,2,100       ; Intervals between all blocks
+
+; Generate miners (1 transaction per miner)
+GENERATE 1,,,1 ; Miner 1
+ASSIGN MinerID,1
+ASSIGN RefreshTime,0
+ASSIGN LastRefreshTime,0
+TRANSFER ,MineBlock
+
+GENERATE 1,,,1 ; Miner 2
+ASSIGN MinerID,2
+ASSIGN RefreshTime,0
+ASSIGN LastRefreshTime,0
+TRANSFER ,MineBlock
+
+GENERATE 1,,,1 ; Miner 3
+ASSIGN MinerID,3
+ASSIGN RefreshTime,0
+ASSIGN LastRefreshTime,0
+TRANSFER ,MineBlockF2
+
+GENERATE 1,,,1 ; Miner 4
+ASSIGN MinerID,4
+ASSIGN RefreshTime,0
+ASSIGN LastRefreshTime,0
+TRANSFER ,MineBlock
+
+GENERATE 1,,,1 ; Miner 5
+ASSIGN MinerID,5
+ASSIGN RefreshTime,0
+ASSIGN LastRefreshTime,0
+TRANSFER ,MineBlock
+
+
+; Mining process
+MineBlockF2   ADVANCE (EXPONENTIAL(P$MinerID,1,FN$MiningTime)) ; Simulate block mining time
+            SPLIT 1,NewBlockF2
+            TRANSFER ,MineBlockF2
+
+NewBlockF2    TEST G M1,P$RefreshTime,NewBlock
+		ASSIGN LastRefreshTime,P$RefreshTime
+		ASSIGN RefreshTime+,(EXPONENTIAL(20,1,FN$RefreshTime))
+		TRANSFER ,NewBlockF2
+
+
+; Mining process
+MineBlock   ADVANCE (EXPONENTIAL(P$MinerID,1,FN$MiningTime)) ; Simulate block mining time
+            SPLIT 1,UpdateRefresh
+            TRANSFER ,MineBlock
+
+UpdateRefresh	ASSIGN	LastRefreshTime,X$LastRefreshTime
+			TEST G M1,X$RefreshTime,NewBlock
+			SAVEVALUE 	LastRefreshTime,X$RefreshTime
+			SAVEVALUE 	RefreshTime+,(EXPONENTIAL(20,1,FN$RefreshTime))
+			TRANSFER 	,UpdateRefresh
+
+NewBlock	ASSIGN NewBlockTime,(M1-X$LastMainBlockTime) ; Time since last new block
+
+		ADVANCE FN$NetworkDelay ; Simulate network delay
+
+	 	; Tabulate time between all blocks
+         	SAVEVALUE IntervalAllBlocks,(M1-X$LastBlockTime) ; Interval since last block
+         	SAVEVALUE LastBlockTime,M1 ; Update last block time
+         	TABULATE AllBlockIntervals ; Record interval between all blocksr
+
+            ; Determine if block is new or stale		
+		TEST G X$CurrentBlockNumber,0,MainBlock
+		;TEST E P$MinerID,X$LastBlockMiner,MainBlock
+            TEST G P$LastRefreshTime,X$LastMainBlockTime,StaleBlock
+
+MainBlock   SAVEVALUE CurrentBlockNumber+,1 ; Increment block number
+            MSAVEVALUE Blocks+,X$CurrentBlockNumber,1,1 ; Increment main block count for current block number
+            MSAVEVALUE MinerBlocks+,P$MinerID,1,1 ; Increment mainchain block count for this miner
+            SAVEVALUE LastBlockMiner,P$MinerID ; Record miner
+
+		; Tabulate time between main chain blocks
+          	SAVEVALUE IntervalMainChainBlocks,(M1-X$LastMainBlockTime) ; Interval since last main block
+          	SAVEVALUE LastMainBlockTime,M1 ; Update last main block time
+          	TABULATE MainChainBlockIntervals2 ; Record interval between main chain blocks
+          	TABULATE MainChainBlockIntervals5 ; Record interval between main chain blocks
+		
+		ASSIGN Row,X$CurrentBlockNumber
+            SAVEVALUE UnclesByBlock,0
+
+		TERMINATE
+
+StaleBlock  MSAVEVALUE Blocks+,X$CurrentBlockNumber,2,1 ; Increment uncle count for current block number
+            MSAVEVALUE MinerBlocks+,P$MinerID,2,1 ; Increment stale block count for this miner		
+		; Update histogram of uncles by block
+		ASSIGN Row,X$CurrentBlockNumber
+            SAVEVALUE UnclesByBlock,MX$Blocks(P$Row,2) ; Count uncles for this block
+            TABULATE HistogramUnclesByBlock ; Add to histogram
+            
+		TERMINATE
+
+
