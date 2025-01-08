@@ -193,6 +193,7 @@ public class Remasc {
         } else {
             if (previousBrokenSelectionRule) {
                 // broken selection rule, apply punishment, ie burn part of the reward.
+                logger.info("SIMULATION - broken selection rule, block number: {}.", executionBlockNumber);
                 Coin punishment = syntheticReward.divide(BigInteger.valueOf(remascConstants.getPunishmentDivisor()));
                 syntheticReward = syntheticReward.subtract(punishment);
                 provider.setBurnedBalance(provider.getBurnedBalance().add(punishment));

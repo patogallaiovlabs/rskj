@@ -46,7 +46,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Original comment:
- *
+ * <p>
  * The Ethereum blockchain is in many ways similar to the Bitcoin blockchain,
  * although it does have some differences.
  * <p>
@@ -70,7 +70,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <li>Check if S_FINAL is the same as the STATE_ROOT. If it is, the block is valid; otherwise, it is not valid.</li>
  * </ol>
  * See <a href="https://github.com/ethereum/wiki/wiki/White-Paper#blockchain-and-mining">Ethereum Whitepaper</a>
- *
  */
 
 public class BlockChainImpl implements Blockchain {
@@ -123,12 +122,12 @@ public class BlockChainImpl implements Blockchain {
     /**
      * Try to add a block to a blockchain
      *
-     * @param block        A block to try to add
+     * @param block A block to try to add
      * @return IMPORTED_BEST if the block is the new best block
-     *      IMPORTED_NOT_BEST if it was added to alternative chain
-     *      NO_PARENT  the block parent is unknown yet
-     *      INVALID_BLOCK   the block has invalida data/state
-     *      EXISTS  the block was already processed
+     * IMPORTED_NOT_BEST if it was added to alternative chain
+     * NO_PARENT  the block parent is unknown yet
+     * INVALID_BLOCK   the block has invalida data/state
+     * EXISTS  the block was already processed
      */
     @Override
     public ImportResult tryToConnect(Block block) {
@@ -149,8 +148,8 @@ public class BlockChainImpl implements Blockchain {
                 org.slf4j.MDC.put("blockHeight", Long.toString(block.getNumber()));
 
                 logger.trace("Try connect block hash: {}, number: {}",
-                             block.getPrintableHash(),
-                             block.getNumber());
+                        block.getPrintableHash(),
+                        block.getNumber());
 
                 synchronized (connectLock) {
                     logger.trace("Start try connect");
@@ -158,12 +157,21 @@ public class BlockChainImpl implements Blockchain {
                     ImportResult result = internalTryToConnect(block);
                     long totalTime = System.nanoTime() - saveTime;
                     String timeInSeconds = FormatUtils.formatNanosecondsToSeconds(totalTime);
-
+                    final String[] uncles = {""};
+                    block.getUncleList().forEach(uncle -> {
+                            uncles[0] += uncle.getPrintableHash() + ", ";
+                    });
+                    //SIMULATION logs modified
                     if (BlockUtils.tooMuchProcessTime(totalTime)) {
-                        logger.warn("block: num: [{}] hash: [{}], processed after: [{}]seconds, result {}", block.getNumber(), block.getPrintableHash(), timeInSeconds, result);
-                    }
-                    else {
-                        logger.info("block: num: [{}] hash: [{}], processed after: [{}]seconds, result {}", block.getNumber(), block.getPrintableHash(), timeInSeconds, result);
+                        logger.warn("block: num: [{}] hash: [{}], parentHash:[{}], coinbase:[{}], uncles:[{}], difficulty:[{}], txs:[{}], timestamp:{}, processed after: [{}]seconds, result {}",
+                                block.getNumber(), block.getPrintableHash(), block.getParentHash().toHexString(), block.getCoinbase().toHexString(),
+                                uncles[0], block.getDifficulty().toString(),
+                                block.getTransactionsList().size(), block.getTimestamp(), timeInSeconds, result);
+                    } else {
+                        logger.info("block: num: [{}] hash: [{}], parentHash:[{}], coinbase:[{}], uncles:[{}], difficulty:[{}], txs:[{}], timestamp:{}, processed after: [{}]seconds, result {}",
+                                block.getNumber(), block.getPrintableHash(), block.getParentHash().toHexString(), block.getCoinbase().toHexString(),
+                                uncles[0], block.getDifficulty().toString(),
+                                block.getTransactionsList().size(), block.getTimestamp(), timeInSeconds, result);
                     }
 
                     return result;
@@ -171,14 +179,12 @@ public class BlockChainImpl implements Blockchain {
             } catch (Throwable t) {
                 logger.error("Unexpected error: ", t);
                 return ImportResult.INVALID_BLOCK;
-            }
-            finally {
+            } finally {
                 org.slf4j.MDC.remove("blockHash");
                 org.slf4j.MDC.remove("blockHeight");
 
             }
-        }
-        finally {
+        } finally {
             this.lock.readLock().unlock();
         }
 
@@ -190,8 +196,8 @@ public class BlockChainImpl implements Blockchain {
         if (blockStore.getBlockByHash(block.getHash().getBytes()) != null &&
                 !BlockDifficulty.ZERO.equals(blockStore.getTotalDifficultyForHash(block.getHash().getBytes()))) {
             logger.debug("Block already exist in chain hash: {}, number: {}",
-                         block.getPrintableHash(),
-                         block.getNumber());
+                    block.getPrintableHash(),
+                    block.getNumber());
             profiler.stop(metric);
             return ImportResult.EXIST;
         }
@@ -270,8 +276,7 @@ public class BlockChainImpl implements Blockchain {
 
             if (BlockUtils.tooMuchProcessTime(totalTime)) {
                 logger.warn("block: num: [{}] hash: [{}], executed after: [{}]seconds", block.getNumber(), block.getPrintableHash(), timeInSeconds);
-            }
-            else {
+            } else {
                 logger.trace("block: num: [{}] hash: [{}], executed after: [{}]seconds", block.getNumber(), block.getPrintableHash(), timeInSeconds);
             }
 
@@ -286,11 +291,15 @@ public class BlockChainImpl implements Blockchain {
         logger.trace("TD: updated to {}", totalDifficulty);
 
         // It is the new best block
-        if (SelectionRule.shouldWeAddThisBlock(totalDifficulty, status.getTotalDifficulty(),block, bestBlock)) {
+        if (SelectionRule.shouldWeAddThisBlock(totalDifficulty, status.getTotalDifficulty(), block, bestBlock)) {
             if (bestBlock != null && !bestBlock.isParentOf(block)) {
-                logger.trace("Rebranching: {} ~> {} From block {} ~> {} Difficulty {} Challenger difficulty {}",
-                        bestBlock.getPrintableHash(), block.getPrintableHash(), bestBlock.getNumber(), block.getNumber(),
-                        status.getTotalDifficulty(), totalDifficulty);
+                if (bestBlock.getNumber() != block.getNumber()) {
+                    logger.info("Rebranching: {} ~> {} From block {} ~> {} Difficulty {} Challenger difficulty {}",
+                            bestBlock.getPrintableHash(), block.getPrintableHash(), bestBlock.getNumber(), block.getNumber(),
+                            status.getTotalDifficulty(), totalDifficulty);
+                    logger.info("Rebranching coinbase: {} ~> {}/{} ",
+                            bestBlock.getCoinbase(), block.getCoinbase(), getBlockByHash(block.getParentHash().getBytes()).getCoinbase());
+                }
                 blockStore.reBranch(block);
             }
 
@@ -350,8 +359,8 @@ public class BlockChainImpl implements Blockchain {
     /**
      * Change the blockchain status, to a new best block with difficulty
      *
-     * @param block        The new best block
-     * @param totalDifficulty   The total difficulty of the new blockchain
+     * @param block           The new best block
+     * @param totalDifficulty The total difficulty of the new blockchain
      */
     @Override
     public void setStatus(Block block, BlockDifficulty totalDifficulty) {
@@ -407,14 +416,15 @@ public class BlockChainImpl implements Blockchain {
             for (Block block : blocks) {
                 blockStore.removeBlock(block);
             }
-        }
-        finally {
+        } finally {
             this.lock.writeLock().unlock();
         }
     }
 
     @Override
-    public Block getBlockByNumber(long number) { return blockStore.getChainBlockByNumber(number); }
+    public Block getBlockByNumber(long number) {
+        return blockStore.getChainBlockByNumber(number);
+    }
 
     @Override
     public Block getBestBlock() {
@@ -462,7 +472,8 @@ public class BlockChainImpl implements Blockchain {
         return status.getTotalDifficulty();
     }
 
-    @Override @VisibleForTesting
+    @Override
+    @VisibleForTesting
     public byte[] getBestBlockHash() {
         return getBestBlock().getHash().getBytes();
     }
@@ -509,14 +520,14 @@ public class BlockChainImpl implements Blockchain {
     }
 
     private void onBestBlock(Block block, BlockResult result) {
-        if (result != null && listener != null){
+        if (result != null && listener != null) {
             listener.onBestBlock(block, result.getTransactionReceipts());
         }
     }
 
     private boolean isValid(Block block) {
         Metric metric = profiler.start(Profiler.PROFILING_TYPE.BLOCK_VALIDATION);
-        boolean validation =  blockValidator.isValid(block);
+        boolean validation = blockValidator.isValid(block);
         profiler.stop(metric);
         return validation;
     }
