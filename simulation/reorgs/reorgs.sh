@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Path to the log file
-log_file="../logs/rsk.log"
+#log_file = "../logs/rsk.log"
+log_file = "samples/rskj-2025-01-15.0.log"
 
 # Get the first line that contains IMPORTED_BEST and extract the block number
 first_block_num=$(grep -m 1 'IMPORTED_BEST' "$log_file" | \

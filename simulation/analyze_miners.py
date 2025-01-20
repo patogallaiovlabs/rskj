@@ -86,5 +86,5 @@ def analyze_coinbases(filename):
         print(f"Error processing file: {e}")
 
 if __name__ == "__main__":
-    log_file = "../logs/rsk.log"  # Adjust path as needed
+    log_file = "samples/rskj-2025-01-15.0.log"  # Adjust path as needed
     analyze_coinbases(log_file) 

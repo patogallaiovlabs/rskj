@@ -158,5 +158,6 @@ def analyze_process_times(filename):
         print(f"Error processing file: {e}")
 
 if __name__ == "__main__":
-    log_file = "../logs/rsk.log"  # Adjust path as needed
+    #log_file = "../logs/rsk.log"
+    log_file = "samples/rskj-2025-01-15.0.log"
     analyze_process_times(log_file) 

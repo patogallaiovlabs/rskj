@@ -202,7 +202,7 @@ def prune_old_blocks(current_block_number):
         G.remove_node(node)
 
 def tail_log_file(file_path, q):
-    process = subprocess.Popen(['tail', '-200000F', file_path], 
+    process = subprocess.Popen(['tail', '-200000000000F', file_path], 
                              stdout=subprocess.PIPE, 
                              stderr=subprocess.PIPE, 
                              text=True)
@@ -218,7 +218,8 @@ def tail_log_file(file_path, q):
         process.terminate()  # Asegura que el proceso 'tail' se cierre correctamente
 
 if __name__ == "__main__":
-    log_file = "../../logs/rsk.log"
+    # log_file = "../../logs/rsk.log"
+    log_file = "../samples/rskj-2025-01-15.0.log"
     log_file_path = os.path.abspath(log_file)
 
     q = queue.Queue()
@@ -232,7 +233,7 @@ if __name__ == "__main__":
     while True:
         while not q.empty():
             line = q.get()
-            if process_line(line):
-                plot_miner_blocks()
-                plot_new_blocks_vs_reorgs()
+            process_line(line)
+        plot_miner_blocks()
+        plot_new_blocks_vs_reorgs()
         plt.pause(0.1)

@@ -48,16 +48,14 @@ difficulties = deque(maxlen=5000)
 
 # Create separate figures for each plot
 fig1, ax1 = plt.subplots()
-fig2, (ax2, ax3, ax4) = plt.subplots(3, 1, figsize=(10, 15))
+fig2, ax2 = plt.subplots()
 fig3, ax5 = plt.subplots()  # New figure for uncle distribution
-fig4, ax6 = plt.subplots()  # New figure for main and sibling blocks per miner
 fig5, ax7 = plt.subplots()  # New figure for total main vs sibling blocks
 
 # Set window titles
 fig1.canvas.manager.set_window_title('Mining graph')
 fig2.canvas.manager.set_window_title('Stats')
 fig3.canvas.manager.set_window_title('Uncle Distribution')  # Set title for new window
-fig4.canvas.manager.set_window_title('Main and Sibling Blocks per Miner')  # Set title for new window
 fig5.canvas.manager.set_window_title('Total Main vs Sibling Blocks')
 
 # Enable interactive mode
@@ -129,8 +127,6 @@ def plot_graph():
 
 def plot_time_graph():
     ax2.clear()
-    ax3.clear()
-    ax4.clear()
     ax5.clear()
 
     # Ensure all lists have the same length and are not empty
@@ -139,11 +135,10 @@ def plot_time_graph():
     avg_new_block_times = list(average_new_block_times)
     tx_counts = list(transaction_counts)
     uncle_counts_list = list(uncle_counts)
-    difficulty_vals = list(difficulties)
 
     # Ensure all lists have the same length
     min_length = min(len(block_nums), len(latencies), len(avg_new_block_times), 
-                    len(tx_counts), len(uncle_counts_list), len(difficulty_vals))
+                    len(tx_counts), len(uncle_counts_list))
     
     if min_length == 0:
         return  # Exit if no data
@@ -153,7 +148,6 @@ def plot_time_graph():
     avg_new_block_times = avg_new_block_times[:min_length]
     tx_counts = tx_counts[:min_length]
     uncle_counts_list = uncle_counts_list[:min_length]
-    difficulty_vals = difficulty_vals[:min_length]
 
     # Create smoothed curves using exponential moving average
     def exp_moving_average(data, alpha=0.1):
@@ -191,40 +185,6 @@ def plot_time_graph():
     ax2.legend()
     ax2.grid(True, which="both", ls="-", alpha=0.2)
 
-    # Plot difficulty values with matching dimensions
-    if difficulty_vals:
-        ax4.plot(block_nums, [int(str(d)[:4]) for d in difficulty_vals], 
-                 label='Difficulty', color='orange')
-        ax4.set_xlabel('Block Number')
-        ax4.set_ylabel('Difficulty (first 4 digits)')
-        ax4.set_title('Block Difficulty Over Time')
-        ax4.legend()
-
-    # Calculate histogram for mining times
-    mining_times = np.array(latencies)
-    if mining_times.size > 0:
-        bins = range(0, int(mining_times.max()) + 2, 2)
-        hist, bin_edges = np.histogram(mining_times, bins=bins)
-
-        # Plot histogram
-        ax3.bar(bin_edges[:-1], hist, width=2, color='blue', alpha=0.7)
-
-        # Calculate percentiles
-        percentiles = [50, 70, 90]
-        percentile_values = np.percentile(mining_times, percentiles)
-
-        # Add vertical lines for percentiles
-        colors = ['red', 'green', 'orange']
-        for perc, value, color in zip(percentiles, percentile_values, colors):
-            ax3.axvline(value, color=color, linestyle='dashed', linewidth=1, label=f'{perc}th Percentile')
-
-        ax3.legend()
-    else:
-        print("No data available for mining times.")
-    ax3.set_xlabel('Mining Time (seconds)')
-    ax3.set_ylabel('Number of Blocks')
-    ax3.set_title('Distribution of Mining Times')
-
     # Plot uncle distribution in the new window
     if uncle_counts_list:
         bins = range(0, max(uncle_counts_list) + 2)
@@ -239,42 +199,24 @@ def plot_time_graph():
     fig3.canvas.draw()  # Draw the new figure
     plt.draw()
 
-def plot_miner_blocks():
-    ax6.clear()
-
-    # Combine main and sibling blocks for sorting
-    combined_blocks = {miner: main_blocks_per_miner[miner] + sibling_blocks_per_miner[miner] for miner in main_blocks_per_miner.keys()}
-
-    # Sort miners by combined blocks in descending order
-    sorted_miners = sorted(combined_blocks.keys(), key=lambda miner: combined_blocks[miner], reverse=True)
-
-    main_blocks = [main_blocks_per_miner[miner] for miner in sorted_miners]
-    sibling_blocks = [sibling_blocks_per_miner[miner] for miner in sorted_miners]
-
-    x = np.arange(len(sorted_miners))
-    width = 0.25
-
-    bars1 = ax6.bar(x - width/2, main_blocks, width, label='Main Blocks')
-    bars2 = ax6.bar(x + width/2, sibling_blocks, width, label='Sibling Blocks')
-
-    ax6.set_xlabel('Miners')
-    ax6.set_ylabel('Number of Blocks')
-    ax6.set_title('Main and Sibling Blocks per Miner')
-    ax6.set_xticks(x)
-    ax6.set_xticklabels([coinbase_labels.get(miner, 'Unknown') for miner in sorted_miners], rotation=20, ha='right')
-    ax6.legend()
-
-    # Add labels to the bars
-    for bar in bars1:
-        height = bar.get_height()
-        ax6.text(bar.get_x() + bar.get_width() / 2, height, f'{height}', ha='center', va='bottom')
-
-    for bar in bars2:
-        height = bar.get_height()
-        ax6.text(bar.get_x() + bar.get_width() / 2, height, f'{height}', ha='center', va='bottom')
-
-    fig4.canvas.draw()
-    plt.draw()
+def plot_histogram_with_percentiles(block_times):
+    """
+    Plot histogram of block times with percentiles in an independent window
+    """
+    percentiles = [50, 75, 90, 95, 99]
+    percentile_values = np.percentile(block_times, percentiles)
+    
+    plt.figure()
+    plt.hist(block_times, bins=50, edgecolor='black', alpha=0.7)
+    plt.title('Histogram of Block Times with Percentiles')
+    plt.xlabel('Block Time (seconds)')
+    plt.ylabel('Frequency')
+    
+    for percentile, value in zip(percentiles, percentile_values):
+        plt.axvline(value, color='r', linestyle='dashed', linewidth=1)
+        plt.text(value, plt.ylim()[1] * 0.9, f'{percentile}th: {value:.2f}s', color='r', rotation=90, verticalalignment='center')
+    
+    plt.show()
 
 def plot_total_blocks():
     ax7.clear()
@@ -310,8 +252,9 @@ def plot_total_blocks():
 def process_line(line):
     global coinbase_counter, last_block_number
     if 'IMPORTED' in line:
-        match = re.search(r'(\d+-\d+-\d+-\d+:\d+:\d+\.\d+).*block: num: \[(\d+)\].*hash:\s*\[([0-9a-fA-F]+)\],\s*parentHash:\[(\w+)\],\s*coinbase:\[(\w+)\],\s*uncles:\[([0-9a-fA-F, ]*)\],\s*difficulty:\[(\d+)\],\s*txs:\[(\d+)\],\s*timestamp:(\d+),.*result (IMPORTED_BEST|IMPORTED_NOT_BEST)', line)
+        match = re.search(r'(\d+-\d+-\d+-\d+:\d+:\d+\.\d+).*block: num: \[(\d+)\].*hash:\s*\[([0-9a-fA-F]+)\],\s*parentHash:\[(\w+)\],\s*coinbase:\[(\w+)\],\s*uncles:\[([0-9a-fA-F, ]*)\],\s*difficulty:\[(\d+)\],\s*txs:\[(\d+)\],\s*timestamp:(\d+),.*result (.*)', line)
         if match:
+            print("New block")
             log_time_str = match.group(1)
             block_number = int(match.group(2))
             hash_id = match.group(3)
@@ -354,20 +297,26 @@ def process_line(line):
             coinbase_index = coinbase_dict[coinbase]
             coinbase_counts[coinbase] += 1
 
+            print("Adding block")
             if hash_id not in G:
                 G.add_node(hash_id, block_number=block_number, status=status, coinbase_index=coinbase_index, coinbase=coinbase, log_time=log_time, block_time_gmt3=block_time_gmt3, mining_time=mining_time, uncles=uncles, tx_count=tx_count)
             if parent_hash_id not in G:
                 G.add_node(parent_hash_id, block_number=block_number-1, status='IMPORTED_NOT_BEST', coinbase_index=coinbase_index, coinbase=coinbase, log_time=log_time, block_time_gmt3=block_time_gmt3, mining_time=0, tx_count=0)  # Assuming parent block is one less
             G.add_edge(parent_hash_id, hash_id)
 
+            print("Adding uncles")
             # Add uncle nodes if they do not exist
             for uncle in uncles:
                 if uncle not in G:
                     G.add_node(uncle, block_number=block_number, status='UNCLE', coinbase_index=coinbase_index, coinbase=coinbase, log_time=log_time, block_time_gmt3=block_time_gmt3, mining_time=mining_time, is_uncle=True, tx_count=0)
                 G.add_edge(uncle, hash_id)
 
+
+            print("Pruning old blocks")
             prune_old_blocks(block_number)
 
+
+            print("Updating plots")
             # Update block latencies, block numbers, transaction counts, uncle counts, and difficulties for the new graph
             block_latencies.append(mining_time)
             block_numbers.append(block_number)
@@ -378,6 +327,7 @@ def process_line(line):
                 avg_new_block_time = sum((new_block_times[i] - new_block_times[i - 1]).total_seconds() for i in range(1, len(new_block_times))) / (len(new_block_times) - 1)
                 average_new_block_times.append(avg_new_block_time)
 
+            print("End of processing")
             return True
     return False
 
@@ -387,14 +337,15 @@ def prune_old_blocks(current_block_number):
         G.remove_node(node)
 
 def tail_log_file(file_path, q):
-    process = subprocess.Popen(['tail', '-100000F', file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    process = subprocess.Popen(['tail', '-1000000000000F', file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     while True:
         line = process.stdout.readline()
         if line:
             q.put(line)
 
 if __name__ == "__main__":
-    log_file = "../logs/rsk.log"
+    #log_file = "../logs/rsk.log"
+    log_file = "samples/rskj-2025-01-15.0.log"
     log_file_path = os.path.abspath(log_file)
 
     q = queue.Queue()
@@ -408,9 +359,8 @@ if __name__ == "__main__":
     while True:
         while not q.empty():
             line = q.get()
-            if process_line(line):
-                plot_graph()
-                plot_time_graph()
-                plot_miner_blocks()
-                plot_total_blocks()
+            process_line(line)
+        plot_graph()
+        plot_time_graph()
+        plot_total_blocks()
         plt.pause(0.1)

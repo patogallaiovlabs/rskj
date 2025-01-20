@@ -15,7 +15,8 @@ miner_labels = {
     "4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1": "AntPool",
     "5aee2975e2ed688f231ccb40e20ee6c10a98d507": "Sec Pool",
     "08f6c90cfc462db10d4dd41fb1f2162ff854a462": "ViaBTC",
-    "cf5072f792246690c75c63638e3d98bb2554ff2c": "Luxor"
+    "cf5072f792246690c75c63638e3d98bb2554ff2c": "Luxor",
+    "0fd9b9b567a459c6c9645ab0847785aef13dfe1b": "SpiderPool",
 }
 all_block_times = deque()  # Stores times between all blocks (including siblings)
 main_chain_times = deque()  # Stores times between main chain blocks only
@@ -228,7 +229,8 @@ def tail_log_file(file_path):
 
 if __name__ == "__main__":
     # Log file path
-    log_file = "../logs/rsk.log"
+        #log_file = "../logs/rsk.log"
+    log_file = "samples/rskj-2025-01-15.0.log"
 
     # Read history first
     read_history(log_file, lines=100000)

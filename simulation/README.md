@@ -10,15 +10,7 @@ This folder contains tools for analyzing mining pool behavior in the RSK network
   - Saves timestamps and intervals to files in the results directory
   - Output: `timestamps_{n}.json` and `intervals_{n}.txt`
 
-- `template_refresh/analyze_timestamps.py`: Analyzes the collected template update data
-  - Allows selection of specific time windows for analysis
-  - Creates visualizations of update patterns
-  - Calculates correlations between different pools' update times
-  - Output files (in results directory):
-    - `timeline_plot_{n}.png`: Visualization of template updates over time
-    - `correlation_heatmap_{n}.png`: Heatmap showing correlations between pools
-    - `summary_{n}.txt`: Statistical summary of the analysis
-    - `miner_stats_{n}.txt`: Detailed statistics for known miners
+python template_refresh/get_intervals.py
 
 ### Mining Analysis
 - `analyze_miners.py`: Analyzes mining patterns from RSK node logs
@@ -26,6 +18,26 @@ This folder contains tools for analyzing mining pool behavior in the RSK network
   - Identifies known mining pools
   - Shows distribution of blocks among miners
   - Displays statistics about known and unknown miners
+
+- `plot_mining_times.py`: Plots histogram of mining times with percentiles
+  - Extracts mining times from log files
+  - Displays histogram with percentiles in an independent window
+  - Output: Histogram plot
+
+- `plot_main_vs_sibling_blocks.py`: Plots main vs sibling blocks by miner
+  - Extracts main and sibling blocks from log files
+  - Displays bar chart comparing main and sibling blocks for each miner
+  - Output: Bar chart plot
+
+- `plot_total_blocks.py`: Plots total main chain vs sibling blocks
+  - Extracts main and sibling blocks from log files
+  - Displays bar chart comparing total main chain vs sibling blocks
+  - Output: Bar chart plot
+
+- `plot_uncle_distribution.py`: Plots distribution of uncle counts
+  - Extracts uncle counts from log files
+  - Displays histogram of uncle counts
+  - Output: Histogram plot
 
 ### Reorganization Analysis
 - `reorgs/reorgs.py`: Analyzes blockchain reorganization events from node logs
@@ -39,6 +51,20 @@ This folder contains tools for analyzing mining pool behavior in the RSK network
   - Counts total number of reorgs
   - Shows reorg frequency relative to block count
   - Provides a simple command-line interface for reorg analysis
+
+### Difficulty Analysis
+- `plot_difficulty.py`: Plots difficulty over time
+  - Extracts difficulty data from log files
+  - Displays difficulty over time in an independent window
+  - Output: Line plot
+
+### Utility Scripts
+- `log_processor.py`: Contains functions for processing log files
+  - `process_line`: Processes a line from the log file to extract relevant data
+  - Global variables for storing extracted data
+
+- `log_utils.py`: Contains utility functions for log file handling
+  - `tail_log_file`: Tails a log file and puts each line into a queue
 
 ## Known Miners
 Currently tracking the following mining pools:
@@ -70,23 +96,36 @@ Currently tracking the following mining pools:
 ## Usage
 
 1. Monitor template updates:
-``` 
-bash
-cd template_refresh
-python get_intervals.py
+```bash
+cd template_refresh python get_intervals.py
 ```
+
 
 2. Analyze collected data:
 ```bash
 python analyze_timestamps.py
 ```
-
 3. Analyze mining patterns:
 ```bash
 python analyze_miners.py
 ```
-
-4. Analyze reorganizations:
+4. Plot mining times:
+```bash
+python plot_mining_times.py
+```
+5. Plot main vs sibling blocks:
+```bash
+python plot_main_vs_sibling_blocks.py
+```
+6. Plot total main chain vs sibling blocks:
+```bash
+python plot_total_blocks.py
+```
+7. Plot uncle distribution:
+```bash
+python plot_uncle_distribution.py
+```
+8. Analyze reorganizations:
 ```bash
 cd reorgs
 # Using Python script
@@ -95,10 +134,18 @@ python reorgs.py
 # Using Shell script
 ./reorgs.sh
 ```
+9. Plot difficulty over time:
+```bash
+python plot_difficulty.py
+```
 
 ## Results Directory
-All output files are stored in the `results` directory:
-- Timestamp data: `timestamps_{n}.json`
-- Interval data: `intervals_{n}.txt`
-- Visualizations: `timeline_plot_{n}.png`, `correlation_heatmap_{n}.png`
-- Analysis summaries: `summary_{n}.txt`, `miner_stats_{n}.txt`
+All output files are stored in the results directory:
+
+* Timestamp data: timestamps_{n}.json
+* Interval data: intervals_{n}.txt
+* Visualizations: timeline_plot_{n}.png, correlation_heatmap_{n}.png
+* Analysis summaries: summary_{n}.txt, miner_stats_{n}.txt
+* Histogram plots: histogram_{n}.png
+* Bar chart plots: bar_chart_{n}.png
+* Difficulty plots: difficulty_plot_{n}.png

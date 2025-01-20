@@ -34,13 +34,14 @@ def parse_intervals(filename):
         print(f"Warning: No intervals found in {filename}")
     
     return pool_intervals
+    
 
 def plot_histograms(pool_intervals, bin_size):
     """
     Create histograms for each pool's intervals with specified bin size
     """
     # Define the desired order of pools
-    pool_order = ['Luxor', 'AntPool', 'ViaBTC', 'F2Pool']
+    pool_order = ['Luxor', 'AntPool', 'ViaBTC', 'F2Pool', 'SpiderPool']
     
     # Filter out pools with empty data and sort according to desired order
     ordered_pools = {}
@@ -52,13 +53,15 @@ def plot_histograms(pool_intervals, bin_size):
     if num_pools == 0:
         print("No data to plot!")
         return None
-        
-    fig, axes = plt.subplots(num_pools, 1, figsize=(12, 6*num_pools))
     
-    # If there's only one pool, axes will not be an array
-    if num_pools == 1:
-        axes = [axes]
-
+    # Determine the number of rows needed for 2 columns
+    num_rows = (num_pools + 1) // 2
+    
+    fig, axes = plt.subplots(num_rows + 1, 2, figsize=(15, 5 * (num_rows + 1)))
+    axes = axes.flatten()  # Flatten in case of single row
+    
+    all_intervals = []
+    
     for ax, (pool_name, intervals) in zip(axes, ordered_pools.items()):
         # Calculate bin edges at specified intervals
         max_interval = max(intervals)
@@ -68,9 +71,9 @@ def plot_histograms(pool_intervals, bin_size):
         ax.hist(intervals, bins=bins, edgecolor='black', alpha=0.7)
         
         # Add labels and title
-        ax.set_title(f'Template Refresh Intervals for {pool_name} ({bin_size}s bins)', fontsize=12, pad=20)
+        ax.set_title(pool_name, fontsize=12, pad=20)
         ax.set_xlabel('Interval (seconds)', fontsize=10)
-        ax.set_ylabel('Frequency', fontsize=10)
+        ax.set_ylabel('Number of Blocks', fontsize=10)
         
         # Set x-axis ticks
         ax.set_xticks(bins)
@@ -97,16 +100,61 @@ def plot_histograms(pool_intervals, bin_size):
                 horizontalalignment='right',
                 bbox=dict(boxstyle='round', facecolor='white', alpha=0.9),
                 fontsize=10)
-
+        
+        all_intervals.extend(intervals)
+    
+    # Plot the combined histogram
+    if all_intervals:
+        ax = axes[num_pools]
+        max_interval = max(all_intervals)
+        bins = np.arange(0, max_interval + bin_size, bin_size)
+        
+        ax.hist(all_intervals, bins=bins, edgecolor='black', alpha=0.7, color='orange')
+        
+        # Add labels and title
+        ax.set_title('All Pools Combined', fontsize=12, pad=20)
+        ax.set_xlabel('Interval (seconds)', fontsize=10)
+        ax.set_ylabel('Number of Blocks', fontsize=10)
+        
+        # Set x-axis ticks
+        ax.set_xticks(bins)
+        ax.tick_params(axis='x', rotation=45)
+        
+        # Add grid for better readability
+        ax.grid(True, alpha=0.3)
+        
+        # Add statistical information
+        mean_interval = np.mean(all_intervals)
+        median_interval = np.median(all_intervals)
+        std_interval = np.std(all_intervals)
+        
+        stats_text = (f'Samples: {len(all_intervals)}\n'
+                     f'Mean: {mean_interval:.2f}s\n'
+                     f'Median: {median_interval:.2f}s\n'
+                     f'Std Dev: {std_interval:.2f}s\n'
+                     f'Min: {min(all_intervals):.2f}s\n'
+                     f'Max: {max_interval:.2f}s')
+        
+        ax.text(0.95, 0.95, stats_text,
+                transform=ax.transAxes,
+                verticalalignment='top',
+                horizontalalignment='right',
+                bbox=dict(boxstyle='round', facecolor='white', alpha=0.9),
+                fontsize=10)
+    
+    # Hide any unused subplots
+    for i in range(num_pools + 1, len(axes)):
+        fig.delaxes(axes[i])
+    
     plt.tight_layout()
     return fig
 
 def main():
     # Directory containing result files
-    results_dir = '.'
+    results_dir = './results'
     
     # Find all result files
-    result_files = [f for f in os.listdir(results_dir) if 'results_' in f and f.endswith('.txt')]
+    result_files = [f for f in os.listdir(results_dir) if 'intervals_' in f and f.endswith('.txt')]
     
     if not result_files:
         print("Error: No result files found in current directory!")
@@ -129,10 +177,10 @@ def main():
     else:
         filename = result_files[0]
     
-    print(f"\nAnalyzing file: {filename}")
+    print(f"\nAnalyzing file: {results_dir}/{filename}")
     
     # Parse intervals from the chosen file
-    pool_intervals = parse_intervals(filename)
+    pool_intervals = parse_intervals(results_dir + '/' + filename)
     
     if not pool_intervals:
         print("Error: No data to plot!")
@@ -145,7 +193,7 @@ def main():
             continue
             
         # Save the plot with bin size in filename
-        output_filename = f"histogram_{os.path.splitext(filename)[0]}_{bin_size}s_bins.png"
+        output_filename = f"{results_dir}/histogram_{os.path.splitext(filename)[0]}_{bin_size}s_bins.png"
         fig.savefig(output_filename, dpi=300, bbox_inches='tight')
         print(f"Histogram saved as {output_filename}")
         plt.close(fig)  # Close the figure to free memory
@@ -164,4 +212,4 @@ def main():
             print(f"Max interval: {max(intervals):.2f} seconds")
 
 if __name__ == "__main__":
-    main() 
+    main()
