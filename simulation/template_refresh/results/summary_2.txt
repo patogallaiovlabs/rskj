@@ -1,0 +1,33 @@
+Analysis Summary for results/timestamps_2.json
+==================================================
+
+AntPool:
+  Number of updates: 58
+  Average interval: 12.72 seconds
+  First update: 2025-01-07 15:22:16.331051+00:00
+  Last update: 2025-01-07 15:34:21.419165+00:00
+
+ViaBTC:
+  Number of updates: 52
+  Average interval: 14.35 seconds
+  First update: 2025-01-07 15:22:10.500732+00:00
+  Last update: 2025-01-07 15:34:22.483383+00:00
+
+F2Pool:
+  Number of updates: 24
+  Average interval: 29.93 seconds
+  First update: 2025-01-07 15:22:54.036584+00:00
+  Last update: 2025-01-07 15:34:22.328326+00:00
+
+Luxor:
+  Number of updates: 66
+  Average interval: 11.16 seconds
+  First update: 2025-01-07 15:22:16.469585+00:00
+  Last update: 2025-01-07 15:34:21.621324+00:00
+
+SpiderPool:
+  Number of updates: 34
+  Average interval: 21.45 seconds
+  First update: 2025-01-07 15:22:34.830152+00:00
+  Last update: 2025-01-07 15:34:22.673954+00:00
+
