@@ -12,12 +12,13 @@ def plot_main_vs_sibling_blocks(ax, main_blocks, sibling_blocks, coinbase_labels
     """
     ax.clear()  # Clear the previous plot
 
-    miners = list(main_blocks.keys())
-    main_counts = [main_blocks[miner] for miner in miners]
-    sibling_counts = [sibling_blocks[miner] for miner in miners]
+    # Get all miners from coinbase_labels, even if they have no blocks
+    all_miners = list(coinbase_labels.keys())
+    main_counts = [main_blocks.get(miner, 0) for miner in all_miners]
+    sibling_counts = [sibling_blocks.get(miner, 0) for miner in all_miners]
     
     # Translate coinbases
-    translated_miners = [coinbase_labels.get(miner, miner) for miner in miners]
+    translated_miners = [coinbase_labels.get(miner, miner) for miner in all_miners]
     
     # Combine and sort by total blocks
     combined_counts = [(m, mc + sc, mc, sc) for m, mc, sc in zip(translated_miners, main_counts, sibling_counts)]
@@ -54,9 +55,9 @@ def plot_main_vs_sibling_blocks(ax, main_blocks, sibling_blocks, coinbase_labels
 
 if __name__ == "__main__":
     # Log file path
-    log_file = "../logs/rsk.log"
+    #log_file = "../logs/rsk.log"
     #log_file = "samples/rskj-2025-01-15.0.log"
-    #log_file = "../logs/rskj-2025-01-22.0.log"  # Adjust path as needed
+    log_file = "../logs/rsk.log"  # Adjust path as needed
     log_file_path = os.path.abspath(log_file)
 
     q = queue.Queue()

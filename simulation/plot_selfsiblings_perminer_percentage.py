@@ -25,8 +25,10 @@ def plot_histograms_per_miner(figs, axes_list, block_heights, coinbase_labels, s
         for miner, count in miners.items():
             blocks_per_height_per_miner[miner].append(count)
 
-    # Filter out miners with less than 2 blocks per height
-    blocks_per_height_per_miner = {miner: counts for miner, counts in blocks_per_height_per_miner.items() if max(counts) > 2}
+    # Include all miners from coinbase_labels, even if they have no blocks
+    for miner in coinbase_labels.keys():
+        if miner not in blocks_per_height_per_miner:
+            blocks_per_height_per_miner[miner] = []
 
     # Create a histogram for each miner
     for i, (miner, counts) in enumerate(blocks_per_height_per_miner.items()):
@@ -34,10 +36,15 @@ def plot_histograms_per_miner(figs, axes_list, block_heights, coinbase_labels, s
         ax_index = i % 4
         ax = axes_list[fig_index][ax_index]
         translated_miner = coinbase_labels.get(miner, miner)
-        total_sibling_blocks = sibling_blocks_per_miner[miner]
-        hist, bins = np.histogram(counts, bins=np.arange(1.5, 6.5, 1))
-        percentages = hist / total_sibling_blocks * 100
-        ax.bar(bins[:-1], percentages, width=0.5, edgecolor='black', alpha=0.7)
+        total_sibling_blocks = sibling_blocks_per_miner.get(miner, 0)
+        
+        if counts and total_sibling_blocks > 0:  # If miner has blocks and sibling blocks
+            hist, bins = np.histogram(counts, bins=np.arange(1.5, 6.5, 1))
+            percentages = hist / total_sibling_blocks * 100
+            ax.bar(bins[:-1], percentages, width=0.5, edgecolor='black', alpha=0.7)
+        else:  # If miner has no blocks or no sibling blocks, show empty histogram
+            ax.bar([], [], width=0.5, edgecolor='black', alpha=0.7)
+            
         ax.set_xlabel('Self siblings', fontsize=10)
         ax.set_ylabel('Frequency (%)', fontsize=10)
         ax.set_title(f'{translated_miner}', fontsize=12)

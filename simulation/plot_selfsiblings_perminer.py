@@ -21,8 +21,10 @@ def plot_max_blocks_per_height(ax, block_heights, coinbase_labels):
         for miner, count in miners.items():
             max_blocks_per_height[miner] = max(max_blocks_per_height[miner], count)
 
-    # Filter out miners with less than 2 blocks per height
-    max_blocks_per_height = {miner: count for miner, count in max_blocks_per_height.items() if count > 2}
+    # Include all miners from coinbase_labels, even if they have 0 blocks
+    for miner in coinbase_labels.keys():
+        if miner not in max_blocks_per_height:
+            max_blocks_per_height[miner] = 0
 
     # Translate coinbases
     translated_miners = [coinbase_labels.get(miner, miner) for miner in max_blocks_per_height.keys()]
@@ -75,14 +77,17 @@ def plot_histograms_per_miner(figs, axes_list, block_heights, coinbase_labels):
         for miner, count in miners.items():
             blocks_per_height_per_miner[miner].append(count)
 
-    # Filter out miners with less than 2 blocks per height
-    blocks_per_height_per_miner = {miner: counts for miner, counts in blocks_per_height_per_miner.items() if max(counts) > 2}
+    # Include all miners from coinbase_labels, even if they have no blocks
+    for miner in coinbase_labels.keys():
+        if miner not in blocks_per_height_per_miner:
+            blocks_per_height_per_miner[miner] = []
 
     # Determine the maximum Y-axis value for all histograms
     max_y = 0
     for counts in blocks_per_height_per_miner.values():
-        hist, _ = np.histogram(counts, bins=np.arange(1.5, 6.5, 1))
-        max_y = max(max_y, max(hist))
+        if counts:  # Only process if there are counts
+            hist, _ = np.histogram(counts, bins=np.arange(1.5, 6.5, 1))
+            max_y = max(max_y, max(hist))
 
     # Create a histogram for each miner
     for i, (miner, counts) in enumerate(blocks_per_height_per_miner.items()):
@@ -90,7 +95,12 @@ def plot_histograms_per_miner(figs, axes_list, block_heights, coinbase_labels):
         ax_index = i % 4
         ax = axes_list[fig_index][ax_index]
         translated_miner = coinbase_labels.get(miner, miner)
-        ax.hist(counts, bins=np.arange(1.5, 6.5, 1), edgecolor='black', alpha=0.7, width=0.5)
+        
+        if counts:  # If miner has blocks, create histogram
+            ax.hist(counts, bins=np.arange(1.5, 6.5, 1), edgecolor='black', alpha=0.7, width=0.5)
+        else:  # If miner has no blocks, show empty histogram
+            ax.hist([], bins=np.arange(1.5, 6.5, 1), edgecolor='black', alpha=0.7, width=0.5)
+            
         ax.set_xlabel('Max blocks at same height', fontsize=10)
         ax.set_ylabel('Frequency', fontsize=10)
         ax.set_title(f'{translated_miner}', fontsize=12)

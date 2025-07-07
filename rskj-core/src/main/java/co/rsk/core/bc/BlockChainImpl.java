@@ -162,17 +162,21 @@ public class BlockChainImpl implements Blockchain {
                     block.getUncleList().forEach(uncle -> {
                             uncles[0] += uncle.getPrintableHash() + ", ";
                     });
+                    final String[] txs = {""};
+                    block.getTransactionsList().forEach(uncle -> {
+                        txs[0] += uncle.getHash().toHexString() + ", ";
+                    });
                     //SIMULATION logs modified
                     if (BlockUtils.tooMuchProcessTime(totalTime)) {
-                        logger.warn("block: num: [{}] hash: [{}], parentHash:[{}], coinbase:[{}], uncles:[{}], difficulty:[{}], txs:[{}], timestamp:{}, processed after: [{}]seconds, result {}",
+                        logger.warn("block: num: [{}] hash: [{}], parentHash:[{}], coinbase:[{}], uncles:[{}], difficulty:[{}], txs:[{}], txsHashes:[{}], timestamp:{}, processed after: [{}]seconds, result {}",
                                 block.getNumber(), block.getPrintableHash(), block.getParentHash().toHexString(), block.getCoinbase().toHexString(),
                                 uncles[0], block.getDifficulty().toString(),
-                                block.getTransactionsList().size(), block.getTimestamp(), timeInSeconds, result);
+                                block.getTransactionsList().size(), txs[0], block.getTimestamp(), timeInSeconds, result);
                     } else {
-                        logger.info("block: num: [{}] hash: [{}], parentHash:[{}], coinbase:[{}], uncles:[{}], difficulty:[{}], txs:[{}], timestamp:{}, processed after: [{}]seconds, result {}",
+                        logger.info("block: num: [{}] hash: [{}], parentHash:[{}], coinbase:[{}], uncles:[{}], difficulty:[{}], txs:[{}], txsHashes:[{}], timestamp:{}, processed after: [{}]seconds, result {}",
                                 block.getNumber(), block.getPrintableHash(), block.getParentHash().toHexString(), block.getCoinbase().toHexString(),
                                 uncles[0], block.getDifficulty().toString(),
-                                block.getTransactionsList().size(), block.getTimestamp(), timeInSeconds, result);
+                                block.getTransactionsList().size(), txs[0], block.getTimestamp(), timeInSeconds, result);
                     }
 
                     return result;

@@ -15,14 +15,15 @@ def plot_main_vs_sibling_blocks_percentage(ax, main_blocks, sibling_blocks, coin
     """
     ax.clear()  # Clear the previous plot
 
-    miners = list(main_blocks.keys())
-    main_counts = [main_blocks[miner] for miner in miners]
-    sibling_counts = [sibling_blocks[miner] for miner in miners]
-    total_counts = [main_blocks[miner] + sibling_blocks[miner] for miner in miners]
+    # Get all miners from coinbase_labels, even if they have no blocks
+    all_miners = list(coinbase_labels.keys())
+    main_counts = [main_blocks.get(miner, 0) for miner in all_miners]
+    sibling_counts = [sibling_blocks.get(miner, 0) for miner in all_miners]
+    total_counts = [main_counts[i] + sibling_counts[i] for i in range(len(all_miners))]
     total_blocks = sum(total_counts)
     
     # Translate coinbases
-    translated_miners = [coinbase_labels.get(miner, miner) for miner in miners]
+    translated_miners = [coinbase_labels.get(miner, miner) for miner in all_miners]
     
     # Calculate percentages
     main_percentages = [mc / tc * 100 if tc > 0 else 0 for mc, tc in zip(main_counts, total_counts)]
@@ -66,9 +67,9 @@ def plot_main_vs_sibling_blocks_percentage(ax, main_blocks, sibling_blocks, coin
 
 if __name__ == "__main__":
     # Log file path
-    log_file = "../logs/rsk.log"  # Adjust path as needed
+    #log_file = "../logs/rsk.log"  # Adjust path as needed
     #log_file = "samples/rskj-2025-01-29.0.log"  # Adjust path as needed
-    #log_file = "samples/rskj-2025-01-15.0.log"
+    log_file = "../logs/rsk.log"  # Adjust path as needed
     log_file_path = os.path.abspath(log_file)
 
     q = queue.Queue()
