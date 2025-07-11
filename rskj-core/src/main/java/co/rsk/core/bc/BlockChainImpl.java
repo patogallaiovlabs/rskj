@@ -298,13 +298,11 @@ public class BlockChainImpl implements Blockchain {
         // It is the new best block
         if (SelectionRule.shouldWeAddThisBlock(totalDifficulty, status.getTotalDifficulty(), block, bestBlock)) {
             if (bestBlock != null && !bestBlock.isParentOf(block)) {
-                if (bestBlock.getNumber() != block.getNumber()) {
-                    logger.info("Rebranching: {} ~> {} From block {} ~> {} Difficulty {} Challenger difficulty {}",
-                            bestBlock.getPrintableHash(), block.getPrintableHash(), bestBlock.getNumber(), block.getNumber(),
-                            status.getTotalDifficulty(), totalDifficulty);
-                    logger.info("Rebranching coinbase: {} ~> {}/{} ",
-                            bestBlock.getCoinbase(), block.getCoinbase(), getBlockByHash(block.getParentHash().getBytes()).getCoinbase());
-                }
+                logger.info("Rebranching lastBlock:[number:{},difficulty:{},fees:{},hash:{}] -> newBlock:[number:{},difficulty:{},fees:{},hash:{}]",
+                        bestBlock.getNumber(),status.getTotalDifficulty(),bestBlock.getFeesPaidToMiner(),bestBlock.getPrintableHash(),
+                         block.getNumber(), totalDifficulty, block.getFeesPaidToMiner(), block.getPrintableHash());
+                logger.info("Rebranching coinbase: {} ~> {}/{} ",
+                        bestBlock.getCoinbase(), block.getCoinbase(), getBlockByHash(block.getParentHash().getBytes()).getCoinbase());
                 blockStore.reBranch(block);
             }
 

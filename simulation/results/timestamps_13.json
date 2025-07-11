@@ -1,0 +1,218 @@
+{
+  "template_events": [
+    {
+      "pool_name": "SpiderPool",
+      "timestamp": "2025-07-07T17:18:49.058386",
+      "template_count": 19
+    },
+    {
+      "pool_name": "ViaBTC",
+      "timestamp": "2025-07-07T17:18:49.171656",
+      "template_count": 36
+    },
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T17:18:50.276746",
+      "template_count": 46
+    },
+    {
+      "pool_name": "Luxor",
+      "timestamp": "2025-07-07T17:18:50.582608",
+      "template_count": 43
+    },
+    {
+      "pool_name": "F2Pool",
+      "timestamp": "2025-07-07T17:18:50.631837",
+      "template_count": 19
+    }
+  ],
+  "block_events": [
+    {
+      "block_number": 7752501,
+      "hash_id": "2e69acf7efaf42a5761d200c09fb5fa8343c3e0ea76a0b01c4cf5122138b9b38",
+      "coinbase": "12d3178a62ef1f520944534ed04504609f7307a1",
+      "timestamp": "2025-07-07T17:18:02.074400",
+      "log_time_str": "2025-07-07-17:18:02.0744"
+    },
+    {
+      "block_number": 7752502,
+      "hash_id": "52f7caf3a781d547314404982fdc6eb4416dec682769305dc1f3aa4a7f9fcd95",
+      "coinbase": "93293a100338f54242f05652e137a52e0acdccf0",
+      "timestamp": "2025-07-07T17:18:10.051000",
+      "log_time_str": "2025-07-07-17:18:10.0510"
+    },
+    {
+      "block_number": 7752503,
+      "hash_id": "f6dba0cd4e42fa4da252032e11950107f4a72b9b5958aa938c9f99a5715f00b0",
+      "coinbase": "4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1",
+      "timestamp": "2025-07-07T17:18:13.041200",
+      "log_time_str": "2025-07-07-17:18:13.0412"
+    },
+    {
+      "block_number": 7752504,
+      "hash_id": "fb88835f8c0f8865863d59d7f0c22d3bc3e22a802df63259fefc64ac346cf6c6",
+      "coinbase": "4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1",
+      "timestamp": "2025-07-07T17:18:17.047400",
+      "log_time_str": "2025-07-07-17:18:17.0474"
+    },
+    {
+      "block_number": 7752503,
+      "hash_id": "93ded8c379326da67e5cc9219906b11c3afd0c42e94387917e83bfd2d4000262",
+      "coinbase": "ce7864a8b5bf360b01099502a163810cec845d4a",
+      "timestamp": "2025-07-07T17:18:26.057700",
+      "log_time_str": "2025-07-07-17:18:26.0577"
+    }
+  ],
+  "matches": [
+    {
+      "template_pool": "SpiderPool",
+      "template_time": "2025-07-07T17:12:45.852480",
+      "block_number": 7752490,
+      "block_time": "2025-07-07T17:12:45.009300",
+      "time_diff": 0.84318
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:13:13.091698",
+      "block_number": 7752492,
+      "block_time": "2025-07-07T17:13:12.084500",
+      "time_diff": 1.007198
+    },
+    {
+      "template_pool": "ViaBTC",
+      "template_time": "2025-07-07T17:13:18.185593",
+      "block_number": 7752493,
+      "block_time": "2025-07-07T17:13:19.041200",
+      "time_diff": 0.855607
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:13:26.675434",
+      "block_number": 7752494,
+      "block_time": "2025-07-07T17:13:26.052400",
+      "time_diff": 0.623034
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:13:41.422875",
+      "block_number": 7752495,
+      "block_time": "2025-07-07T17:13:41.050800",
+      "time_diff": 0.372075
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:14:45.470548",
+      "block_number": 7752496,
+      "block_time": "2025-07-07T17:14:45.017300",
+      "time_diff": 0.453248
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:15:02.382503",
+      "block_number": 7752497,
+      "block_time": "2025-07-07T17:15:02.019300",
+      "time_diff": 0.363203
+    },
+    {
+      "template_pool": "ViaBTC",
+      "template_time": "2025-07-07T17:15:22.759272",
+      "block_number": 7752498,
+      "block_time": "2025-07-07T17:15:22.056100",
+      "time_diff": 0.703172
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:16:31.233838",
+      "block_number": 7752499,
+      "block_time": "2025-07-07T17:16:30.084400",
+      "time_diff": 1.149438
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:17:30.604808",
+      "block_number": 7752500,
+      "block_time": "2025-07-07T17:17:30.019900",
+      "time_diff": 0.584908
+    },
+    {
+      "template_pool": "ViaBTC",
+      "template_time": "2025-07-07T17:17:43.421050",
+      "block_number": 7752501,
+      "block_time": "2025-07-07T17:17:43.079800",
+      "time_diff": 0.34125
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:18:10.775780",
+      "block_number": 7752502,
+      "block_time": "2025-07-07T17:18:10.051000",
+      "time_diff": 0.72478
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:18:11.442998",
+      "block_number": 7752503,
+      "block_time": "2025-07-07T17:18:13.041200",
+      "time_diff": 1.598202
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:18:17.705431",
+      "block_number": 7752504,
+      "block_time": "2025-07-07T17:18:17.047400",
+      "time_diff": 0.658031
+    }
+  ],
+  "pool_statistics": {
+    "AntPool": {
+      "template_count": 46,
+      "block_count": 25,
+      "matches": 9,
+      "template_match_rate": 19.565217391304348,
+      "block_match_rate": 36.0,
+      "avg_time_diff": 0.659546111111111,
+      "min_time_diff": 0.363203,
+      "max_time_diff": 1.149438
+    },
+    "Luxor": {
+      "template_count": 43,
+      "block_count": 25,
+      "matches": 1,
+      "template_match_rate": 2.3255813953488373,
+      "block_match_rate": 4.0,
+      "avg_time_diff": 1.598202,
+      "min_time_diff": 1.598202,
+      "max_time_diff": 1.598202
+    },
+    "SpiderPool": {
+      "template_count": 19,
+      "block_count": 25,
+      "matches": 1,
+      "template_match_rate": 5.263157894736842,
+      "block_match_rate": 4.0,
+      "avg_time_diff": 0.84318,
+      "min_time_diff": 0.84318,
+      "max_time_diff": 0.84318
+    },
+    "ViaBTC": {
+      "template_count": 36,
+      "block_count": 25,
+      "matches": 3,
+      "template_match_rate": 8.333333333333332,
+      "block_match_rate": 12.0,
+      "avg_time_diff": 0.633343,
+      "min_time_diff": 0.34125,
+      "max_time_diff": 0.855607
+    },
+    "F2Pool": {
+      "template_count": 19,
+      "block_count": 25,
+      "matches": 0,
+      "template_match_rate": 0.0,
+      "block_match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    }
+  }
+}

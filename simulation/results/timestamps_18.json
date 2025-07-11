@@ -1,0 +1,616 @@
+{
+  "template_events": [
+    {
+      "pool_name": "F2Pool",
+      "timestamp": "2025-07-07T17:51:16.445577",
+      "template_count": 10
+    },
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T17:51:17.248576",
+      "template_count": 10
+    },
+    {
+      "pool_name": "Luxor",
+      "timestamp": "2025-07-07T17:51:17.330221",
+      "template_count": 50
+    },
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T17:51:17.533739",
+      "template_count": 11
+    },
+    {
+      "pool_name": "ViaBTC",
+      "timestamp": "2025-07-07T17:51:34.109976",
+      "template_count": 43
+    }
+  ],
+  "block_events": [
+    {
+      "block_number": 7752575,
+      "hash_id": "67cbd1a86fa57981807947ff57cd032064b160dc8e181e4439363c0ce49a5ea0",
+      "coinbase": "12d3178a62ef1f520944534ed04504609f7307a1",
+      "timestamp": "2025-07-07T17:49:20.068000",
+      "log_time_str": "2025-07-07-17:49:20.0680"
+    },
+    {
+      "block_number": 7752575,
+      "hash_id": "18086d60ef9c379f3438e1dae5450cdf0a534015f5a076d7424037c2d19127c8",
+      "coinbase": "ce7864a8b5bf360b01099502a163810cec845d4a",
+      "timestamp": "2025-07-07T17:49:22.043300",
+      "log_time_str": "2025-07-07-17:49:22.0433"
+    },
+    {
+      "block_number": 7752576,
+      "hash_id": "cf0933b88a61bff010aaefeb7c69e6f6b4afe1ea3df3f04ddc012b6217b513d6",
+      "coinbase": "4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1",
+      "timestamp": "2025-07-07T17:50:01.044600",
+      "log_time_str": "2025-07-07-17:50:01.0446"
+    },
+    {
+      "block_number": 7752577,
+      "hash_id": "549583b306078c8a7270b3dbacb14da9c58c76dea5f13f6467eac94a6da80f26",
+      "coinbase": "4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1",
+      "timestamp": "2025-07-07T17:50:44.083400",
+      "log_time_str": "2025-07-07-17:50:44.0834"
+    },
+    {
+      "block_number": 7752578,
+      "hash_id": "3968c5e578a575c4aa31f0365d84937ab8aded9780226eca7d629e8e9a68a410",
+      "coinbase": "ce7864a8b5bf360b01099502a163810cec845d4a",
+      "timestamp": "2025-07-07T17:51:16.086000",
+      "log_time_str": "2025-07-07-17:51:16.0860"
+    }
+  ],
+  "matches": [
+    {
+      "template_pool": "SpiderPool",
+      "template_time": "2025-07-07T17:33:48.327690",
+      "block_number": 7752541,
+      "block_time": "2025-07-07T17:33:48.061700",
+      "time_diff": 0.26599
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:34:23.992854",
+      "block_number": 7752542,
+      "block_time": "2025-07-07T17:34:23.061700",
+      "time_diff": 0.931154
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:34:26.898721",
+      "block_number": 7752543,
+      "block_time": "2025-07-07T17:34:27.025700",
+      "time_diff": 0.126979
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:34:54.812521",
+      "block_number": 7752544,
+      "block_time": "2025-07-07T17:34:54.043100",
+      "time_diff": 0.769421
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:35:49.608399",
+      "block_number": 7752545,
+      "block_time": "2025-07-07T17:35:49.012900",
+      "time_diff": 0.595499
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:36:16.078842",
+      "block_number": 7752546,
+      "block_time": "2025-07-07T17:36:15.070300",
+      "time_diff": 1.008542
+    },
+    {
+      "template_pool": "ViaBTC",
+      "template_time": "2025-07-07T17:36:34.117056",
+      "block_number": 7752547,
+      "block_time": "2025-07-07T17:36:36.085400",
+      "time_diff": 1.968344
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:37:21.480975",
+      "block_number": 7752548,
+      "block_time": "2025-07-07T17:37:21.007900",
+      "time_diff": 0.473075
+    },
+    {
+      "template_pool": "SpiderPool",
+      "template_time": "2025-07-07T17:37:45.435981",
+      "block_number": 7752549,
+      "block_time": "2025-07-07T17:37:45.041400",
+      "time_diff": 0.394581
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:38:12.562992",
+      "block_number": 7752550,
+      "block_time": "2025-07-07T17:38:12.006800",
+      "time_diff": 0.556192
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:38:38.841115",
+      "block_number": 7752551,
+      "block_time": "2025-07-07T17:38:38.052900",
+      "time_diff": 0.788215
+    },
+    {
+      "template_pool": "F2Pool",
+      "template_time": "2025-07-07T17:39:03.107941",
+      "block_number": 7752552,
+      "block_time": "2025-07-07T17:39:04.006500",
+      "time_diff": 0.898559
+    },
+    {
+      "template_pool": "ViaBTC",
+      "template_time": "2025-07-07T17:39:39.152248",
+      "block_number": 7752553,
+      "block_time": "2025-07-07T17:39:38.006200",
+      "time_diff": 1.146048
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:39:47.906298",
+      "block_number": 7752554,
+      "block_time": "2025-07-07T17:39:47.067700",
+      "time_diff": 0.838598
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:39:59.286712",
+      "block_number": 7752555,
+      "block_time": "2025-07-07T17:39:59.002600",
+      "time_diff": 0.284112
+    },
+    {
+      "template_pool": "SpiderPool",
+      "template_time": "2025-07-07T17:40:49.462023",
+      "block_number": 7752556,
+      "block_time": "2025-07-07T17:40:50.098700",
+      "time_diff": 0.636677
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:41:14.774498",
+      "block_number": 7752557,
+      "block_time": "2025-07-07T17:41:14.046300",
+      "time_diff": 0.728198
+    },
+    {
+      "template_pool": "ViaBTC",
+      "template_time": "2025-07-07T17:41:54.303831",
+      "block_number": 7752558,
+      "block_time": "2025-07-07T17:41:54.047600",
+      "time_diff": 0.256231
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:42:15.070066",
+      "block_number": 7752559,
+      "block_time": "2025-07-07T17:42:14.067100",
+      "time_diff": 1.002966
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:43:10.749572",
+      "block_number": 7752560,
+      "block_time": "2025-07-07T17:43:10.041800",
+      "time_diff": 0.707772
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:43:22.527158",
+      "block_number": 7752561,
+      "block_time": "2025-07-07T17:43:22.015700",
+      "time_diff": 0.511458
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:44:00.212334",
+      "block_number": 7752562,
+      "block_time": "2025-07-07T17:43:59.070500",
+      "time_diff": 1.141834
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:44:09.483492",
+      "block_number": 7752563,
+      "block_time": "2025-07-07T17:44:09.028600",
+      "time_diff": 0.454892
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:44:15.480943",
+      "block_number": 7752564,
+      "block_time": "2025-07-07T17:44:17.027900",
+      "time_diff": 1.546957
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:44:28.197607",
+      "block_number": 7752565,
+      "block_time": "2025-07-07T17:44:27.089100",
+      "time_diff": 1.108507
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:44:48.928505",
+      "block_number": 7752566,
+      "block_time": "2025-07-07T17:44:48.058600",
+      "time_diff": 0.869905
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:44:59.108929",
+      "block_number": 7752567,
+      "block_time": "2025-07-07T17:44:58.070500",
+      "time_diff": 1.038429
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:44:59.108929",
+      "block_number": 7752568,
+      "block_time": "2025-07-07T17:45:01.093700",
+      "time_diff": 1.984771
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:45:30.332112",
+      "block_number": 7752569,
+      "block_time": "2025-07-07T17:45:30.007700",
+      "time_diff": 0.324412
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:46:10.607040",
+      "block_number": 7752570,
+      "block_time": "2025-07-07T17:46:10.028100",
+      "time_diff": 0.57894
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:46:48.638234",
+      "block_number": 7752571,
+      "block_time": "2025-07-07T17:46:48.029200",
+      "time_diff": 0.609034
+    },
+    {
+      "template_pool": "SpiderPool",
+      "template_time": "2025-07-07T17:47:34.592261",
+      "block_number": 7752572,
+      "block_time": "2025-07-07T17:47:37.062700",
+      "time_diff": 2.470439
+    },
+    {
+      "template_pool": "SpiderPool",
+      "template_time": "2025-07-07T17:48:25.965514",
+      "block_number": 7752573,
+      "block_time": "2025-07-07T17:48:25.084400",
+      "time_diff": 0.881114
+    },
+    {
+      "template_pool": "Luxor",
+      "template_time": "2025-07-07T17:48:36.997477",
+      "block_number": 7752574,
+      "block_time": "2025-07-07T17:48:36.089400",
+      "time_diff": 0.908077
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:49:21.054452",
+      "block_number": 7752575,
+      "block_time": "2025-07-07T17:49:20.068000",
+      "time_diff": 0.986452
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:50:01.990195",
+      "block_number": 7752576,
+      "block_time": "2025-07-07T17:50:01.044600",
+      "time_diff": 0.945595
+    },
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:50:44.727863",
+      "block_number": 7752577,
+      "block_time": "2025-07-07T17:50:44.083400",
+      "time_diff": 0.644463
+    },
+    {
+      "template_pool": "SpiderPool",
+      "template_time": "2025-07-07T17:51:14.594701",
+      "block_number": 7752578,
+      "block_time": "2025-07-07T17:51:16.086000",
+      "time_diff": 1.491299
+    }
+  ],
+  "pool_statistics": {
+    "SpiderPool": {
+      "template_count": 50,
+      "block_count": 44,
+      "matches": 6,
+      "template_match_rate": 12.0,
+      "block_match_rate": 13.636363636363635,
+      "avg_time_diff": 1.02335,
+      "min_time_diff": 0.26599,
+      "max_time_diff": 2.470439,
+      "avg_first_template_response": 12.207512871794872,
+      "first_template_response_count": 39,
+      "first_template_response_times": [
+        24.664947,
+        4.119052,
+        1.153047,
+        3.826572,
+        8.361044,
+        38.374359,
+        12.316959,
+        0.879312,
+        1.091745,
+        29.134996,
+        2.169596,
+        13.361732,
+        15.817094,
+        11.945179,
+        2.883679,
+        21.083405,
+        1.101679,
+        12.080324,
+        0.948432,
+        6.455581,
+        16.405926,
+        23.45308,
+        11.47918,
+        4.437071,
+        0.618896,
+        22.47883,
+        12.41763,
+        21.494516,
+        11.482616,
+        8.459416,
+        4.636474,
+        24.619034,
+        16.540169,
+        27.539407,
+        0.881114,
+        49.131524,
+        5.152924,
+        2.23442,
+        0.862041
+      ]
+    },
+    "AntPool": {
+      "template_count": 111,
+      "block_count": 44,
+      "matches": 16,
+      "template_match_rate": 14.414414414414415,
+      "block_match_rate": 36.36363636363637,
+      "avg_time_diff": 0.7949375,
+      "min_time_diff": 0.126979,
+      "max_time_diff": 1.546957,
+      "avg_first_template_response": 2.4261939545454543,
+      "first_template_response_count": 44,
+      "first_template_response_times": [
+        1.331485,
+        25.523926,
+        0.931154,
+        3.837021,
+        0.507953,
+        0.769421,
+        0.858187,
+        27.065942,
+        1.008542,
+        1.132602,
+        0.473075,
+        0.603893,
+        0.556192,
+        0.788215,
+        0.557701,
+        1.811411,
+        0.838598,
+        0.284112,
+        1.235928,
+        0.796229,
+        0.570426,
+        6.810965,
+        1.002966,
+        0.707772,
+        0.641805,
+        1.374104,
+        0.903994,
+        0.735513,
+        1.108507,
+        0.932361,
+        1.095646,
+        2.089901,
+        0.658978,
+        5.605521,
+        0.678169,
+        0.992883,
+        0.999355,
+        1.066867,
+        1.262321,
+        0.986452,
+        2.472698,
+        0.945595,
+        1.035572,
+        1.162576
+      ]
+    },
+    "Luxor": {
+      "template_count": 100,
+      "block_count": 44,
+      "matches": 12,
+      "template_match_rate": 12.0,
+      "block_match_rate": 27.27272727272727,
+      "avg_time_diff": 0.81212075,
+      "min_time_diff": 0.324412,
+      "max_time_diff": 1.984771,
+      "avg_first_template_response": 2.831879318181818,
+      "first_template_response_count": 44,
+      "first_template_response_times": [
+        1.439892,
+        25.748571,
+        1.078072,
+        4.240543,
+        0.616686,
+        1.181833,
+        0.595499,
+        27.239291,
+        1.181891,
+        1.261503,
+        0.536024,
+        0.818183,
+        0.747763,
+        1.006251,
+        0.655392,
+        2.010542,
+        1.042291,
+        0.407117,
+        2.654118,
+        0.728198,
+        0.733562,
+        21.35608,
+        1.33658,
+        0.96653,
+        0.511458,
+        1.141834,
+        0.454892,
+        0.485851,
+        1.232889,
+        0.869905,
+        1.038429,
+        1.81422,
+        0.324412,
+        5.773192,
+        0.57894,
+        0.609034,
+        0.983931,
+        1.228404,
+        0.908077,
+        1.156589,
+        2.856919,
+        0.955105,
+        0.851976,
+        1.244221
+      ]
+    },
+    "F2Pool": {
+      "template_count": 52,
+      "block_count": 44,
+      "matches": 1,
+      "template_match_rate": 1.9230769230769231,
+      "block_match_rate": 2.272727272727273,
+      "avg_time_diff": 0.898559,
+      "min_time_diff": 0.898559,
+      "max_time_diff": 0.898559,
+      "avg_first_template_response": 14.14673995,
+      "first_template_response_count": 40,
+      "first_template_response_times": [
+        12.367595,
+        1.427058,
+        3.951318,
+        1.233103,
+        4.852396,
+        36.56704,
+        10.50964,
+        1.872968,
+        24.97988,
+        0.94638,
+        2.233948,
+        25.055041,
+        16.42169,
+        1.699732,
+        13.693455,
+        1.758555,
+        1.075776,
+        12.589411,
+        0.824351,
+        42.032394,
+        22.012894,
+        45.114857,
+        33.140957,
+        11.064909,
+        1.106809,
+        0.926168,
+        43.061373,
+        22.091873,
+        12.079973,
+        9.056773,
+        5.411629,
+        1.67724,
+        44.341713,
+        43.873488,
+        1.350549,
+        1.534264,
+        1.917812,
+        44.79072,
+        3.81412,
+        1.409746
+      ]
+    },
+    "ViaBTC": {
+      "template_count": 93,
+      "block_count": 44,
+      "matches": 3,
+      "template_match_rate": 3.225806451612903,
+      "block_match_rate": 6.8181818181818175,
+      "avg_time_diff": 1.1235410000000001,
+      "min_time_diff": 0.256231,
+      "max_time_diff": 1.968344,
+      "avg_first_template_response": 9.05985193023256,
+      "first_template_response_count": 43,
+      "first_template_response_times": [
+        16.139181,
+        1.128502,
+        3.978272,
+        0.387131,
+        4.173042,
+        15.161482,
+        45.104156,
+        19.046756,
+        1.097222,
+        13.127262,
+        0.669628,
+        2.16549,
+        26.046713,
+        0.093113,
+        1.146048,
+        13.125643,
+        1.190743,
+        1.355272,
+        13.045743,
+        0.494637,
+        40.032001,
+        20.012501,
+        24.044287,
+        12.070387,
+        5.029079,
+        0.581615,
+        0.571028,
+        7.019101,
+        16.05445,
+        6.04255,
+        3.01935,
+        4.10376,
+        4.613391,
+        0.637668,
+        16.077152,
+        12.078726,
+        1.030363,
+        1.055079,
+        1.046994,
+        14.040967,
+        2.639716,
+        1.073456,
+        18.023976
+      ]
+    }
+  }
+}

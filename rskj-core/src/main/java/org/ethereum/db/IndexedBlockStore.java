@@ -431,6 +431,7 @@ public class IndexedBlockStore implements BlockStore {
 
             --currentLevel;
         }
+        logger.info("Rebranching done, from: {} to: {}", maxLevel, currentLevel);
     }
 
     @VisibleForTesting

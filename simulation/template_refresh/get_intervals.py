@@ -12,8 +12,7 @@ pools = [
     {"name": "SecPool", "host": "btc.secpool.com", "port": 3333, "username": "patominer.001'", "password": ""},
     {"name": "F2Pool", "host": "btc.f2pool.com", "port": 1314, "username": "patominer.001'", "password": "21235365876986800"},
     {"name": "Luxor", "host": "btc.global.luxor.tech", "port": 700, "username": "patominer.001", "password": "123"}, # 
-    {"name": "SpiderPool", "host": "btc-us.spiderpool.com", "port": 2309, "username": "patominer.001", "password": "123"},
-    {"name": "Parasite", "host": "parasite.wtf", "port": 42069, "username": 'bc1qcd0hm6x6v5xdzq2nteuwtquwea3j8n50e6dwp9.patominer.adfae3f20e@sati.pro', "password": "123"}
+    {"name": "SpiderPool", "host": "btc-us.spiderpool.com", "port": 2309, "username": "patominer.001", "password": "123"}
 ]
 
 # Storage for timestamps and intervals

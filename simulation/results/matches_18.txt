@@ -1,0 +1,345 @@
+Template Refresh to Block Event Matches
+==================================================
+
+Match 1:
+  Pool: SpiderPool
+  Template Time: 2025-07-07 17:33:48.327690
+  Block Number: 7752541
+  Block Time: 2025-07-07 17:33:48.061700
+  Time Difference: 0.27 seconds
+  Block Hash: 8c6582ed33c9d1fc241cc6339ed6fa12c794dda12fb9abb2a00329d7843e248f
+  Coinbase: ce7864a8b5bf360b01099502a163810cec845d4a
+------------------------------
+Match 2:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:34:23.992854
+  Block Number: 7752542
+  Block Time: 2025-07-07 17:34:23.061700
+  Time Difference: 0.93 seconds
+  Block Hash: 58c7937db4655c3de30b7362074754a458acfdba55143203d81c67fd71617137
+  Coinbase: 12d3178a62ef1f520944534ed04504609f7307a1
+------------------------------
+Match 3:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:34:26.898721
+  Block Number: 7752543
+  Block Time: 2025-07-07 17:34:27.025700
+  Time Difference: 0.13 seconds
+  Block Hash: 94999ccd8c4b46999effacd3ba26d175d67968873e8f747aef9babf447233f26
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 4:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:34:54.812521
+  Block Number: 7752544
+  Block Time: 2025-07-07 17:34:54.043100
+  Time Difference: 0.77 seconds
+  Block Hash: 62062458134f1a32ab0e1cca42ceea2e2b304fbb924f0bbee678e1a6e4740749
+  Coinbase: 93293a100338f54242f05652e137a52e0acdccf0
+------------------------------
+Match 5:
+  Pool: Luxor
+  Template Time: 2025-07-07 17:35:49.608399
+  Block Number: 7752545
+  Block Time: 2025-07-07 17:35:49.012900
+  Time Difference: 0.60 seconds
+  Block Hash: 845be296f7ef3ccff115ced016e027b5a1500841e31c37a9df6dd9243a0e1af9
+  Coinbase: 5aee2975e2ed688f231ccb40e20ee6c10a98d507
+------------------------------
+Match 6:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:36:16.078842
+  Block Number: 7752546
+  Block Time: 2025-07-07 17:36:15.070300
+  Time Difference: 1.01 seconds
+  Block Hash: d4910e2c1adad2b5112b3503d262512546a6e06dae3a8c7a8e5dc47f140eef6d
+  Coinbase: 93293a100338f54242f05652e137a52e0acdccf0
+------------------------------
+Match 7:
+  Pool: ViaBTC
+  Template Time: 2025-07-07 17:36:34.117056
+  Block Number: 7752547
+  Block Time: 2025-07-07 17:36:36.085400
+  Time Difference: 1.97 seconds
+  Block Hash: 39077e977699f90be9d18635ab867f213226ef2d18d76bc5e1688cafe13a1cff
+  Coinbase: 93293a100338f54242f05652e137a52e0acdccf0
+------------------------------
+Match 8:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:37:21.480975
+  Block Number: 7752548
+  Block Time: 2025-07-07 17:37:21.007900
+  Time Difference: 0.47 seconds
+  Block Hash: 8be5f74307c21414005e787d0a5bb913866825defc0ecca207fa45eb2062854c
+  Coinbase: 93293a100338f54242f05652e137a52e0acdccf0
+------------------------------
+Match 9:
+  Pool: SpiderPool
+  Template Time: 2025-07-07 17:37:45.435981
+  Block Number: 7752549
+  Block Time: 2025-07-07 17:37:45.041400
+  Time Difference: 0.39 seconds
+  Block Hash: c3abe25da44e5fb99fd983ae77fdfeff1764b4c9c8c39ac91077a994f1245874
+  Coinbase: ce7864a8b5bf360b01099502a163810cec845d4a
+------------------------------
+Match 10:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:38:12.562992
+  Block Number: 7752550
+  Block Time: 2025-07-07 17:38:12.006800
+  Time Difference: 0.56 seconds
+  Block Hash: a8414bf2cef8f7afd47d3dbaec44b29fba0c5a5ebf0ffc3771c34dd94280ce15
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 11:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:38:38.841115
+  Block Number: 7752551
+  Block Time: 2025-07-07 17:38:38.052900
+  Time Difference: 0.79 seconds
+  Block Hash: 1e466644e4ff044c138877d166e443ad76cfcc2ce56bee1e4fbe5bb760847380
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 12:
+  Pool: F2Pool
+  Template Time: 2025-07-07 17:39:03.107941
+  Block Number: 7752552
+  Block Time: 2025-07-07 17:39:04.006500
+  Time Difference: 0.90 seconds
+  Block Hash: 991a78f08cf25a67c5f057a398a8251b7bdab8a8d116403c56aeb49906ac621f
+  Coinbase: 93293a100338f54242f05652e137a52e0acdccf0
+------------------------------
+Match 13:
+  Pool: ViaBTC
+  Template Time: 2025-07-07 17:39:39.152248
+  Block Number: 7752553
+  Block Time: 2025-07-07 17:39:38.006200
+  Time Difference: 1.15 seconds
+  Block Hash: b162105278ec4e1a405cac0518aea042a016cabd7ff003e0d884bd256cbb15ca
+  Coinbase: 93293a100338f54242f05652e137a52e0acdccf0
+------------------------------
+Match 14:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:39:47.906298
+  Block Number: 7752554
+  Block Time: 2025-07-07 17:39:47.067700
+  Time Difference: 0.84 seconds
+  Block Hash: a58defec765a71ad3719a66c1978156acbaec745e7d02d92752405015f215602
+  Coinbase: 93293a100338f54242f05652e137a52e0acdccf0
+------------------------------
+Match 15:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:39:59.286712
+  Block Number: 7752555
+  Block Time: 2025-07-07 17:39:59.002600
+  Time Difference: 0.28 seconds
+  Block Hash: 56e3bce3d574df5f7c15eb4114214a1b391a92bf53b88b363e46ede711649454
+  Coinbase: 93293a100338f54242f05652e137a52e0acdccf0
+------------------------------
+Match 16:
+  Pool: SpiderPool
+  Template Time: 2025-07-07 17:40:49.462023
+  Block Number: 7752556
+  Block Time: 2025-07-07 17:40:50.098700
+  Time Difference: 0.64 seconds
+  Block Hash: 93a2c34ee7ccaf813c99fdea24d3b6095e26c484311f302cc175440fd0900f6b
+  Coinbase: ce7864a8b5bf360b01099502a163810cec845d4a
+------------------------------
+Match 17:
+  Pool: Luxor
+  Template Time: 2025-07-07 17:41:14.774498
+  Block Number: 7752557
+  Block Time: 2025-07-07 17:41:14.046300
+  Time Difference: 0.73 seconds
+  Block Hash: 6003dd74c96aebfd49cacb4ab525bf143b982776e2f5e305fa045999aac4026b
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 18:
+  Pool: ViaBTC
+  Template Time: 2025-07-07 17:41:54.303831
+  Block Number: 7752558
+  Block Time: 2025-07-07 17:41:54.047600
+  Time Difference: 0.26 seconds
+  Block Hash: ef11ea176ebc633504787f5404ad2696cbe43b496355c4d06a2bd082a6efb13d
+  Coinbase: 12d3178a62ef1f520944534ed04504609f7307a1
+------------------------------
+Match 19:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:42:15.070066
+  Block Number: 7752559
+  Block Time: 2025-07-07 17:42:14.067100
+  Time Difference: 1.00 seconds
+  Block Hash: 50278ba3ac66ce4e87619799634e9763e8ec4d0d23489a2b0b3877dc079cedcf
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 20:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:43:10.749572
+  Block Number: 7752560
+  Block Time: 2025-07-07 17:43:10.041800
+  Time Difference: 0.71 seconds
+  Block Hash: b2341762a798a85ee48524329c826658ebd441a27673c2f7a88941463c9b956c
+  Coinbase: ce7864a8b5bf360b01099502a163810cec845d4a
+------------------------------
+Match 21:
+  Pool: Luxor
+  Template Time: 2025-07-07 17:43:22.527158
+  Block Number: 7752561
+  Block Time: 2025-07-07 17:43:22.015700
+  Time Difference: 0.51 seconds
+  Block Hash: cdd71ccc5be3871f9f1e466e1effc186f0583d25eebfbac181745c584bbdf7d3
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 22:
+  Pool: Luxor
+  Template Time: 2025-07-07 17:44:00.212334
+  Block Number: 7752562
+  Block Time: 2025-07-07 17:43:59.070500
+  Time Difference: 1.14 seconds
+  Block Hash: 4bd9b835e2a819b89ca718f3800236fddd5dffa1f4c9af29cd8735e8a2044d2a
+  Coinbase: 93293a100338f54242f05652e137a52e0acdccf0
+------------------------------
+Match 23:
+  Pool: Luxor
+  Template Time: 2025-07-07 17:44:09.483492
+  Block Number: 7752563
+  Block Time: 2025-07-07 17:44:09.028600
+  Time Difference: 0.45 seconds
+  Block Hash: d16098f605c981e2487b4a14c66d5a10e425b7015ef3b97a50212e85c1c0b2a8
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 24:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:44:15.480943
+  Block Number: 7752564
+  Block Time: 2025-07-07 17:44:17.027900
+  Time Difference: 1.55 seconds
+  Block Hash: 861212a7cba4124a35e15fb020b9ce0f2056a55815ee010975e12f6aa49c8d2d
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 25:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:44:28.197607
+  Block Number: 7752565
+  Block Time: 2025-07-07 17:44:27.089100
+  Time Difference: 1.11 seconds
+  Block Hash: 822696e10b39510618a7f769d7e5d5296f5b70af58e6219e513781db1fdb0cae
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 26:
+  Pool: Luxor
+  Template Time: 2025-07-07 17:44:48.928505
+  Block Number: 7752566
+  Block Time: 2025-07-07 17:44:48.058600
+  Time Difference: 0.87 seconds
+  Block Hash: 2e8409f43c4391b5116c7a9ef46ef7fafae977d23c451cf96f2ec65ea8349a70
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 27:
+  Pool: Luxor
+  Template Time: 2025-07-07 17:44:59.108929
+  Block Number: 7752567
+  Block Time: 2025-07-07 17:44:58.070500
+  Time Difference: 1.04 seconds
+  Block Hash: 9993e5a18b553ad7dae29f537f73c5276de0693d2585786af24a6bdb4c8e7294
+  Coinbase: 93293a100338f54242f05652e137a52e0acdccf0
+------------------------------
+Match 28:
+  Pool: Luxor
+  Template Time: 2025-07-07 17:44:59.108929
+  Block Number: 7752568
+  Block Time: 2025-07-07 17:45:01.093700
+  Time Difference: 1.98 seconds
+  Block Hash: 873a48cfa2afa389b51084199aaeff8bbe967eb1599cf06b014d1ad74c62df26
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 29:
+  Pool: Luxor
+  Template Time: 2025-07-07 17:45:30.332112
+  Block Number: 7752569
+  Block Time: 2025-07-07 17:45:30.007700
+  Time Difference: 0.32 seconds
+  Block Hash: 984ae1b30834b95fba74b87a0a42704c0e44f3b09a0d14c7810e45b402c57f02
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 30:
+  Pool: Luxor
+  Template Time: 2025-07-07 17:46:10.607040
+  Block Number: 7752570
+  Block Time: 2025-07-07 17:46:10.028100
+  Time Difference: 0.58 seconds
+  Block Hash: bdf3adc50bd1634a2ea664bc99bacb8760c7d6631e8827c64f070a7a14ba34d1
+  Coinbase: ce7864a8b5bf360b01099502a163810cec845d4a
+------------------------------
+Match 31:
+  Pool: Luxor
+  Template Time: 2025-07-07 17:46:48.638234
+  Block Number: 7752571
+  Block Time: 2025-07-07 17:46:48.029200
+  Time Difference: 0.61 seconds
+  Block Hash: 3253cde11284fb67e44afdc73d7221dfd1be586558cf4717aa927b5a513af842
+  Coinbase: 93293a100338f54242f05652e137a52e0acdccf0
+------------------------------
+Match 32:
+  Pool: SpiderPool
+  Template Time: 2025-07-07 17:47:34.592261
+  Block Number: 7752572
+  Block Time: 2025-07-07 17:47:37.062700
+  Time Difference: 2.47 seconds
+  Block Hash: 686b014a551d2b6c1561c5f4503a3e7e6a92af90cbea8f857a164dc523856232
+  Coinbase: 12d3178a62ef1f520944534ed04504609f7307a1
+------------------------------
+Match 33:
+  Pool: SpiderPool
+  Template Time: 2025-07-07 17:48:25.965514
+  Block Number: 7752573
+  Block Time: 2025-07-07 17:48:25.084400
+  Time Difference: 0.88 seconds
+  Block Hash: d48b367c68bab4962cabb6fbf96db3ac32c7cca1982239d4f99bc17f5e27889f
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 34:
+  Pool: Luxor
+  Template Time: 2025-07-07 17:48:36.997477
+  Block Number: 7752574
+  Block Time: 2025-07-07 17:48:36.089400
+  Time Difference: 0.91 seconds
+  Block Hash: 07bc56bc5c8a762edbf11ec978e61a5b9c825b7ee678ee6cccd7f1103fc8cd2c
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 35:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:49:21.054452
+  Block Number: 7752575
+  Block Time: 2025-07-07 17:49:20.068000
+  Time Difference: 0.99 seconds
+  Block Hash: 67cbd1a86fa57981807947ff57cd032064b160dc8e181e4439363c0ce49a5ea0
+  Coinbase: 12d3178a62ef1f520944534ed04504609f7307a1
+------------------------------
+Match 36:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:50:01.990195
+  Block Number: 7752576
+  Block Time: 2025-07-07 17:50:01.044600
+  Time Difference: 0.95 seconds
+  Block Hash: cf0933b88a61bff010aaefeb7c69e6f6b4afe1ea3df3f04ddc012b6217b513d6
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 37:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:50:44.727863
+  Block Number: 7752577
+  Block Time: 2025-07-07 17:50:44.083400
+  Time Difference: 0.64 seconds
+  Block Hash: 549583b306078c8a7270b3dbacb14da9c58c76dea5f13f6467eac94a6da80f26
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 38:
+  Pool: SpiderPool
+  Template Time: 2025-07-07 17:51:14.594701
+  Block Number: 7752578
+  Block Time: 2025-07-07 17:51:16.086000
+  Time Difference: 1.49 seconds
+  Block Hash: 3968c5e578a575c4aa31f0365d84937ab8aded9780226eca7d629e8e9a68a410
+  Coinbase: ce7864a8b5bf360b01099502a163810cec845d4a
+------------------------------

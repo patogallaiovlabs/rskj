@@ -1,0 +1,111 @@
+{
+  "template_events": [
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T16:45:42.464791",
+      "template_count": 1
+    },
+    {
+      "pool_name": "F2Pool",
+      "timestamp": "2025-07-07T16:45:42.590011",
+      "template_count": 1
+    },
+    {
+      "pool_name": "ViaBTC",
+      "timestamp": "2025-07-07T16:45:42.635335",
+      "template_count": 1
+    },
+    {
+      "pool_name": "SpiderPool",
+      "timestamp": "2025-07-07T16:45:42.748105",
+      "template_count": 1
+    },
+    {
+      "pool_name": "ViaBTC",
+      "timestamp": "2025-07-07T16:45:42.904782",
+      "template_count": 2
+    },
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T16:45:42.908893",
+      "template_count": 2
+    },
+    {
+      "pool_name": "SpiderPool",
+      "timestamp": "2025-07-07T16:45:43.248285",
+      "template_count": 2
+    },
+    {
+      "pool_name": "ViaBTC",
+      "timestamp": "2025-07-07T16:45:43.365344",
+      "template_count": 3
+    },
+    {
+      "pool_name": "F2Pool",
+      "timestamp": "2025-07-07T16:45:43.465875",
+      "template_count": 2
+    },
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T16:45:43.491509",
+      "template_count": 3
+    },
+    {
+      "pool_name": "Luxor",
+      "timestamp": "2025-07-07T16:45:45.404662",
+      "template_count": 1
+    }
+  ],
+  "block_events": [
+    {
+      "block_number": 7752428,
+      "hash_id": "dc9254d2e477bc7291de052ae091a1fb717f4667ffebd15ac7b0a967ab021d1c",
+      "coinbase": "4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1",
+      "timestamp": "2025-07-07T16:45:42.098300+03:00",
+      "log_time_str": "2025-07-07-16:45:42.0983"
+    }
+  ],
+  "matches": [],
+  "pool_statistics": {
+    "AntPool": {
+      "template_count": 3,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "F2Pool": {
+      "template_count": 2,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "ViaBTC": {
+      "template_count": 3,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "SpiderPool": {
+      "template_count": 2,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "Luxor": {
+      "template_count": 1,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    }
+  }
+}

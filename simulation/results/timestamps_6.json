@@ -1,0 +1,140 @@
+{
+  "template_events": [
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T16:51:40.110408-03:00",
+      "template_count": 1
+    },
+    {
+      "pool_name": "Luxor",
+      "timestamp": "2025-07-07T16:51:40.327772-03:00",
+      "template_count": 1
+    },
+    {
+      "pool_name": "SpiderPool",
+      "timestamp": "2025-07-07T16:51:47.575362-03:00",
+      "template_count": 1
+    },
+    {
+      "pool_name": "ViaBTC",
+      "timestamp": "2025-07-07T16:51:49.154618-03:00",
+      "template_count": 1
+    },
+    {
+      "pool_name": "SpiderPool",
+      "timestamp": "2025-07-07T16:51:52.993244-03:00",
+      "template_count": 2
+    },
+    {
+      "pool_name": "ViaBTC",
+      "timestamp": "2025-07-07T16:51:53.117594-03:00",
+      "template_count": 2
+    },
+    {
+      "pool_name": "F2Pool",
+      "timestamp": "2025-07-07T16:51:53.400073-03:00",
+      "template_count": 1
+    },
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T16:51:54.089689-03:00",
+      "template_count": 2
+    },
+    {
+      "pool_name": "Luxor",
+      "timestamp": "2025-07-07T16:51:54.153139-03:00",
+      "template_count": 2
+    },
+    {
+      "pool_name": "ViaBTC",
+      "timestamp": "2025-07-07T16:51:58.123234-03:00",
+      "template_count": 3
+    },
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T16:51:58.751058-03:00",
+      "template_count": 3
+    },
+    {
+      "pool_name": "Luxor",
+      "timestamp": "2025-07-07T16:51:58.838960-03:00",
+      "template_count": 3
+    },
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T16:52:04.561198-03:00",
+      "template_count": 4
+    },
+    {
+      "pool_name": "Luxor",
+      "timestamp": "2025-07-07T16:52:04.730621-03:00",
+      "template_count": 4
+    }
+  ],
+  "block_events": [
+    {
+      "block_number": 7752442,
+      "hash_id": "9fcf683a793a29b999e52490b1ca45f3992f82d84f1011ba980c21245f75f63a",
+      "coinbase": "4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1",
+      "timestamp": "2025-07-07T16:51:39.084100+03:00",
+      "log_time_str": "2025-07-07-16:51:39.0841"
+    },
+    {
+      "block_number": 7752442,
+      "hash_id": "e5693d9cd7f036ec90729e09308a28574979dc9a4a01247b33da4b7b779327e7",
+      "coinbase": "12d3178a62ef1f520944534ed04504609f7307a1",
+      "timestamp": "2025-07-07T16:51:47.055900+03:00",
+      "log_time_str": "2025-07-07-16:51:47.0559"
+    },
+    {
+      "block_number": 7752443,
+      "hash_id": "84e2817b390e3a3ce7edc6a57a2c955a9d29b089f30be7b83b9adfe807fc4bf5",
+      "coinbase": "ce7864a8b5bf360b01099502a163810cec845d4a",
+      "timestamp": "2025-07-07T16:52:04.031200+03:00",
+      "log_time_str": "2025-07-07-16:52:04.0312"
+    }
+  ],
+  "matches": [],
+  "pool_statistics": {
+    "AntPool": {
+      "template_count": 4,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "Luxor": {
+      "template_count": 4,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "SpiderPool": {
+      "template_count": 2,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "ViaBTC": {
+      "template_count": 3,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "F2Pool": {
+      "template_count": 1,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    }
+  }
+}

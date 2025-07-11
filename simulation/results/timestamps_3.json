@@ -1,0 +1,52 @@
+{
+  "template_events": [
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T16:47:39.378816-03:00",
+      "template_count": 1
+    },
+    {
+      "pool_name": "Luxor",
+      "timestamp": "2025-07-07T16:47:39.412218-03:00",
+      "template_count": 1
+    },
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T16:47:42.484248-03:00",
+      "template_count": 2
+    },
+    {
+      "pool_name": "Luxor",
+      "timestamp": "2025-07-07T16:47:42.612029-03:00",
+      "template_count": 2
+    }
+  ],
+  "block_events": [
+    {
+      "block_number": 7752432,
+      "hash_id": "3e1f5420138a99f16e4aa3724200f1642554c09c9da57f51e51c09bda881f79c",
+      "coinbase": "ce7864a8b5bf360b01099502a163810cec845d4a",
+      "timestamp": "2025-07-07T16:47:42.025300+03:00",
+      "log_time_str": "2025-07-07-16:47:42.0253"
+    }
+  ],
+  "matches": [],
+  "pool_statistics": {
+    "AntPool": {
+      "template_count": 2,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "Luxor": {
+      "template_count": 2,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    }
+  }
+}

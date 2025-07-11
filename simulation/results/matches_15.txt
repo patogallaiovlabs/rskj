@@ -1,0 +1,30 @@
+Template Refresh to Block Event Matches
+==================================================
+
+Match 1:
+  Pool: AntPool
+  Template Time: 2025-07-07 17:23:34.519284
+  Block Number: 7752516
+  Block Time: 2025-07-07 17:23:34.021800
+  Time Difference: 0.50 seconds
+  Block Hash: ce0d05d7d6828b7208f6d57ca0bc7868676c7f8649fdf4610983f9e6599e4229
+  Coinbase: 0fd9b9b567a459c6c9645ab0847785aef13dfe1b
+------------------------------
+Match 2:
+  Pool: ViaBTC
+  Template Time: 2025-07-07 17:23:39.187781
+  Block Number: 7752517
+  Block Time: 2025-07-07 17:23:39.034300
+  Time Difference: 0.15 seconds
+  Block Hash: 2e1a347f730232fa681e7cafd714256b9dbb4ea7f4520a3099e631b8dafedac9
+  Coinbase: 4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1
+------------------------------
+Match 3:
+  Pool: ViaBTC
+  Template Time: 2025-07-07 17:23:50.271159
+  Block Number: 7752518
+  Block Time: 2025-07-07 17:23:52.032900
+  Time Difference: 1.76 seconds
+  Block Hash: da4dee00c207d9091fec017afbff4a1c64789bca97185e5317423f62da6113ad
+  Coinbase: ce7864a8b5bf360b01099502a163810cec845d4a
+------------------------------

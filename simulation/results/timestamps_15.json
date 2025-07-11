@@ -1,0 +1,175 @@
+{
+  "template_events": [
+    {
+      "pool_name": "Luxor",
+      "timestamp": "2025-07-07T17:23:51.370326",
+      "template_count": 6
+    },
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T17:23:52.548972",
+      "template_count": 7
+    },
+    {
+      "pool_name": "Luxor",
+      "timestamp": "2025-07-07T17:23:52.756871",
+      "template_count": 7
+    },
+    {
+      "pool_name": "SpiderPool",
+      "timestamp": "2025-07-07T17:23:55.446152",
+      "template_count": 2
+    },
+    {
+      "pool_name": "ViaBTC",
+      "timestamp": "2025-07-07T17:24:04.172850",
+      "template_count": 6
+    }
+  ],
+  "block_events": [
+    {
+      "block_number": 7752516,
+      "hash_id": "ce0d05d7d6828b7208f6d57ca0bc7868676c7f8649fdf4610983f9e6599e4229",
+      "coinbase": "0fd9b9b567a459c6c9645ab0847785aef13dfe1b",
+      "timestamp": "2025-07-07T17:23:34.021800",
+      "log_time_str": "2025-07-07-17:23:34.0218"
+    },
+    {
+      "block_number": 7752517,
+      "hash_id": "2e1a347f730232fa681e7cafd714256b9dbb4ea7f4520a3099e631b8dafedac9",
+      "coinbase": "4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1",
+      "timestamp": "2025-07-07T17:23:39.034300",
+      "log_time_str": "2025-07-07-17:23:39.0343"
+    },
+    {
+      "block_number": 7752517,
+      "hash_id": "42d74823d381e6aa6403e1954807841df4c9f463daa557cf882f4112fdbd0ffc",
+      "coinbase": "4e5dabc28e4a0f5e5b19fcb56b28c5a1989352c1",
+      "timestamp": "2025-07-07T17:23:39.058800",
+      "log_time_str": "2025-07-07-17:23:39.0588"
+    },
+    {
+      "block_number": 7752518,
+      "hash_id": "da4dee00c207d9091fec017afbff4a1c64789bca97185e5317423f62da6113ad",
+      "coinbase": "ce7864a8b5bf360b01099502a163810cec845d4a",
+      "timestamp": "2025-07-07T17:23:52.032900",
+      "log_time_str": "2025-07-07-17:23:52.0329"
+    },
+    {
+      "block_number": 7752518,
+      "hash_id": "f7f441687bc7407a43cf66d865cda071474f4f3207d3f76d68da46f77b67df08",
+      "coinbase": "ce7864a8b5bf360b01099502a163810cec845d4a",
+      "timestamp": "2025-07-07T17:23:57.070800",
+      "log_time_str": "2025-07-07-17:23:57.0708"
+    }
+  ],
+  "matches": [
+    {
+      "template_pool": "AntPool",
+      "template_time": "2025-07-07T17:23:34.519284",
+      "block_number": 7752516,
+      "block_time": "2025-07-07T17:23:34.021800",
+      "time_diff": 0.497484
+    },
+    {
+      "template_pool": "ViaBTC",
+      "template_time": "2025-07-07T17:23:39.187781",
+      "block_number": 7752517,
+      "block_time": "2025-07-07T17:23:39.034300",
+      "time_diff": 0.153481
+    },
+    {
+      "template_pool": "ViaBTC",
+      "template_time": "2025-07-07T17:23:50.271159",
+      "block_number": 7752518,
+      "block_time": "2025-07-07T17:23:52.032900",
+      "time_diff": 1.761741
+    }
+  ],
+  "pool_statistics": {
+    "SpiderPool": {
+      "template_count": 2,
+      "block_count": 5,
+      "matches": 0,
+      "template_match_rate": 0.0,
+      "block_match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0,
+      "avg_first_template_response": 13.749818666666664,
+      "first_template_response_count": 3,
+      "first_template_response_times": [
+        21.424352,
+        16.411852,
+        3.413252
+      ]
+    },
+    "ViaBTC": {
+      "template_count": 6,
+      "block_count": 5,
+      "matches": 2,
+      "template_match_rate": 33.33333333333333,
+      "block_match_rate": 40.0,
+      "avg_time_diff": 0.957611,
+      "min_time_diff": 0.153481,
+      "max_time_diff": 1.761741,
+      "avg_first_template_response": 5.969738333333333,
+      "first_template_response_count": 3,
+      "first_template_response_times": [
+        5.165981,
+        0.603284,
+        12.13995
+      ]
+    },
+    "F2Pool": {
+      "template_count": 3,
+      "block_count": 5,
+      "matches": 0,
+      "template_match_rate": 0.0,
+      "block_match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0,
+      "avg_first_template_response": 3.3315829999999997,
+      "first_template_response_count": 2,
+      "first_template_response_times": [
+        5.837833,
+        0.825333
+      ]
+    },
+    "AntPool": {
+      "template_count": 7,
+      "block_count": 5,
+      "matches": 1,
+      "template_match_rate": 14.285714285714285,
+      "block_match_rate": 20.0,
+      "avg_time_diff": 0.497484,
+      "min_time_diff": 0.497484,
+      "max_time_diff": 0.497484,
+      "avg_first_template_response": 0.607915,
+      "first_template_response_count": 3,
+      "first_template_response_times": [
+        0.497484,
+        0.810189,
+        0.516072
+      ]
+    },
+    "Luxor": {
+      "template_count": 7,
+      "block_count": 5,
+      "matches": 0,
+      "template_match_rate": 0.0,
+      "block_match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0,
+      "avg_first_template_response": 0.701531,
+      "first_template_response_count": 3,
+      "first_template_response_times": [
+        0.658909,
+        0.721713,
+        0.723971
+      ]
+    }
+  }
+}

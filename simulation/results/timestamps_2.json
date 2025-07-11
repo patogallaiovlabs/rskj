@@ -1,0 +1,88 @@
+{
+  "template_events": [
+    {
+      "pool_name": "AntPool",
+      "timestamp": "2025-07-07T16:46:10.585925",
+      "template_count": 1
+    },
+    {
+      "pool_name": "Luxor",
+      "timestamp": "2025-07-07T16:46:10.791133",
+      "template_count": 1
+    },
+    {
+      "pool_name": "SpiderPool",
+      "timestamp": "2025-07-07T16:46:13.386207",
+      "template_count": 1
+    },
+    {
+      "pool_name": "F2Pool",
+      "timestamp": "2025-07-07T16:46:17.999914",
+      "template_count": 1
+    },
+    {
+      "pool_name": "ViaBTC",
+      "timestamp": "2025-07-07T16:46:18.132868",
+      "template_count": 1
+    }
+  ],
+  "block_events": [
+    {
+      "block_number": 7752429,
+      "hash_id": "8fa53be66d4b39c6f25fc1e77d08baf719bb1172bc2cde5bcc3a741081df27d9",
+      "coinbase": "ce7864a8b5bf360b01099502a163810cec845d4a",
+      "timestamp": "2025-07-07T16:46:10.030000+03:00",
+      "log_time_str": "2025-07-07-16:46:10.0300"
+    },
+    {
+      "block_number": 7752429,
+      "hash_id": "c527e38a2fa00f588b5620b0b1905532138943dd14749ed3a475ca958c3dc820",
+      "coinbase": "ce7864a8b5bf360b01099502a163810cec845d4a",
+      "timestamp": "2025-07-07T16:46:17.079800+03:00",
+      "log_time_str": "2025-07-07-16:46:17.0798"
+    }
+  ],
+  "matches": [],
+  "pool_statistics": {
+    "AntPool": {
+      "template_count": 1,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "Luxor": {
+      "template_count": 1,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "SpiderPool": {
+      "template_count": 1,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "F2Pool": {
+      "template_count": 1,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    },
+    "ViaBTC": {
+      "template_count": 1,
+      "matches": 0,
+      "match_rate": 0.0,
+      "avg_time_diff": 0,
+      "min_time_diff": 0,
+      "max_time_diff": 0.0
+    }
+  }
+}

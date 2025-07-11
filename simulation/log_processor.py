@@ -57,6 +57,7 @@ def process_line(line):
     if 'IMPORTED' in line:
         match = re.search(r'(\d+-\d+-\d+-\d+:\d+:\d+\.\d+).*block: num: \[(\d+)\].*hash:\s*\[([0-9a-fA-F]+)\],\s*parentHash:\[(\w+)\],\s*coinbase:\[(\w+)\],\s*uncles:\[([0-9a-fA-F, ]*)\],\s*difficulty:\[(\d+)\],\s*txs:\[(\d+)\],\s*txsHashes:\[([0-9a-fA-F, ]*)\],\s*timestamp:(\d+),.*result (.*)', line)
         if match:
+            print("Match found")
             log_time_str = match.group(1)
             block_number = int(match.group(2))
             hash_id = match.group(3)
