@@ -5,3 +5,4 @@ Dockerfile
 .idea
 .vscode
 logs
+test/local*/
