@@ -56,30 +56,30 @@
     </appender>
 
     <!-- Loggers -->
-    <logger name="execute" level="INFO"/>
+    <logger name="execute" level="OFF"/>
     <logger name="blockvalidator" level="INFO"/>
     <logger name="blockexecutor" level="INFO"/>
     <logger name="general" level="INFO"/>
     <logger name="gaspricetracker" level="INFO"/>
     <logger name="web3" level="INFO"/>
     <logger name="repository" level="INFO"/>
-    <logger name="VM" level="ERROR"/>
+    <logger name="VM" level="OFF"/>
     <logger name="blockqueue" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
     <logger name="block" level="INFO"/>
-    <logger name="minerserver" level="INFO"/>
+    <logger name="minerserver" level="TRACE"/>
     <logger name="txbuilderex" level="INFO"/>
     <logger name="pendingstate" level="INFO"/>
     <logger name="hsqldb.db" level="INFO"/>
     <logger name="TCK-Test" level="INFO"/>
     <logger name="db" level="INFO"/>
-    <logger name="net" level="INFO"/>
+    <logger name="net" level="WARN"/>
     <logger name="start" level="INFO"/>
     <logger name="cli" level="INFO"/>
     <logger name="txs" level="INFO"/>
     <logger name="gas" level="ERROR"/>
     <logger name="main" level="INFO"/>
-    <logger name="trie" level="INFO"/>
+    <logger name="trie" level="TRACE"/>
     <logger name="peermonitor" level="INFO"/>
     <logger name="bridge" level="INFO"/>
     <logger name="rlp" level="INFO"/>
@@ -93,12 +93,12 @@
     <logger name="BridgeSupport" level="INFO"/>
     <logger name="jsonrpc" level="INFO"/>
     <logger name="wallet" level="INFO"/>
-    <logger name="blockchain" level="INFO"/>
+    <logger name="blockchain" level="TRACE"/>
     <logger name="blockprocessor" level="INFO"/>
     <logger name="asyncblockprocessor" level="INFO"/>
     <logger name="state" level="INFO"/>
     <logger name="org.bitcoinj" level="INFO"/>
-    <logger name="metrics" level="INFO"/>
+    <logger name="metrics" level="TRACE"/>
     <logger name="messageProcess" level="INFO"/>
     <logger name="co.rsk.db.migration.OrchidToUnitrieMigrator" level="INFO"/>
     <logger name="co.rsk.db.migration.MissingOrchidStorageKeysProvider" level="INFO"/>
@@ -110,6 +110,13 @@
     <logger name="co.rsk.net.discovery.PeerExplorer" level="INFO" />
     <logger name="co.rsk.net.discovery.NodeChallengeManager" level="INFO" />
     <logger name="co.rsk.RskContext" level="INFO" />
+    <logger name="io.netty.handler.logging.LoggingHandler" level="WARN"/>
+    <logger name="co.rsk.net.sync.PeerAndModeDecidingSyncState" level="WARN" />
+    <logger name="org.ethereum.core.Transaction" level="INFO" />
+    <logger name="peerScoring" level="INFO" />
+    <logger name="txpool" level="INFO" />
+    <logger name="syncprocessor" level="INFO" />
+    <logger name="datasourcewithcache" level="TRACE" />
 
     <!-- Use INFO or upper levels for production environments. -->
     <logger name="com.googlecode.jsonrpc4j" level="INFO" />
@@ -121,7 +128,7 @@
     </logger>
 
     <!-- Root logger -->
-    <root level="DEBUG">
+    <root level="TRACE">
         <appender-ref ref="stdout"/>
         <appender-ref ref="FILE-AUDIT"/>
     </root>

@@ -25,6 +25,8 @@ import co.rsk.db.StateRootHandler;
 import co.rsk.trie.TrieStore;
 import org.ethereum.core.Block;
 import org.ethereum.db.BlockStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -48,6 +50,7 @@ public class ExecuteBlocks extends PicoCliToolRskContextAware {
     @CommandLine.Option(names = {"-tb", "--toBlock"}, description = "To block number", required = true)
     private Long toBlockNumber;
 
+    private static final Logger logger = LoggerFactory.getLogger(ExecuteBlocks.class);
     public static void main(String[] args) {
         create(MethodHandles.lookup().lookupClass()).execute(args);
     }
@@ -70,7 +73,10 @@ public class ExecuteBlocks extends PicoCliToolRskContextAware {
             Block block = blockStore.getChainBlockByNumber(n);
             Block parent = blockStore.getBlockByHash(block.getParentHash().getBytes());
 
+            long startTime = System.currentTimeMillis();
             BlockResult blockResult = blockExecutor.execute(null, 0, block, parent.getHeader(), false, false, true);
+            long endTime = System.currentTimeMillis();
+            logger.debug("Block {} executed in {} ms", n, (endTime - startTime));
 
             Keccak256 stateRootHash = stateRootHandler.translate(block.getHeader());
             if (!Arrays.equals(blockResult.getFinalState().getHash().getBytes(), stateRootHash.getBytes())) {

@@ -4,101 +4,128 @@ set -euo pipefail
 IMAGE="rskj-local:latest"
 NETWORK="rsknet"
 
-CLEAN_BUILD=false     # builder prune + build --no-cache
-WIPE_VOLUMES=false    # remove named volumes
-NO_BUILD=false        # skip docker build step
+CLEAN_BUILD=false
+WIPE_VOLUMES=false
+NO_BUILD=false
+ONLY_STOP=false
+ROLLING=false
 MINERS=2
+NODES=0
 
-# Port bases
-P2P_BASE=50500           # miner i -> 50500+i  (so miner1=50501)
-HTTP_HOST_BASE=4443      # miner i -> 4443+i  (miner1=4444)
-WS_HOST_BASE=4454        # miner i -> 4454+i  (miner1=4455)
-
-# Container ports (what rskj listens on inside container)
-HTTP_PORT_CONTAINER=4444
-WS_PORT_CONTAINER=4445
+ENABLE_JMX=false
+JMX_BASE=9100
+JMX_HOSTNAME="127.0.0.1"
 
 usage() {
   cat <<EOF
 Usage: $0 [options]
 
 Options:
-  --miners N       Number of miners to start (default: $MINERS)
-  --clean-build    Prune Docker build cache + build with --no-cache
-  --wipe-volumes   Remove miner volumes (DATA LOSS)
-  --no-build       Skip docker build (reuse existing image)
-  -h, --help       Show this help
-
-Examples:
-  $0
-  $0 --miners 5
-  $0 --miners 10 --no-build
-  $0 --miners 3 --clean-build --wipe-volumes
+  --miners N         Number of miners (default: $MINERS)
+  --nodes N          Number of regular nodes (default: $NODES)
+  --clean-build      Prune build cache + build with --no-cache
+  --wipe-volumes     Remove miner/node volumes (DATA LOSS)
+  --no-build         Skip docker build
+  --stop             Only stop and remove containers
+  --rolling          Rolling deploy: stop/start one by one
+  --enable-jmx       Expose JMX for VisualVM/JConsole
+  --jmx-base PORT    Base JMX port (default: $JMX_BASE). Miner i uses (PORT+i)
+  --jmx-hostname H   java.rmi.server.hostname (default: $JMX_HOSTNAME)
+  -h, --help         Show help
 EOF
 }
 
-# ----------------------------
-# Parse arguments
-# ----------------------------
 while [ "${#@}" -gt 0 ]; do
   case "$1" in
     --clean-build)  CLEAN_BUILD=true; shift ;;
     --wipe-volumes) WIPE_VOLUMES=true; shift ;;
     --no-build)     NO_BUILD=true; shift ;;
+    --enable-jmx)   ENABLE_JMX=true; shift ;;
     --miners)
       shift
-      if [ "${1:-}" = "" ] || ! [[ "$1" =~ ^[0-9]+$ ]] || [ "$1" -lt 1 ]; then
+      if [ -z "${1:-}" ] || ! [[ "$1" =~ ^[0-9]+$ ]] || [ "$1" -lt 1 ]; then
         echo "Error: --miners requires a positive integer" >&2
-        usage
-        exit 1
+        usage; exit 1
       fi
-      MINERS="$1"
+      MINERS="$1"; shift ;;
+    --nodes)
       shift
-      ;;
+      if [ -z "${1:-}" ] || ! [[ "$1" =~ ^[0-9]+$ ]]; then
+        echo "Error: --nodes requires a non-negative integer" >&2
+        usage; exit 1
+      fi
+      NODES="$1"; shift ;;
+    --stop)         ONLY_STOP=true; shift ;;
+    --rolling)      ROLLING=true; shift ;;
+    --jmx-base)
+      shift
+      if [ -z "${1:-}" ] || ! [[ "$1" =~ ^[0-9]+$ ]] || [ "$1" -lt 1 ]; then
+        echo "Error: --jmx-base requires a positive integer port" >&2
+        usage; exit 1
+      fi
+      JMX_BASE="$1"; shift ;;
+    --jmx-hostname)
+      shift
+      if [ -z "${1:-}" ]; then
+        echo "Error: --jmx-hostname requires a value" >&2
+        usage; exit 1
+      fi
+      JMX_HOSTNAME="$1"; shift ;;
     -h|--help) usage; exit 0 ;;
-    *)
-      echo "Unknown argument: $1" >&2
-      usage
-      exit 1
-      ;;
+    *) echo "Unknown argument: $1" >&2; usage; exit 1 ;;
   esac
 done
 
-# ----------------------------
-# STOP any running instances first (hard reset for our miner names)
-# ----------------------------
-echo "Stopping any running miner containers (rskj-miner1..rskj-miner${MINERS})..."
-for i in $(seq 1 "$MINERS"); do
-  docker stop "rskj-miner$i" >/dev/null 2>&1 || true
-  docker rm   "rskj-miner$i" >/dev/null 2>&1 || true
-done
-
-# ----------------------------
-# Volumes
-# ----------------------------
-if [ "$WIPE_VOLUMES" = true ]; then
-  echo "Removing miner volumes (data will be lost)..."
-  for i in $(seq 1 "$MINERS"); do
-    docker volume rm "rskj-data-miner$i" >/dev/null 2>&1 || true
+if [ "$ROLLING" = false ]; then
+  echo "Stopping any running rskj containers..."
+  for name in $(docker ps -a --format '{{.Names}}' | grep -E '^rskj-(miner|node)[0-9]+$' || true); do
+    docker stop "$name" >/dev/null 2>&1 || true
+    docker rm   "$name" >/dev/null 2>&1 || true
+  done
+else
+  echo "Rolling deploy: removing excess containers..."
+  for name in $(docker ps -a --format '{{.Names}}' | grep -E '^rskj-miner[0-9]+$' || true); do
+    idx=$(echo "$name" | sed 's/rskj-miner//')
+    if [ "$idx" -gt "$MINERS" ]; then
+      echo "  Stopping excess miner: $name"
+      docker stop "$name" >/dev/null 2>&1 || true
+      docker rm   "$name" >/dev/null 2>&1 || true
+    fi
+  done
+  for name in $(docker ps -a --format '{{.Names}}' | grep -E '^rskj-node[0-9]+$' || true); do
+    idx=$(echo "$name" | sed 's/rskj-node//')
+    if [ "$idx" -gt "$NODES" ]; then
+      echo "  Stopping excess node: $name"
+      docker stop "$name" >/dev/null 2>&1 || true
+      docker rm   "$name" >/dev/null 2>&1 || true
+    fi
   done
 fi
 
-# Ensure volumes exist
+if [ "$ONLY_STOP" = true ]; then
+  echo "Stopped all rskj containers. Exiting."
+  exit 0
+fi
+
+if [ "$WIPE_VOLUMES" = true ]; then
+  echo "Removing rskj volumes..."
+  for vol in $(docker volume ls -q | grep -E '^rskj-data-(miner|node)[0-9]+$' || true); do
+    docker volume rm "$vol" >/dev/null 2>&1 || true
+  done
+fi
+
 for i in $(seq 1 "$MINERS"); do
   docker volume create "rskj-data-miner$i" >/dev/null
 done
+for i in $(seq 1 "$NODES"); do
+  docker volume create "rskj-data-node$i" >/dev/null
+done
 
-# ----------------------------
-# Optional build cache cleanup
-# ----------------------------
 if [ "$CLEAN_BUILD" = true ]; then
   echo "Cleaning Docker build cache..."
   docker builder prune -f >/dev/null || true
 fi
 
-# ----------------------------
-# Build image
-# ----------------------------
 if [ "$NO_BUILD" = false ]; then
   if [ "$CLEAN_BUILD" = true ]; then
     echo "Building Docker image (no cache)..."
@@ -111,75 +138,119 @@ else
   echo "Skipping build (--no-build). Using existing image: $IMAGE"
 fi
 
-# ----------------------------
-# Shared network
-# ----------------------------
 docker network create "$NETWORK" >/dev/null 2>&1 || true
 
-# ----------------------------
-# Resources (simulate limited machine)
-# ----------------------------
-CPUS="1.0"
-MEM="4g"
-MEMSWAP="4g"
+CPUS="2.0"
+MEM="8g"
+MEMSWAP="8g"
 
-echo "Starting $MINERS miners on network: $NETWORK"
-echo "Port scheme:"
-echo "  P2P:  host=container=50500+i"
-echo "  HTTP: host=4443+i  -> container=4444"
-echo "  WS:   host=4454+i  -> container=4445"
-echo
+HTTP_PORT_CONTAINER=4444
+WS_PORT_CONTAINER=4445
 
-# ----------------------------
-# Run miners
-# ----------------------------
-for i in $(seq 1 "$MINERS"); do
-  NAME="rskj-miner$i"
-  VOL="rskj-data-miner$i"
+# Host RPC ports (stable scheme)
+HTTP_HOST_MINER_BASE=4443   # miner1=4444
+WS_HOST_MINER_BASE=4454     # miner1=4455
 
-  P2P_PORT=$((P2P_BASE + i))
-  HTTP_HOST_PORT=$((HTTP_HOST_BASE + i))
-  WS_HOST_PORT=$((WS_HOST_BASE + i))
+HTTP_HOST_NODE_BASE=4463    # node1=4464
+WS_HOST_NODE_BASE=4474      # node1=4475
 
-  echo "Starting $NAME (MINER_ID=$i) ..."
+start_node() {
+  local i=$1
+  local type=$2 # "miner" or "node"
+  local is_miner=$3 # "true" or "false"
+
+  local NAME="rskj-$type$i"
+  local VOL="rskj-data-$type$i"
+
+  local P2P_PORT
+  local HTTP_HOST_PORT
+  local WS_HOST_PORT
+
+  if [ "$is_miner" = "true" ]; then
+    P2P_PORT="5050${i}"
+    HTTP_HOST_PORT=$((HTTP_HOST_MINER_BASE + i))
+    WS_HOST_PORT=$((WS_HOST_MINER_BASE + i))
+  else
+    P2P_PORT="5060${i}"
+    HTTP_HOST_PORT=$((HTTP_HOST_NODE_BASE + i))
+    WS_HOST_PORT=$((WS_HOST_NODE_BASE + i))
+  fi
+
+  # JMX port (stable scheme)
+  # Miner i: JMX_BASE + i
+  # Node i: JMX_BASE + 100 + i (just to avoid conflict)
+  local JMX_PORT
+  if [ "$is_miner" = "true" ]; then
+    JMX_PORT=$((JMX_BASE + i))
+  else
+    JMX_PORT=$((JMX_BASE + 100 + i))
+  fi
+
+  if [ "$ROLLING" = true ]; then
+    if docker ps -a --format '{{.Names}}' | grep -q "^$NAME$"; then
+      echo "Stopping $NAME for rolling deploy..."
+      docker stop "$NAME" >/dev/null 2>&1 || true
+      docker rm   "$NAME" >/dev/null 2>&1 || true
+    fi
+  fi
+
+  echo "Starting $NAME (MINER_ID=$i, IS_MINER=$is_miner) P2P=$P2P_PORT HTTP=$HTTP_HOST_PORT WS=$WS_HOST_PORT" \
+       "$( [ "$ENABLE_JMX" = true ] && echo "JMX=$JMX_PORT" )"
+
+  # Build env args
+  local ENV_ARGS=(-e "MINER_ID=$i" -e "IS_MINER=$is_miner")
+  if [ "$ENABLE_JMX" = true ]; then
+    ENV_ARGS+=(-e "ENABLE_JMX=true" -e "JMX_PORT=$JMX_PORT" -e "JMX_HOSTNAME=$JMX_HOSTNAME")
+  fi
+
+  # Build port args
+  local PORT_ARGS=(-p "${P2P_PORT}:${P2P_PORT}" -p "${HTTP_HOST_PORT}:${HTTP_PORT_CONTAINER}" -p "${WS_HOST_PORT}:${WS_PORT_CONTAINER}")
+  if [ "$ENABLE_JMX" = true ]; then
+    PORT_ARGS+=(-p "${JMX_PORT}:${JMX_PORT}")
+  fi
+
   docker run -d \
     --name "$NAME" \
     --network "$NETWORK" \
     --cpus="$CPUS" \
     --memory="$MEM" \
     --memory-swap="$MEMSWAP" \
-    -e MINER_ID="$i" \
+    "${ENV_ARGS[@]}" \
     -v "$VOL":/var/lib/rsk \
-    -p "${P2P_PORT}:${P2P_PORT}" \
-    -p "${HTTP_HOST_PORT}:${HTTP_PORT_CONTAINER}" \
-    -p "${WS_HOST_PORT}:${WS_PORT_CONTAINER}" \
+    "${PORT_ARGS[@]}" \
     "$IMAGE"
-done
+}
 
-# ----------------------------
-# Summary
-# ----------------------------
-echo
-echo "All miners are running on shared Docker network: $NETWORK"
-echo
-echo "Container-to-container (inside Docker):"
-for i in $(seq 1 "$MINERS"); do
-  P2P_PORT=$((P2P_BASE + i))
-  echo "  rskj-miner$i:${P2P_PORT}"
-done
+if [ "$MINERS" -gt 0 ]; then
+  echo "Starting $MINERS miners..."
+  for i in $(seq 1 "$MINERS"); do
+    start_node "$i" "miner" "true"
+    if [ "$ROLLING" = true ] && [ "$i" -lt "$MINERS" ]; then
+      echo "Waiting for miner $i to initialize..."
+      sleep 5
+    fi
+  done
+fi
 
-echo
-echo "From your Mac (host):"
-for i in $(seq 1 "$MINERS"); do
-  P2P_PORT=$((P2P_BASE + i))
-  HTTP_HOST_PORT=$((HTTP_HOST_BASE + i))
-  WS_HOST_PORT=$((WS_HOST_BASE + i))
-  echo "Miner $i:"
-  echo "  P2P  -> localhost:${P2P_PORT}"
-  echo "  HTTP -> http://localhost:${HTTP_HOST_PORT}"
-  echo "  WS   -> ws://localhost:${WS_HOST_PORT}"
-done
+if [ "$NODES" -gt 0 ]; then
+  echo "Starting $NODES regular nodes..."
+  for i in $(seq 1 "$NODES"); do
+    start_node "$i" "node" "false"
+    if [ "$ROLLING" = true ] && [ "$i" -lt "$NODES" ]; then
+      echo "Waiting for node $i to initialize..."
+      sleep 5
+    fi
+  done
+fi
 
 echo
-echo "Logs (example):"
-echo "  docker logs -f rskj-miner1"
+echo "Done."
+if [ "$ENABLE_JMX" = true ]; then
+  echo "JMX enabled. In VisualVM: Add JMX Connection to:"
+  for i in $(seq 1 "$MINERS"); do
+    echo "  localhost:$((JMX_BASE + i))  (miner $i)"
+  done
+  for i in $(seq 1 "$NODES"); do
+    echo "  localhost:$((JMX_BASE + 100 + i))  (node $i)"
+  done
+fi
