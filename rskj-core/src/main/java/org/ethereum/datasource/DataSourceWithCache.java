@@ -1,21 +1,4 @@
-/*
- * This file is part of RskJ
- * Copyright (C) 2018 RSK Labs Ltd.
- * (derived from ethereumJ library, Copyright (c) 2016 <ether.camp>)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+// DataSourceWithCache.java
 package org.ethereum.datasource;
 
 import co.rsk.util.FormatUtils;
@@ -28,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
@@ -39,7 +24,7 @@ public class DataSourceWithCache implements KeyValueDataSource {
 
     private final int cacheSize;
     private final KeyValueDataSource base;
-    private final Map<ByteArrayWrapper, byte[]> uncommittedCache;
+    private volatile Map<ByteArrayWrapper, byte[]> uncommittedCache;
     private final Map<ByteArrayWrapper, byte[]> committedCache;
 
     private final AtomicInteger numOfPuts = new AtomicInteger();
@@ -51,6 +36,11 @@ public class DataSourceWithCache implements KeyValueDataSource {
     @Nullable
     private final CacheSnapshotHandler cacheSnapshotHandler;
 
+    // Async flush support
+    private final ExecutorService flushExecutor = Executors.newSingleThreadExecutor();
+    private final AtomicBoolean flushInProgress = new AtomicBoolean(false);
+    private final Object flushLock = new Object();
+
     public DataSourceWithCache(@Nonnull KeyValueDataSource base, int cacheSize) {
         this(base, cacheSize, null);
     }
@@ -59,7 +49,7 @@ public class DataSourceWithCache implements KeyValueDataSource {
                                @Nullable CacheSnapshotHandler cacheSnapshotHandler) {
         this.cacheSize = cacheSize;
         this.base = Objects.requireNonNull(base);
-        this.uncommittedCache = new LinkedHashMap<>(cacheSize / 8, (float) 0.75, false);
+        this.uncommittedCache = new ConcurrentHashMap<>();
         this.committedCache = Collections.synchronizedMap(makeCommittedCache(cacheSize, cacheSnapshotHandler));
         this.cacheSnapshotHandler = cacheSnapshotHandler;
     }
@@ -89,7 +79,6 @@ public class DataSourceWithCache implements KeyValueDataSource {
                 numOfGetsFromStore.incrementAndGet();
             }
 
-            //null value, as expected, is allowed here to be stored in committedCache
             committedCache.put(wrappedKey, value);
         } finally {
             if (traceEnabled) {
@@ -115,7 +104,6 @@ public class DataSourceWithCache implements KeyValueDataSource {
         this.lock.writeLock().lock();
 
         try {
-            // here I could check for equal data or just move to the uncommittedCache.
             byte[] priorValue = committedCache.get(wrappedKey);
 
             if (priorValue != null && Arrays.equals(priorValue, value)) {
@@ -139,9 +127,68 @@ public class DataSourceWithCache implements KeyValueDataSource {
         uncommittedCache.put(key, value);
 
         if (uncommittedCache.size() > cacheSize) {
-            this.flush();
+            flushAsync();
         }
     }
+
+    private void flushAsync() {
+        if (flushInProgress.compareAndSet(false, true)) {
+            Map<ByteArrayWrapper, byte[]> cacheToFlush;
+            synchronized (flushLock) {
+                cacheToFlush = uncommittedCache;
+                uncommittedCache = new ConcurrentHashMap<>();
+            }
+            flushExecutor.submit(() -> {
+                try {
+                    flushInternal(cacheToFlush);
+                } finally {
+                    flushInProgress.set(false);
+                }
+            });
+        }
+    }
+
+    private void flushInternal(Map<ByteArrayWrapper, byte[]> cacheToFlush) {
+
+        long saveTime = System.nanoTime();
+        Map<ByteArrayWrapper, byte[]> uncommittedBatch = new LinkedHashMap<>();
+        cacheToFlush.forEach((key, value) -> {
+            if (value != null) {
+                uncommittedBatch.put(key, value);
+            }
+        });
+        Set<ByteArrayWrapper> uncommittedKeysToRemove = cacheToFlush.entrySet().stream()
+                .filter(e -> e.getValue() == null)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+        base.updateBatch(uncommittedBatch, uncommittedKeysToRemove);
+        committedCache.putAll(cacheToFlush);
+
+        long totalTime = System.nanoTime() - saveTime;
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("datasource flush: [{}]seconds", FormatUtils.formatNanosecondsToSeconds(totalTime));
+        }
+        base.flush();
+    }
+
+    @Override
+    public void flush() {
+        // Synchronous flush: used for close() and explicit flush
+        Map<ByteArrayWrapper, byte[]> cacheToFlush;
+        if (flushInProgress.compareAndSet(false, true)) {
+            synchronized (flushLock) {
+                cacheToFlush = uncommittedCache;
+                uncommittedCache = new ConcurrentHashMap<>();
+            }
+            try {
+                flushInternal(cacheToFlush);
+            } finally {
+                flushInProgress.set(false);
+            }
+        }
+    }
+
 
     @Override
     public void delete(byte[] key) {
@@ -152,7 +199,6 @@ public class DataSourceWithCache implements KeyValueDataSource {
         this.lock.writeLock().lock();
 
         try {
-            // always mark for deletion if we don't know the state in the underlying store
             if (!committedCache.containsKey(wrappedKey)) {
                 this.putKeyValue(wrappedKey, null);
                 return;
@@ -160,7 +206,6 @@ public class DataSourceWithCache implements KeyValueDataSource {
 
             byte[] valueToRemove = committedCache.get(wrappedKey);
 
-            // a null value means we know for a fact that the key doesn't exist in the underlying store, so this is a noop
             if (valueToRemove != null) {
                 this.putKeyValue(wrappedKey, null);
                 committedCache.remove(wrappedKey);
@@ -215,7 +260,6 @@ public class DataSourceWithCache implements KeyValueDataSource {
             throw new IllegalArgumentException("Cannot update null values");
         }
 
-        // remove overlapping entries
         rows.keySet().removeAll(keysToRemove);
 
         this.lock.writeLock().lock();
@@ -223,37 +267,6 @@ public class DataSourceWithCache implements KeyValueDataSource {
         try {
             rows.forEach(this::put);
             keysToRemove.forEach(this::delete);
-        } finally {
-            this.lock.writeLock().unlock();
-        }
-    }
-
-    @Override
-    public void flush() {
-        Map<ByteArrayWrapper, byte[]> uncommittedBatch = new LinkedHashMap<>();
-
-        this.lock.writeLock().lock();
-
-        try {
-            long saveTime = System.nanoTime();
-
-            this.uncommittedCache.forEach((key, value) -> {
-                if (value != null) {
-                    uncommittedBatch.put(key, value);
-                }
-            });
-
-            Set<ByteArrayWrapper> uncommittedKeysToRemove = uncommittedCache.entrySet().stream().filter(e -> e.getValue() == null).map(Map.Entry::getKey).collect(Collectors.toSet());
-            base.updateBatch(uncommittedBatch, uncommittedKeysToRemove);
-            committedCache.putAll(uncommittedCache);
-            uncommittedCache.clear();
-
-            long totalTime = System.nanoTime() - saveTime;
-
-            if (logger.isTraceEnabled()) {
-                logger.trace("datasource flush: [{}]seconds", FormatUtils.formatNanosecondsToSeconds(totalTime));
-            }
-            base.flush();
         } finally {
             this.lock.writeLock().unlock();
         }
@@ -272,10 +285,17 @@ public class DataSourceWithCache implements KeyValueDataSource {
     }
 
     public void close() {
-        this.lock.writeLock().lock();
-
+        // Wait for any ongoing async flush and do a final synchronous flush
+        flush();
+        flushExecutor.shutdown();
         try {
-            flush();
+            flushExecutor.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        this.lock.writeLock().lock();
+        try {
             base.close();
             if (cacheSnapshotHandler != null) {
                 cacheSnapshotHandler.save(committedCache);

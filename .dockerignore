@@ -4,5 +4,7 @@ Dockerfile
 .github
 .idea
 .vscode
+*.log
+local-regtest/
 logs
 test/local*/
