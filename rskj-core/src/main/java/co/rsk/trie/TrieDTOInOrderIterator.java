@@ -33,6 +33,10 @@ public class TrieDTOInOrderIterator implements Iterator<TrieDTO> {
     // When initializing the iterator, everytime we turn right, we add the node to the list.
     private final List<TrieDTO> preRootNodes = new ArrayList<>();
 
+    public TrieDTOInOrderIterator(TrieStore ds, byte[] root, long from) {
+        this(ds, root, from, 1000, false);
+    }
+
     public TrieDTOInOrderIterator(TrieStore ds, byte[] root, long from, long to) {
         this(ds, root, from, to, false);
     }
