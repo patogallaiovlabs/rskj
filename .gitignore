@@ -97,3 +97,5 @@ doc/rpc/openrpc.json
 .vscode/
 
 test/
+
+local-regtest/
