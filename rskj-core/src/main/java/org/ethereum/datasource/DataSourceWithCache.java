@@ -42,7 +42,7 @@ public class DataSourceWithCache implements KeyValueDataSource {
                                @Nullable CacheSnapshotHandler cacheSnapshotHandler) {
         this.cacheSize = cacheSize;
         this.base = Objects.requireNonNull(base);
-        this.uncommittedCache = new ConcurrentHashMap<>();
+        this.uncommittedCache = new LinkedHashMap<>(cacheSize / 8, (float) 0.75, false);
         this.committedCache = Collections.synchronizedMap(makeCommittedCache(cacheSize, cacheSnapshotHandler));
         this.cacheSnapshotHandler = cacheSnapshotHandler;
     }
