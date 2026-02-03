@@ -98,6 +98,3 @@ doc/rpc/openrpc.json
 # VS Code
 .vscode/
 
-test/
-
-local-regtest/
