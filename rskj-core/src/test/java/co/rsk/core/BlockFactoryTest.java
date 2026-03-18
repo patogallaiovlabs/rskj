@@ -334,17 +334,17 @@ class BlockFactoryTest {
     }
 
     private BlockHeader testRSKIP351FullHeaderEncoding(byte[] encoded, byte expectedVersion, byte[] expectedLogsBloom,
-            short[] expectedEdges) {
+                                                       short[] expectedEdges) {
         return testRSKIP351CompressedHeaderEncoding(encoded, expectedVersion, expectedLogsBloom, expectedEdges, false);
     }
 
     private BlockHeader testRSKIP351CompressedHeaderEncoding(byte[] encoded, byte expectedVersion,
-            byte[] expectedLogsBloom, short[] expectedEdges) {
+                                                             byte[] expectedLogsBloom, short[] expectedEdges) {
         return testRSKIP351CompressedHeaderEncoding(encoded, expectedVersion, expectedLogsBloom, expectedEdges, true);
     }
 
     private BlockHeader testRSKIP351CompressedHeaderEncoding(byte[] encoded, byte expectedVersion,
-            byte[] expectedLogsBloom, short[] expectedEdges, boolean compressed) {
+                                                             byte[] expectedLogsBloom, short[] expectedEdges, boolean compressed) {
         BlockHeader decodedHeader = factory.decodeHeader(encoded, compressed);
 
         assertEquals(expectedVersion, decodedHeader.getVersion());
@@ -446,7 +446,7 @@ class BlockFactoryTest {
         logsBloom[2] = 1;
         logsBloom[3] = 1;
 
-        short[] edges = { 1, 2, 3, 4 };
+        short[] edges = {1, 2, 3, 4};
 
         BlockHeader header = factory.getBlockHeaderBuilder()
                 .setLogsBloom(logsBloom)
@@ -489,6 +489,7 @@ class BlockFactoryTest {
         long blockNumber = 20L;
         enableRulesAt(blockNumber, RSKIP144, RSKIP351);
         when(activationConfig.getHeaderVersion(anyLong())).thenCallRealMethod(); // Should return BlockHeaderV1 as RSKIP535 is not active
+        when(activationConfig.areActive(blockNumber, RSKIP351, RSKIP144)).thenReturn(true);
 
         byte[] logsBloom = new byte[Bloom.BLOOM_BYTES];
         logsBloom[0] = 1;
@@ -496,7 +497,7 @@ class BlockFactoryTest {
         logsBloom[2] = 1;
         logsBloom[3] = 1;
 
-        short[] edges = { 1, 2, 3, 4 };
+        short[] edges = {1, 2, 3, 4};
 
         BlockHeader header = factory.getBlockHeaderBuilder()
                 .setLogsBloom(logsBloom)
@@ -515,7 +516,7 @@ class BlockFactoryTest {
         long number = 500L;
         enableRulesAt(number, RSKIPUMM, RSKIP144, RSKIP351);
         when(activationConfig.getHeaderVersion(anyLong())).thenCallRealMethod(); // Should return BlockHeaderV1 as RSKIP535 is not active
-
+        when(activationConfig.areActive(number, RSKIP351, RSKIP144)).thenReturn(true);
         short[] edges = TestUtils.randomShortArray("edges", 4);
 
         byte[] logsBloom = new byte[Bloom.BLOOM_BYTES];
@@ -540,6 +541,7 @@ class BlockFactoryTest {
     void decodeBlockHeaderRSKIP1444ON_UMMOn_MergedMiningFieldsOFF_RSKIP5350FF() {
         long number = 500L;
         enableRulesAt(number, RSKIPUMM, RSKIP144, RSKIP351);
+        when(activationConfig.areActive(number, RSKIP351, RSKIP144)).thenReturn(true);
         when(activationConfig.getHeaderVersion(anyLong())).thenCallRealMethod(); // Should return BlockHeaderV1 as RSKIP535 is not active
 
         short[] edges = TestUtils.randomShortArray("edges", 4);
@@ -561,6 +563,7 @@ class BlockFactoryTest {
         long number = 500L;
         enableRulesAt(number, RSKIP144, RSKIP351);
         when(activationConfig.getHeaderVersion(anyLong())).thenCallRealMethod();  // Should return BlockHeaderV1 as RSKIP535 is not active
+        when(activationConfig.areActive(number, RSKIP351, RSKIP144)).thenReturn(true);
 
         short[] edges = TestUtils.randomShortArray("edges", 4);
 
@@ -582,7 +585,7 @@ class BlockFactoryTest {
         long number = 500L;
         enableRulesAt(number, RSKIP144, RSKIP351);
         when(activationConfig.getHeaderVersion(anyLong())).thenCallRealMethod(); // Should return BlockHeaderV1 as RSKIP535 is not active
-
+        when(activationConfig.areActive(number, RSKIP351, RSKIP144)).thenReturn(true);
         short[] edges = TestUtils.randomShortArray("edges", 4);
 
         BlockHeader header = createBlockHeader(number, new byte[0], null, edges);
@@ -656,10 +659,12 @@ class BlockFactoryTest {
     void decodeBlockRskip535WithRskip144AndNoMergedMiningFields() {
         long number = 500L;
         enableRulesAt(number, RSKIP92, RSKIP351, RSKIP535, RSKIP144);
+        when(activationConfig.areActive(number, RSKIP351, RSKIP144)).thenReturn(true);
         when(activationConfig.getHeaderVersion(anyLong())).thenCallRealMethod();
 
         byte[] baseEvent = TestUtils.generateBytes("baseEvent", 32);
         short[] edges = TestUtils.randomShortArray("edges", 4);
+
         BlockHeader header = new TestBlockHeaderBuilder(number)
                 .withBaseEvent(baseEvent)
                 .withEdges(edges)
@@ -706,6 +711,7 @@ class BlockFactoryTest {
     void decodeBlockRskip535WithRskip144AndUMMAndNoMergedMiningFields() {
         long number = 500L;
         enableRulesAt(number, RSKIP92, RSKIPUMM, RSKIP351, RSKIP535, RSKIP144);
+        when(activationConfig.areActive(number, RSKIP351, RSKIP144)).thenReturn(true);
         when(activationConfig.getHeaderVersion(anyLong())).thenCallRealMethod();
 
         byte[] baseEvent = TestUtils.generateBytes("baseEvent", 32);
@@ -848,6 +854,7 @@ class BlockFactoryTest {
     void decodeFullBlockRskip535WithRskip144() {
         long number = 500L;
         enableRulesAt(number, RSKIP92, RSKIP351, RSKIP535, RSKIP144);
+        when(activationConfig.areActive(number, RSKIP351, RSKIP144)).thenReturn(true);
         when(activationConfig.getHeaderVersion(anyLong())).thenCallRealMethod();
 
         byte[] logsBloom = new byte[Bloom.BLOOM_BYTES];
@@ -1214,6 +1221,7 @@ class BlockFactoryTest {
     private void enableRulesAt(long number, ConsensusRule... consensusRules) {
         for (ConsensusRule consensusRule : consensusRules) {
             when(activationConfig.isActive(eq(consensusRule), geq(number))).thenReturn(true);
+
         }
     }
 
