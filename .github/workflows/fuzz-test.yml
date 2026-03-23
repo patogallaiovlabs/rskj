@@ -50,11 +50,6 @@ jobs:
             gradle/wrapper/gradle-wrapper.jar
           key: gradle-wrapper-v1
 
-      - name: Get Gradle wrapper
-        if: steps.cache-gradle-wrapper.outputs.cache-hit != 'true'
-        run: |
-          ./configure.sh
-
       - name: Run fuzz tests
         run: |
           #Adding fuzzTest instead of runAllFuzzTests to avoid running all the fuzz tests but it is something to evaluate. 
