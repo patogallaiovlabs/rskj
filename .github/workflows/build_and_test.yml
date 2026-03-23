@@ -78,11 +78,6 @@ jobs:
             gradle/wrapper/gradle-wrapper.jar
           key: gradle-wrapper-v1
 
-      - name: Get Gradle wrapper
-        if: steps.cache-gradle-wrapper.outputs.cache-hit != 'true'
-        run: |
-          ./configure.sh
-
       - name: Download build artifacts
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 #v6.0.0
         with:
@@ -205,11 +200,6 @@ jobs:
             gradle/wrapper/gradle-wrapper.jar
           key: gradle-wrapper-v1
 
-      - name: Get Gradle wrapper
-        if: steps.cache-gradle-wrapper.outputs.cache-hit != 'true'
-        run: |
-          ./configure.sh
-
       - name: Download build artifacts
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 #v6.0.0
         with:
@@ -263,11 +253,6 @@ jobs:
             gradle/wrapper/gradle-wrapper.jar
           key: gradle-wrapper-v1
 
-      - name: Get Gradle wrapper
-        if: steps.cache-gradle-wrapper.outputs.cache-hit != 'true'
-        run: |
-          ./configure.sh
-
       - name: Run tests
         run: |
           ./gradlew --no-daemon --stacktrace test
@@ -315,11 +300,6 @@ jobs:
           path: |
             gradle/wrapper/gradle-wrapper.jar
           key: gradle-wrapper-v1
-
-      - name: Get Gradle wrapper
-        if: steps.cache-gradle-wrapper.outputs.cache-hit != 'true'
-        run: |
-          ./configure.sh
 
       - name: Run tests
         run: |
