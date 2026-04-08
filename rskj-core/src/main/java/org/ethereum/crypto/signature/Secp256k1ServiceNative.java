@@ -111,4 +111,5 @@ public class Secp256k1ServiceNative extends Secp256k1ServiceBC {
     private static final int getStartIndex(byte[] rs) {
         return Math.max(rs.length - 32, 0);
     }
+
 }

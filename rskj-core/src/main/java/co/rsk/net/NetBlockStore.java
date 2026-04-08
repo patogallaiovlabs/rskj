@@ -18,6 +18,7 @@
 
 package co.rsk.net;
 
+import co.rsk.util.MaxSizeHashMap;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
 import co.rsk.crypto.Keccak256;
@@ -30,11 +31,25 @@ import java.util.stream.Collectors;
  * Created by ajlopez on 5/11/2016.
  */
 public class NetBlockStore {
-    private Map<Keccak256, Block> blocks = new HashMap<>();
+    private static final int MAX_BLOCKS = 5000;
+    private static final int MAX_HEADERS = 10000;
+
+    private Map<Keccak256, Block> blocks = new MaxSizeHashMap<Keccak256, Block>(MAX_BLOCKS, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Keccak256, Block> eldest) {
+            boolean remove = super.removeEldestEntry(eldest);
+            if (remove) {
+                Block block = eldest.getValue();
+                removeBlockByNumber(block.getHash(), block.getNumber());
+                removeBlockByParent(block.getHash(), block.getParentHash());
+            }
+            return remove;
+        }
+    };
     private Map<Long, Set<Block>> blocksbynumber = new HashMap<>();
     private Map<Keccak256, Set<Block>> blocksbyparent = new HashMap<>();
 
-    private final Map<Keccak256, BlockHeader> headers = new HashMap<>();
+    private final Map<Keccak256, BlockHeader> headers = new MaxSizeHashMap<>(MAX_HEADERS, true);
 
     public synchronized void saveBlock(Block block) {
         Keccak256 key = block.getHash();
@@ -89,7 +104,7 @@ public class NetBlockStore {
                 }
             }
 
-            if (toremove != null){
+            if (toremove != null) {
                 byparent.remove(toremove);
 
                 if (byparent.isEmpty()) {
@@ -144,7 +159,8 @@ public class NetBlockStore {
     }
 
     /**
-     * getChildrenOf returns all the children of a list of blocks that are in the BlockStore.
+     * getChildrenOf returns all the children of a list of blocks that are in the
+     * BlockStore.
      *
      * @param blocks a set of blocks to retrieve the children.
      * @return A list with all the children of the given list of blocks.
@@ -195,13 +211,15 @@ public class NetBlockStore {
     public synchronized void releaseRange(long from, long to) {
         for (long k = from; k <= to; k++) {
             for (Block b : this.getBlocksByNumber(k)) {
+                this.removeHeader(b.getHeader());
                 this.removeBlock(b);
             }
         }
     }
 
     /**
-     * hasHeader returns true if this block store has the header of the corresponding block.
+     * hasHeader returns true if this block store has the header of the
+     * corresponding block.
      *
      * @return true if the store has the header, false otherwise.
      * @param hash
@@ -230,5 +248,21 @@ public class NetBlockStore {
         }
 
         this.headers.remove(header.getHash());
+    }
+
+    int getBlocksSize() {
+        return blocks.size();
+    }
+
+    int getHeadersSize() {
+        return headers.size();
+    }
+
+    int getBlocksByNumberSize() {
+        return blocksbynumber.size();
+    }
+
+    int getBlocksByParentSize() {
+        return blocksbyparent.size();
     }
 }
