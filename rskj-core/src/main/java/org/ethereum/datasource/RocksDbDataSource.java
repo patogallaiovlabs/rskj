@@ -25,8 +25,10 @@ import co.rsk.metrics.profilers.MetricKind;
 import co.rsk.metrics.profilers.Profiler;
 import co.rsk.metrics.profilers.ProfilerFactory;
 import co.rsk.panic.PanicProcessor;
+import org.ethereum.config.SystemProperties;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.util.ByteUtil;
+import co.rsk.datasource.RocksDbStats;
 import org.rocksdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,22 +54,20 @@ public class RocksDbDataSource implements KeyValueDataSource {
 
     private final String databaseDir;
     private final String name;
+    private final SystemProperties config;
 
-    private final Options options = createOptions();
+    private static Cache sharedBlockCache;
+    private Options options;
     private RocksDB db;
+    private RocksDbStats stats;
     private boolean alive;
 
-    // The native LevelDB insert/update/delete are normally thread-safe
-    // However close operation is not thread-safe and may lead to a native crash when
-    // accessing a closed DB.
-    // The rocksdbJNI lib has a protection over accessing closed DB, but it is not synchronized
-    // This ReadWriteLock still permits concurrent execution of insert/delete/update operations
-    // however blocks them on init/close/delete operations
     private final ReadWriteLock resetDbLock = new ReentrantReadWriteLock();
 
-    public RocksDbDataSource(String name, String databaseDir) {
-        this.databaseDir = databaseDir;
+    public RocksDbDataSource(String name, String databaseDir, SystemProperties config) {
         this.name = name;
+        this.databaseDir = databaseDir;
+        this.config = config;
         logger.info("New RocksDbDataSource: {}", name);
     }
 
@@ -77,6 +77,7 @@ public class RocksDbDataSource implements KeyValueDataSource {
         Metric metric = profiler.start(MetricKind.DB_INIT);
 
         try {
+            ensureOptionsInitialized();
             logger.debug("~> RocksDbDataSource.init(): {}", name);
 
             if (isAlive()) {
@@ -110,7 +111,7 @@ public class RocksDbDataSource implements KeyValueDataSource {
 
     private void openDb(Path dbPath) throws RocksDBException {
         db = RocksDB.open(options, dbPath.toString());
-
+        this.stats = new co.rsk.datasource.RocksDbStats(db, name);
         alive = true;
     }
 
@@ -152,17 +153,20 @@ public class RocksDbDataSource implements KeyValueDataSource {
         try {
             while (retries < MAX_RETRIES) {
                 try {
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("~> RocksDbDataSource.get(): {}, key: {}", name, Bytes.of(key));
+                    try (ReadOptions readOptions = new ReadOptions()) {
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("~> RocksDbDataSource.get(): {}, key: {}", name, Bytes.of(key));
+                        }
+                        byte[] ret = db.get(readOptions, key);
+
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("<~ RocksDbDataSource.get(): {}, key: {}, return length: {}", name,
+                                    Bytes.of(key),
+                                    (ret == null ? "null" : ret.length));
+                        }
+
+                        result = ret;
                     }
-
-                    byte[] ret = db.get(key);
-
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("<~ RocksDbDataSource.get(): {}, key: {}, return length: {}", name, Bytes.of(key), (ret == null ? "null" : ret.length));
-                    }
-
-                    result = ret;
                     break;
                 } catch (RocksDBException e) {
                     logger.error("Exception. Retrying again...", e);
@@ -195,13 +199,15 @@ public class RocksDbDataSource implements KeyValueDataSource {
 
         try {
             if (logger.isTraceEnabled()) {
-                logger.trace("~> RocksDbDataSource.put(): {}, key: {}, return length: {}", name, Bytes.of(key), value.length);
+                logger.trace("~> RocksDbDataSource.put(): {}, key: {}, return length: {}", name, Bytes.of(key),
+                        value.length);
             }
 
             db.put(key, value);
 
             if (logger.isTraceEnabled()) {
-                logger.trace("<~ RocksDbDataSource.put(): {}, key: {}, return length: {}", name, Bytes.of(key), value.length);
+                logger.trace("<~ RocksDbDataSource.put(): {}, key: {}, return length: {}", name, Bytes.of(key),
+                        value.length);
             }
         } catch (RocksDBException e) {
             logger.error("Exception. Not retrying.", e);
@@ -278,14 +284,15 @@ public class RocksDbDataSource implements KeyValueDataSource {
             throw new IllegalArgumentException("Cannot update null values");
         }
         // Note that this is not atomic.
-        try (WriteBatch batch = new WriteBatch()) {
+        try (WriteBatch batch = new WriteBatch();
+                WriteOptions writeOptions = new WriteOptions()) {
             for (Map.Entry<ByteArrayWrapper, byte[]> entry : rows.entrySet()) {
                 batch.put(entry.getKey().getData(), entry.getValue());
             }
             for (ByteArrayWrapper deleteKey : deleteKeys) {
                 batch.delete(deleteKey.getData());
             }
-            db.write(new WriteOptions(), batch);
+            db.write(writeOptions, batch);
         } catch (RocksDBException e) {
             logger.error("Exception. Not retrying.", e);
             throw new RuntimeException(e);
@@ -331,7 +338,6 @@ public class RocksDbDataSource implements KeyValueDataSource {
             resetDbLock.readLock().unlock();
         }
 
-
         if (exCaught != null && retries > 1) {
             logger.error("Exception. Not retrying.", exCaught);
             panicProcessor.panic("rocksdb", String.format("Error %s", exCaught.getMessage()));
@@ -349,7 +355,14 @@ public class RocksDbDataSource implements KeyValueDataSource {
             }
 
             logger.debug("Close db: {}", name);
+            if (stats != null) {
+                stats.unregister();
+            }
             db.close();
+
+            if (options != null) {
+                options.close();
+            }
 
             alive = false;
         } finally {
@@ -363,13 +376,41 @@ public class RocksDbDataSource implements KeyValueDataSource {
         // All is flushed immediately: there is no uncommittedCache to flush
     }
 
-    private static Options createOptions() {
+    private void ensureOptionsInitialized() {
+        if (options == null) {
+            options = createOptions();
+        }
+    }
+
+    private static synchronized Cache getSharedBlockCache(SystemProperties config) {
+        if (sharedBlockCache == null) {
+            long cacheSize = config.getRocksDbSharedBlockCacheSize();
+            logger.info("Initializing RocksDB shared block cache with size {} bytes", cacheSize);
+            sharedBlockCache = new LRUCache(cacheSize);
+        }
+        return sharedBlockCache;
+    }
+
+    private Options createOptions() {
         Options options = new Options();
         options.setCreateIfMissing(true);
-        options.setCompressionType(CompressionType.NO_COMPRESSION);
+        options.setCompressionType(CompressionType.NO_COMPRESSION); // here we can play with diff compression types.
         options.setArenaBlockSize(GENERAL_SIZE);
         options.setWriteBufferSize(GENERAL_SIZE);
         options.setParanoidChecks(true);
+
+        int maxOpenFiles = config.getRocksDbMaxOpenFiles();
+        logger.info("Setting RocksDB maxOpenFiles to {}", maxOpenFiles);
+        options.setMaxOpenFiles(maxOpenFiles);
+
+        BlockBasedTableConfig tableOptions = new BlockBasedTableConfig();
+        // Force index and filter blocks into a bounded SHARED LRU cache
+        // to prevent native OOMs and linear memory growth with many DBs
+        tableOptions.setBlockCache(getSharedBlockCache(config));
+        tableOptions.setCacheIndexAndFilterBlocks(true);
+        tableOptions.setPinL0FilterAndIndexBlocksInCache(true);
+        options.setTableFormatConfig(tableOptions);
+
         return options;
     }
 }
