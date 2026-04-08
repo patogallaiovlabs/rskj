@@ -66,6 +66,8 @@ public class RskSystemProperties extends SystemProperties {
 
     private static final String RPC_GAS_PRICE_MULTIPLIER_CONFIG = "rpc.gasPriceMultiplier";
     private static final String DISCOVERY_BUCKET_SIZE = "peer.discovery.bucketSize";
+    private static final String DATABASE_ROCKSDB_MAX_OPEN_FILES = "database.rocksdb.maxOpenFiles";
+    private static final String DATABASE_ROCKSDB_SHARED_BLOCK_CACHE_SIZE = "database.rocksdb.sharedBlockCacheSize";
 
     private static final int CHUNK_SIZE = 192;
 
@@ -599,5 +601,18 @@ public class RskSystemProperties extends SystemProperties {
                 .stream()
                 .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), Long.parseLong(entry.getValue().toString())))
                 .forEach(entry -> methodTimeoutMap.put(entry.getKey(), entry.getValue()));
+    }
+
+    @Override
+    public int getRocksDbMaxOpenFiles() {
+        return getInt(DATABASE_ROCKSDB_MAX_OPEN_FILES, 1000);
+    }
+
+    @Override
+    public long getRocksDbSharedBlockCacheSize() {
+        // Default to 256MB if not specified
+        return configFromFiles.hasPath(DATABASE_ROCKSDB_SHARED_BLOCK_CACHE_SIZE)
+                ? configFromFiles.getBytes(DATABASE_ROCKSDB_SHARED_BLOCK_CACHE_SIZE)
+                : 256 * 1024 * 1024L;
     }
 }

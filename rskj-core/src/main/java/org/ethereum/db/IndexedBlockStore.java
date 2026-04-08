@@ -69,8 +69,8 @@ public class IndexedBlockStore implements BlockStore {
         this.blockFactory = blockFactory;
         //TODO(lsebrie): move these maps creation outside blockstore,
         // remascCache should be an external component and not be inside blockstore
-        this.blockCache = new BlockCache(5000);
-        this.remascCache = new MaxSizeHashMap<>(50000, true);
+        this.blockCache = new BlockCache(500);
+        this.remascCache = new MaxSizeHashMap<>(5000, true);
     }
 
     @Override
