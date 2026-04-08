@@ -43,8 +43,8 @@ import java.util.*;
 public class BlockSyncService {
     private static final Logger logger = LoggerFactory.getLogger("blocksyncservice");
 
-    private static final int PROCESSED_BLOCKS_TO_CHECK_STORE = 200;
-    private static final int RELEASED_RANGE = 1000;
+    private static final int PROCESSED_BLOCKS_TO_CHECK_STORE = 50;
+    private static final int RELEASED_RANGE = 200;
 
     private long processedBlocksCounter;
     private long lastKnownBlockNumber = 0;

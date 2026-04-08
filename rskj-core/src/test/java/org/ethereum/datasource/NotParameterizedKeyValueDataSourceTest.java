@@ -1,6 +1,8 @@
 package org.ethereum.datasource;
 
+import co.rsk.config.TestSystemProperties;
 import co.rsk.util.SystemUtils;
+import org.ethereum.config.SystemProperties;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -20,6 +22,8 @@ class NotParameterizedKeyValueDataSourceTest {
 
     @TempDir
     public Path tempDir;
+
+    private final SystemProperties config = new TestSystemProperties();
 
     @Test
     void testShouldValidateKindWithEmptyDbDirAndResetDbFalseSuccessfully() {
@@ -147,29 +151,29 @@ class NotParameterizedKeyValueDataSourceTest {
     private void testMergeDataSource(DbKind dbKind) {
         Path triePath = tempDir.resolve("trie");
         byte[] keyTrie = "keyTrie".getBytes();
-        createDS(triePath, dbKind, keyTrie, "valueTrie".getBytes());
+        createDS(triePath, dbKind, keyTrie, "valueTrie".getBytes(), config);
 
         Path multiTriePath = tempDir.resolve("multiTrie");
         byte[] keyMultiTrie = "keyMultiTrie".getBytes();
-        createDS(multiTriePath, dbKind, keyMultiTrie, "valueMultiTrie".getBytes());
+        createDS(multiTriePath, dbKind, keyMultiTrie, "valueMultiTrie".getBytes(), config);
 
-        KeyValueDataSourceUtils.mergeDataSources(triePath, Collections.singletonList(multiTriePath), dbKind);
+        KeyValueDataSourceUtils.mergeDataSources(triePath, Collections.singletonList(multiTriePath), dbKind, config);
 
         // being able to init the DS proves it was closed on mergeDataSources
-        KeyValueDataSource trieDS = KeyValueDataSourceUtils.makeDataSource(triePath, dbKind);
+        KeyValueDataSource trieDS = KeyValueDataSourceUtils.makeDataSource(triePath, dbKind, config);
         Assertions.assertNull(trieDS.get("missingKey".getBytes()), "Key not present on any DS should not be present after merge");
         Assertions.assertNotNull(trieDS.get(keyTrie), "Pre-existing key on destination should exist after merge");
         Assertions.assertNotNull(trieDS.get(keyMultiTrie), "Key from origination should exist on destination after merge");
 
         // being able to init the DS proves it was closed on mergeDataSources
-        KeyValueDataSource multiTrieDS = KeyValueDataSourceUtils.makeDataSource(multiTriePath, dbKind);
+        KeyValueDataSource multiTrieDS = KeyValueDataSourceUtils.makeDataSource(multiTriePath, dbKind, config);
         Assertions.assertNull(multiTrieDS.get("missingKey".getBytes()), "Origination should remain intact, key not present before should not exist after merge");
         Assertions.assertNull(multiTrieDS.get(keyTrie), "Origination should remain intact, nothing copied from destination");
         Assertions.assertNotNull(multiTrieDS.get(keyMultiTrie), "Origination should remain intact, pre-existing key should exist after merge");
     }
 
-    private static void createDS(Path triePath, DbKind rocksDb, byte[] key, byte[] value) {
-        KeyValueDataSource trieDS = KeyValueDataSourceUtils.makeDataSource(triePath, rocksDb);
+    private static void createDS(Path triePath, DbKind rocksDb, byte[] key, byte[] value, SystemProperties config) {
+        KeyValueDataSource trieDS = KeyValueDataSourceUtils.makeDataSource(triePath, rocksDb, config);
         trieDS.put(key, value);
         trieDS.flush();
         trieDS.close();

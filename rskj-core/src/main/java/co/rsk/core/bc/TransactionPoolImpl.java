@@ -421,6 +421,14 @@ public class TransactionPoolImpl implements TransactionPool {
             pendingTransactions.removeTransactionByHash(khash);
             queuedTransactions.removeTransactionByHash(khash);
 
+            //PATO: memory leak, explanation: if a transaction is removed from the pending or queued transactions, it should be removed from the transactionBlocks and transactionTimes as well.
+            //This is because the transactionBlocks and transactionTimes are used to track the transactions that are in the block and the transactions that are in the mempool.
+            //If a transaction is removed from the pending or queued transactions, it should be removed from the transactionBlocks and transactionTimes as well.
+            //This is to prevent the memory leak.
+            // Tested with the calldata-stress-test.js.
+            //transactionBlocks.remove(khash);
+            //transactionTimes.remove(khash);
+
             logger.trace("Clear transaction, hash: [{}]", khash);
         }
     }

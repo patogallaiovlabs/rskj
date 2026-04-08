@@ -315,4 +315,15 @@ public class DataSourceWithCache implements KeyValueDataSource {
 
         return cache;
     }
+
+    public synchronized void clear() {
+        this.lock.writeLock().lock();
+        try {
+            this.committedCache.clear();
+            this.uncommittedCache.clear();
+            logger.info("Cleared DataSourceWithCache: {}", base.getName());
+        } finally {
+            this.lock.writeLock().unlock();
+        }
+    }
 }

@@ -51,16 +51,16 @@
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>${logging:-TRACE}</level>
+            <level>${logging:-WARN}</level>
         </filter>
     </appender>
 
     <!-- Loggers -->
     <logger name="execute" level="INFO"/>
     <logger name="blockvalidator" level="INFO"/>
-    <logger name="blockexecutor" level="INFO"/>
+    <logger name="blockexecutor" level="ERROR"/>
     <logger name="general" level="INFO"/>
-    <logger name="gaspricetracker" level="INFO"/>
+    <logger name="gaspricetracker" level="ERROR"/>
     <logger name="web3" level="INFO"/>
     <logger name="repository" level="INFO"/>
     <logger name="VM" level="ERROR"/>
@@ -83,8 +83,8 @@
     <logger name="peermonitor" level="INFO"/>
     <logger name="bridge" level="INFO"/>
     <logger name="rlp" level="INFO"/>
-    <logger name="messagehandler" level="INFO"/>
-    <logger name="sync" level="INFO"/>
+    <logger name="messagehandler" level="WARN"/>
+    <logger name="sync" level="WARN"/>
     <logger name="BtcToRskClient" level="INFO"/>
     <logger name="ui" level="INFO"/>
     <logger name="java.nio" level="INFO"/>
@@ -112,7 +112,7 @@
     <logger name="co.rsk.RskContext" level="INFO" />
 
     <!-- Use INFO or upper levels for production environments. -->
-    <logger name="com.googlecode.jsonrpc4j" level="INFO" />
+    <logger name="com.googlecode.jsonrpc4j" level="OFF" />
 
     <!-- Logger for CLI tools -->
     <logger name="clitool" level="DEBUG" additivity="false" >

@@ -26,7 +26,7 @@ class IndexedBlockStoreRocksDBTest extends IndexedBlockStoreTest {
 
     @BeforeEach
     void beforeEach() {
-        setUp(config -> new RocksDbDataSource("blocks", config.databaseDir()));
+        setUp(config -> new RocksDbDataSource("blocks", config.databaseDir(), config));
     }
 
 }

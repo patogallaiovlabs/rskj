@@ -3,27 +3,26 @@
     "0000000000000000000000000000000001000006": {
       "balance": "21000000000000000000000000"
     },
-    "bc0afa86de01ebb58f7fe83ef01de204d4f8ced6" : {
-      "balance" : "0"
+    "cd2a3d9f938e13cd947ec05abc7fe734df8dd826": {
+      "balance": "1000000000000000000000000000000"
     },
-    "77045e71a7a2c50903d88e564cd72fab11e82051" : {
-      "balance" : "0"
+    "7986b3df570230288501eea3d890bd66948c9b79": {
+      "balance": "1000000000000000000000000000000"
     },
-    "7efdb03921e67f4fa23310a93c59abfc8ba0c8b9" : {
-      "balance" : "0"
+    "0a3aa774752ec2042c46548456c094a76c7f3a79": {
+      "balance": "1000000000000000000000000000000"
     },
-    "9efa02278cc63dc612c174976f11037d382f8b67" : {
-      "balance" : "0"
+    "cf7cdbbb5f7ba79d3ffe74a0bba13fc0295f6036": {
+      "balance": "1000000000000000000000000000000"
     },
-    "cd2a3d9f938e13cd947ec05abc7fe734df8dd826" : {
-      "balance" : "1000000000000000000000000000000"
+    "39b12c05e8503356e3a7df0b7b33efa4c054c409": {
+      "balance": "1000000000000000000000000000000"
     },
     "055c99bbcf3ab46890ab87ea3761a5a1830c3225" : {
       "balance" : "0"
     }
   },
-
-  "nonce": "0xdeadfeeddeadfeed",
+  "nonce": "0xdeadbeefdeadbeef",
   "mixhash": "0x00",
   "bitcoinMergedMiningHeader": "0x00",
   "bitcoinMergedMiningMerkleProof": "0x00",

@@ -51,8 +51,10 @@ public class MinerUtils {
     private static final Logger logger = LoggerFactory.getLogger("minerserver");
     private static final SecureRandom random = new SecureRandom();
 
-    public static co.rsk.bitcoinj.core.BtcTransaction getBitcoinMergedMiningCoinbaseTransaction(co.rsk.bitcoinj.core.NetworkParameters params, MinerWork work) {
-        return getBitcoinMergedMiningCoinbaseTransaction(params, HexUtils.stringHexToByteArray(work.getBlockHashForMergedMining()));
+    public static co.rsk.bitcoinj.core.BtcTransaction getBitcoinMergedMiningCoinbaseTransaction(
+            co.rsk.bitcoinj.core.NetworkParameters params, MinerWork work) {
+        return getBitcoinMergedMiningCoinbaseTransaction(params,
+                HexUtils.stringHexToByteArray(work.getBlockHashForMergedMining()));
     }
 
     public static co.rsk.bitcoinj.core.BtcTransaction getBitcoinMergedMiningCoinbaseTransaction(co.rsk.bitcoinj.core.NetworkParameters params, byte[] blockHashForMergedMining) {
@@ -62,17 +64,20 @@ public class MinerUtils {
         return getBitcoinCoinbaseTransaction(params, bytes);
     }
 
-    public static co.rsk.bitcoinj.core.BtcTransaction getBitcoinCoinbaseTransaction(co.rsk.bitcoinj.core.NetworkParameters params, byte[] additionalData) {
+    public static co.rsk.bitcoinj.core.BtcTransaction getBitcoinCoinbaseTransaction(
+            co.rsk.bitcoinj.core.NetworkParameters params, byte[] additionalData) {
 
         co.rsk.bitcoinj.core.BtcTransaction coinbaseTransaction = new co.rsk.bitcoinj.core.BtcTransaction(params);
 
         // Add the data to the scriptSig of first input
-        co.rsk.bitcoinj.core.TransactionInput ti = new co.rsk.bitcoinj.core.TransactionInput(params, coinbaseTransaction, new byte[0]);
+        co.rsk.bitcoinj.core.TransactionInput ti = new co.rsk.bitcoinj.core.TransactionInput(params,
+                coinbaseTransaction, new byte[0]);
         coinbaseTransaction.addInput(ti);
 
         coinbaseTransaction.addOutput(new co.rsk.bitcoinj.core.TransactionOutput(params, coinbaseTransaction, co.rsk.bitcoinj.core.Coin.valueOf(50, 0), buildScriptPubKeyBytes().toByteArray()));
 
-        coinbaseTransaction.addOutput(new co.rsk.bitcoinj.core.TransactionOutput(params, coinbaseTransaction, co.rsk.bitcoinj.core.Coin.valueOf(0), additionalData));
+        coinbaseTransaction.addOutput(new co.rsk.bitcoinj.core.TransactionOutput(params, coinbaseTransaction,
+                co.rsk.bitcoinj.core.Coin.valueOf(0), additionalData));
 
         return coinbaseTransaction;
     }
@@ -98,7 +103,8 @@ public class MinerUtils {
         // addsecond tag
         byte[] bytes1 = Arrays.concatenate(bytes0, RskMiningConstants.RSK_TAG, blockHashForMergedMining2);
 
-        co.rsk.bitcoinj.core.TransactionInput ti = new co.rsk.bitcoinj.core.TransactionInput(params, coinbaseTransaction, prefix);
+        co.rsk.bitcoinj.core.TransactionInput ti = new co.rsk.bitcoinj.core.TransactionInput(params,
+                coinbaseTransaction, prefix);
         coinbaseTransaction.addInput(ti);
         coinbaseTransaction.addOutput(new co.rsk.bitcoinj.core.TransactionOutput(params, coinbaseTransaction, co.rsk.bitcoinj.core.Coin.valueOf(50, 0), buildScriptPubKeyBytes().toByteArray()));
         // add opreturn output with two tags
@@ -112,20 +118,25 @@ public class MinerUtils {
             throw new RuntimeException(e);
         }
         coinbaseTransaction.addOutput(
-                new co.rsk.bitcoinj.core.TransactionOutput(params, coinbaseTransaction, co.rsk.bitcoinj.core.Coin.valueOf(1), output2Bytes.toByteArray()));
+                new co.rsk.bitcoinj.core.TransactionOutput(params, coinbaseTransaction,
+                        co.rsk.bitcoinj.core.Coin.valueOf(1), output2Bytes.toByteArray()));
 
         return coinbaseTransaction;
     }
 
-    public static co.rsk.bitcoinj.core.BtcBlock getBitcoinMergedMiningBlock(co.rsk.bitcoinj.core.NetworkParameters params, BtcTransaction transaction) {
+    public static co.rsk.bitcoinj.core.BtcBlock getBitcoinMergedMiningBlock(
+            co.rsk.bitcoinj.core.NetworkParameters params, BtcTransaction transaction) {
         return getBitcoinMergedMiningBlock(params, Collections.singletonList(transaction));
     }
 
-    public static co.rsk.bitcoinj.core.BtcBlock getBitcoinMergedMiningBlock(co.rsk.bitcoinj.core.NetworkParameters params, List<BtcTransaction> transactions) {
+    public static co.rsk.bitcoinj.core.BtcBlock getBitcoinMergedMiningBlock(
+            co.rsk.bitcoinj.core.NetworkParameters params, List<BtcTransaction> transactions) {
         co.rsk.bitcoinj.core.Sha256Hash prevBlockHash = co.rsk.bitcoinj.core.Sha256Hash.ZERO_HASH;
         long time = System.currentTimeMillis() / 1000L;
         long difficultyTarget = co.rsk.bitcoinj.core.Utils.encodeCompactBits(params.getMaxTarget());
-        return new co.rsk.bitcoinj.core.BtcBlock(params, params.getProtocolVersionNum(NetworkParameters.ProtocolVersion.CURRENT), prevBlockHash, null, time, difficultyTarget, 0, transactions);
+        return new co.rsk.bitcoinj.core.BtcBlock(params,
+                params.getProtocolVersionNum(NetworkParameters.ProtocolVersion.CURRENT), prevBlockHash, null, time,
+                difficultyTarget, 0, transactions);
     }
 
     /**
@@ -152,7 +163,9 @@ public class MinerUtils {
         return PendingState.sortByPriceTakingIntoAccountSenderAndNonce(txs, signatureCache, txsToRemove);
     }
 
-    public List<org.ethereum.core.Transaction> filterTransactions(List<Transaction> txsToRemove, List<Transaction> txs, Map<RskAddress, BigInteger> accountNonces, RepositorySnapshot originalRepo, Coin minGasPrice, boolean isRskip252Enabled, SignatureCache signatureCache) {
+    public List<org.ethereum.core.Transaction> filterTransactions(List<Transaction> txsToRemove, List<Transaction> txs,
+            Map<RskAddress, BigInteger> accountNonces, RepositorySnapshot originalRepo, Coin minGasPrice,
+            boolean isRskip252Enabled, SignatureCache signatureCache) {
         List<org.ethereum.core.Transaction> txsResult = new ArrayList<>();
         for (org.ethereum.core.Transaction tx : txs) {
             try {
@@ -172,18 +185,21 @@ public class MinerUtils {
 
                 if (isLowGasPriced(minGasPrice, tx)) {
                     txsToRemove.add(tx);
-                    logger.warn("Rejected tx={} because of low gas account {}, removing tx from pending state.", hash, txSender);
+                    logger.debug("Rejected tx={} because of low gas account {}, removing tx from pending state.", hash,
+                            txSender);
                     continue;
                 }
 
                 if (isRskip252Enabled && isHighGasPriced(tx, minGasPrice)) {
                     txsToRemove.add(tx);
-                    logger.warn("Rejected tx={} because gas price cap was surpassed {}, removing tx from pending state.", hash, txSender);
+                    logger.debug(
+                            "Rejected tx={} because gas price cap was surpassed {}, removing tx from pending state.",
+                            hash, txSender);
                     continue;
                 }
 
                 if (!expectedNonce.equals(txNonce)) {
-                    logger.warn("Invalid nonce, expected {}, found {}, tx={}", expectedNonce, txNonce, hash);
+                    logger.debug("Invalid nonce, expected {}, found {}, tx={}", expectedNonce, txNonce, hash);
                     continue;
                 }
 
