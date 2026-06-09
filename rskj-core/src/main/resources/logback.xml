@@ -31,7 +31,7 @@
             </Pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>${logging.stdout.clitools:-INFO}</level>
+            <level>${logging.stdout.clitools:-DEBUG}</level>
         </filter>
     </appender>
 
@@ -51,7 +51,7 @@
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>${logging:-WARN}</level>
+            <level>${logging:-DEBUG}</level>
         </filter>
     </appender>
 
@@ -93,7 +93,7 @@
     <logger name="BridgeSupport" level="WARN"/>
     <logger name="jsonrpc" level="OFF"/>
     <logger name="wallet" level="WARN"/>
-    <logger name="blockchain" level="INFO"/>
+    <logger name="blockchain" level="DEBUG"/>
     <logger name="blockprocessor" level="INFO"/>
     <logger name="asyncblockprocessor" level="INFO"/>
     <logger name="state" level="WARN"/>
@@ -110,13 +110,16 @@
     <logger name="co.rsk.net.discovery.PeerExplorer" level="WARN" />
     <logger name="co.rsk.net.discovery.NodeChallengeManager" level="WARN" />
     <logger name="co.rsk.RskContext" level="INFO" />
-    <logger name="io.netty.handler.logging.LoggingHandler" level="WARN"/>
-    <logger name="co.rsk.net.sync.PeerAndModeDecidingSyncState" level="WARN" />
+    <logger name="io.netty.handler.logging.LoggingHandler" level="INFO"/>
+    <logger name="co.rsk.net.sync.PeerAndModeDecidingSyncState" level="INFO" />
     <logger name="org.ethereum.core.Transaction" level="WARN" />
     <logger name="peerScoring" level="WARN" />
     <logger name="txpool" level="WARN" />
     <logger name="syncprocessor" level="INFO" />
     <logger name="datasourcewithcache" level="TRACE" />
+    <logger name="org.ethereum.datasource" level="INFO" />
+
+
 
     <!-- Use INFO or upper levels for production environments. -->
     <logger name="com.googlecode.jsonrpc4j" level="OFF" />
@@ -128,7 +131,7 @@
     </logger>
 
     <!-- Root logger -->
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="stdout"/>
         <appender-ref ref="FILE-AUDIT"/>
     </root>
