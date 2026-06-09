@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
  * Created by ajlopez on 5/11/2016.
  */
 public class NetBlockStore {
-    private static final int MAX_BLOCKS = 5000;
-    private static final int MAX_HEADERS = 10000;
+    private static final int MAX_BLOCKS = 50;
+    private static final int MAX_HEADERS = 100;
 
     private Map<Keccak256, Block> blocks = new MaxSizeHashMap<Keccak256, Block>(MAX_BLOCKS, true) {
         @Override
