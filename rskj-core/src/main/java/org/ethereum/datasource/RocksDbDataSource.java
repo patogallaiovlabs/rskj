@@ -38,6 +38,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -45,8 +49,9 @@ import static java.lang.System.getProperty;
 
 public class RocksDbDataSource implements KeyValueDataSource {
 
-    private static final Long GENERAL_SIZE = 10L * 1024L * 1024L;
+    private static final Long GENERAL_SIZE = 4L * 1024L * 1024L;
     private static final int MAX_RETRIES = 2;
+    private static final int SHARED_BLOCK_CACHE_CLEANUP_MINUTES = 10;
 
     private static final Logger logger = LoggerFactory.getLogger("db");
     private static final Profiler profiler = ProfilerFactory.getInstance();
@@ -57,10 +62,14 @@ public class RocksDbDataSource implements KeyValueDataSource {
     private final SystemProperties config;
 
     private static Cache sharedBlockCache;
+    private static int sharedBlockCacheReferenceCount;
+    private static long sharedBlockCacheConfiguredSize;
+    private static ScheduledExecutorService sharedBlockCacheMaintenanceExecutor;
     private Options options;
     private RocksDB db;
     private RocksDbStats stats;
     private boolean alive;
+    private boolean sharedBlockCacheAcquired;
 
     private final ReadWriteLock resetDbLock = new ReentrantReadWriteLock();
 
@@ -96,10 +105,12 @@ public class RocksDbDataSource implements KeyValueDataSource {
 
             logger.debug("<~ RocksDbDataSource.init(): {}", name);
         } catch (RocksDBException ioe) {
+            cleanupResourcesAfterInitFailure();
             logger.error(ioe.getMessage(), ioe);
             panicProcessor.panic("rocksdb", ioe.getMessage());
             throw new RuntimeException("Can't initialize rocksdb");
         } catch (IOException ioe) {
+            cleanupResourcesAfterInitFailure();
             logger.error(ioe.getMessage(), ioe);
             panicProcessor.panic("rocksdb", ioe.getMessage());
             throw new RuntimeException("Can't initialize database");
@@ -351,19 +362,27 @@ public class RocksDbDataSource implements KeyValueDataSource {
         resetDbLock.writeLock().lock();
         try {
             if (!isAlive()) {
+                releaseSharedCacheIfNeeded();
                 return;
             }
 
             logger.debug("Close db: {}", name);
             if (stats != null) {
                 stats.unregister();
+                stats = null;
             }
-            db.close();
+
+            if (db != null) {
+                db.close();
+                db = null;
+            }
 
             if (options != null) {
                 options.close();
+                options = null;
             }
 
+            releaseSharedCacheIfNeeded();
             alive = false;
         } finally {
             resetDbLock.writeLock().unlock();
@@ -387,8 +406,75 @@ public class RocksDbDataSource implements KeyValueDataSource {
             long cacheSize = config.getRocksDbSharedBlockCacheSize();
             logger.info("Initializing RocksDB shared block cache with size {} bytes", cacheSize);
             sharedBlockCache = new LRUCache(cacheSize);
+            sharedBlockCacheConfiguredSize = cacheSize;
+            startSharedBlockCacheMaintenanceTask();
         }
+        sharedBlockCacheReferenceCount++;
         return sharedBlockCache;
+    }
+
+    private static synchronized void releaseSharedBlockCache() {
+        if (sharedBlockCacheReferenceCount <= 0) {
+            return;
+        }
+
+        sharedBlockCacheReferenceCount--;
+        if (sharedBlockCacheReferenceCount == 0 && sharedBlockCache != null) {
+            logger.info("Closing RocksDB shared block cache");
+            sharedBlockCache.close();
+            sharedBlockCache = null;
+            sharedBlockCacheConfiguredSize = 0;
+            stopSharedBlockCacheMaintenanceTask();
+        }
+    }
+
+    private static synchronized void startSharedBlockCacheMaintenanceTask() {
+        if (sharedBlockCacheMaintenanceExecutor != null) {
+            return;
+        }
+
+        ThreadFactory threadFactory = runnable -> {
+            Thread thread = new Thread(runnable, "rocksdb-shared-cache-cleaner");
+            thread.setDaemon(true);
+            return thread;
+        };
+        sharedBlockCacheMaintenanceExecutor = Executors.newSingleThreadScheduledExecutor(threadFactory);
+        sharedBlockCacheMaintenanceExecutor.scheduleAtFixedRate(
+                RocksDbDataSource::cleanSharedBlockCache,
+                SHARED_BLOCK_CACHE_CLEANUP_MINUTES,
+                SHARED_BLOCK_CACHE_CLEANUP_MINUTES,
+                TimeUnit.MINUTES
+        );
+    }
+
+    private static synchronized void stopSharedBlockCacheMaintenanceTask() {
+        if (sharedBlockCacheMaintenanceExecutor == null) {
+            return;
+        }
+
+        sharedBlockCacheMaintenanceExecutor.shutdownNow();
+        sharedBlockCacheMaintenanceExecutor = null;
+    }
+
+    private static synchronized void cleanSharedBlockCache() {
+        if (sharedBlockCache == null || sharedBlockCacheConfiguredSize <= 0) {
+            return;
+        }
+
+        if (sharedBlockCacheReferenceCount > 0) {
+            logger.debug("Skipping shared cache cleanup. Active references: {}", sharedBlockCacheReferenceCount);
+            return;
+        }
+
+        try {
+            logger.info("Scheduled cleanup closing unused RocksDB shared block cache");
+            sharedBlockCache.close();
+            sharedBlockCache = null;
+            sharedBlockCacheConfiguredSize = 0;
+            stopSharedBlockCacheMaintenanceTask();
+        } catch (Exception e) {
+            logger.warn("Failed to clean RocksDB shared block cache: {}", e.getMessage());
+        }
     }
 
     private Options createOptions() {
@@ -407,10 +493,29 @@ public class RocksDbDataSource implements KeyValueDataSource {
         // Force index and filter blocks into a bounded SHARED LRU cache
         // to prevent native OOMs and linear memory growth with many DBs
         tableOptions.setBlockCache(getSharedBlockCache(config));
+        sharedBlockCacheAcquired = true;
         tableOptions.setCacheIndexAndFilterBlocks(true);
         tableOptions.setPinL0FilterAndIndexBlocksInCache(true);
         options.setTableFormatConfig(tableOptions);
 
         return options;
+    }
+
+    private void releaseSharedCacheIfNeeded() {
+        if (!sharedBlockCacheAcquired) {
+            return;
+        }
+
+        releaseSharedBlockCache();
+        sharedBlockCacheAcquired = false;
+    }
+
+    private void cleanupResourcesAfterInitFailure() {
+        if (options != null) {
+            options.close();
+            options = null;
+        }
+
+        releaseSharedCacheIfNeeded();
     }
 }

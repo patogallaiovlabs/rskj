@@ -33,10 +33,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
+import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.WriteBatch;
 
+import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
@@ -296,6 +298,55 @@ class RocksDbDataSourceTest {
             if (!unlocked) {
                 lock.readLock().unlock();
             }
+        }
+    }
+
+    @Test
+    void closeClosesDbAndOptions() {
+        RocksDB db = Mockito.mock(RocksDB.class);
+        Options options = Mockito.mock(Options.class);
+
+        TestUtils.setInternalState(dataSource, "db", db);
+        TestUtils.setInternalState(dataSource, "options", options);
+        TestUtils.setInternalState(dataSource, "alive", true);
+
+        dataSource.close();
+
+        verify(db, times(1)).close();
+        verify(options, times(1)).close();
+        assertFalse(dataSource.isAlive());
+    }
+
+    @Test
+    void sharedBlockCacheIsReleasedWhenLastDatasourceCloses() {
+        assertNotNull(getStaticRocksField("sharedBlockCache"));
+        assertEquals(1, getStaticRocksField("sharedBlockCacheReferenceCount"));
+
+        SystemProperties config = new TestSystemProperties();
+        RocksDbDataSource anotherDataSource = new RocksDbDataSource("test-secondary", databaseDir.toString(), config);
+        anotherDataSource.init();
+
+        assertNotNull(getStaticRocksField("sharedBlockCache"));
+        assertEquals(2, getStaticRocksField("sharedBlockCacheReferenceCount"));
+
+        dataSource.close();
+
+        assertNotNull(getStaticRocksField("sharedBlockCache"));
+        assertEquals(1, getStaticRocksField("sharedBlockCacheReferenceCount"));
+
+        anotherDataSource.close();
+
+        assertNull(getStaticRocksField("sharedBlockCache"));
+        assertEquals(0, getStaticRocksField("sharedBlockCacheReferenceCount"));
+    }
+
+    private static Object getStaticRocksField(String fieldName) {
+        try {
+            Field field = RocksDbDataSource.class.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return field.get(null);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
