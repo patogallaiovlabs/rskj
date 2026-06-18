@@ -254,6 +254,22 @@ class LevelDbDataSourceTest {
     }
 
     @Test
+    void keyIteratorClosesUnderlyingDbIterator() throws Exception {
+        DB db = Mockito.mock(DB.class);
+        TestUtils.setInternalState(dataSource, "db", db);
+
+        DBIterator dbIterator = mock(DBIterator.class);
+        when(db.iterator()).thenReturn(dbIterator);
+
+        try (DataSourceKeyIterator iterator = dataSource.keyIterator()) {
+            Assertions.assertNotNull(iterator);
+        }
+
+        verify(dbIterator, times(1)).seekToFirst();
+        verify(dbIterator, times(1)).close();
+    }
+
+    @Test
     void keysLockWorks() {
         ReentrantReadWriteLock lock = TestUtils.getInternalState(dataSource, "resetDbLock");
         lock.writeLock().lock(); // we test write-locking because readLock() would allow multiple "read" access
