@@ -23,6 +23,7 @@ import co.rsk.net.discovery.table.KademliaOptions;
 import co.rsk.rpc.ModuleDescription;
 import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueType;
@@ -33,6 +34,7 @@ import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.listener.GasPriceCalculator;
 import org.ethereum.vm.PrecompiledContracts;
+import org.rocksdb.CompressionType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -68,6 +70,8 @@ public class RskSystemProperties extends SystemProperties {
     private static final String DISCOVERY_BUCKET_SIZE = "peer.discovery.bucketSize";
     private static final String DATABASE_ROCKSDB_MAX_OPEN_FILES = "database.rocksdb.maxOpenFiles";
     private static final String DATABASE_ROCKSDB_SHARED_BLOCK_CACHE_SIZE = "database.rocksdb.sharedBlockCacheSize";
+    private static final String DATABASE_ROCKSDB_COMPRESSION_TYPE = "database.rocksdb.compressionType";
+    private static final String DATABASE_ROCKSDB_DEFAULT_COMPRESSION_TYPE = "database.rocksdb.compressionType.default";
 
     private static final int CHUNK_SIZE = 192;
 
@@ -454,6 +458,13 @@ public class RskSystemProperties extends SystemProperties {
         return configFromFiles.getInt("sync.maxRequestedBodies");
     }
 
+    public int getMaxConcurrentHeaderRequests() {
+        if (!configFromFiles.hasPath("sync.maxConcurrentHeaderRequests")) {
+            return 1;
+        }
+        return configFromFiles.getInt("sync.maxConcurrentHeaderRequests");
+    }
+
     public int getLongSyncLimit() {
         return configFromFiles.getInt("sync.longSyncLimit");
     }
@@ -614,5 +625,65 @@ public class RskSystemProperties extends SystemProperties {
         return configFromFiles.hasPath(DATABASE_ROCKSDB_SHARED_BLOCK_CACHE_SIZE)
                 ? configFromFiles.getBytes(DATABASE_ROCKSDB_SHARED_BLOCK_CACHE_SIZE)
                 : 256 * 1024 * 1024L;
+    }
+
+    @Override
+    public CompressionType getRocksDbCompressionType(String dbName) {
+        String dbSpecificCompressionPath = DATABASE_ROCKSDB_COMPRESSION_TYPE + "." + Objects.requireNonNull(dbName, "dbName");
+        String compressionPath = DATABASE_ROCKSDB_DEFAULT_COMPRESSION_TYPE;
+        String compressionValue;
+
+        if (configFromFiles.hasPath(dbSpecificCompressionPath)) {
+            compressionValue = configFromFiles.getString(dbSpecificCompressionPath);
+            compressionPath = dbSpecificCompressionPath;
+        } else if (configFromFiles.hasPath(DATABASE_ROCKSDB_DEFAULT_COMPRESSION_TYPE)) {
+            compressionValue = configFromFiles.getString(DATABASE_ROCKSDB_DEFAULT_COMPRESSION_TYPE);
+        } else if (configFromFiles.hasPath(DATABASE_ROCKSDB_COMPRESSION_TYPE)) {
+            try {
+                compressionValue = configFromFiles.getString(DATABASE_ROCKSDB_COMPRESSION_TYPE);
+                compressionPath = DATABASE_ROCKSDB_COMPRESSION_TYPE;
+            } catch (ConfigException.WrongType e) {
+                compressionValue = "NO_COMPRESSION";
+                compressionPath = DATABASE_ROCKSDB_COMPRESSION_TYPE;
+            }
+        } else {
+            compressionValue = "NO_COMPRESSION";
+            compressionPath = DATABASE_ROCKSDB_COMPRESSION_TYPE;
+        }
+
+        return parseRocksDbCompressionType(compressionValue, compressionPath);
+    }
+
+    private static CompressionType parseRocksDbCompressionType(String rawCompressionType, String propertyPath) {
+        if (rawCompressionType == null) {
+            return CompressionType.NO_COMPRESSION;
+        }
+
+        String normalized = rawCompressionType.trim().toLowerCase(Locale.ROOT);
+        if (normalized.isEmpty()) {
+            return CompressionType.NO_COMPRESSION;
+        }
+
+        switch (normalized) {
+            case "none":
+                return CompressionType.NO_COMPRESSION;
+            case "snappy":
+                return CompressionType.SNAPPY_COMPRESSION;
+            case "lz4":
+                return CompressionType.LZ4_COMPRESSION;
+            case "zstd":
+                return CompressionType.ZSTD_COMPRESSION;
+            default:
+                try {
+                    return CompressionType.valueOf(rawCompressionType.trim().toUpperCase(Locale.ROOT));
+                } catch (IllegalArgumentException e) {
+                    throw new RskConfigurationException(String.format(
+                            "Invalid value '%s' for %s. Supported aliases: none, snappy, lz4, zstd. " +
+                                    "Or use RocksDB enum names (e.g. NO_COMPRESSION, SNAPPY_COMPRESSION).",
+                            rawCompressionType,
+                            propertyPath
+                    ));
+                }
+        }
     }
 }

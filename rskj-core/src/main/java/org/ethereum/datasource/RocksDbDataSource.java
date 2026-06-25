@@ -407,7 +407,7 @@ public class RocksDbDataSource implements KeyValueDataSource {
             logger.info("Initializing RocksDB shared block cache with size {} bytes", cacheSize);
             sharedBlockCache = new LRUCache(cacheSize);
             sharedBlockCacheConfiguredSize = cacheSize;
-            startSharedBlockCacheMaintenanceTask();
+            //startSharedBlockCacheMaintenanceTask();
         }
         sharedBlockCacheReferenceCount++;
         return sharedBlockCache;
@@ -480,7 +480,9 @@ public class RocksDbDataSource implements KeyValueDataSource {
     private Options createOptions() {
         Options options = new Options();
         options.setCreateIfMissing(true);
-        options.setCompressionType(CompressionType.NO_COMPRESSION); // here we can play with diff compression types.
+        CompressionType compressionType = config.getRocksDbCompressionType(name);
+        logger.info("Setting RocksDB compressionType for {} to {}", name, compressionType);
+        options.setCompressionType(compressionType);
         options.setArenaBlockSize(GENERAL_SIZE);
         options.setWriteBufferSize(GENERAL_SIZE);
         options.setParanoidChecks(true);
