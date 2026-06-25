@@ -39,6 +39,7 @@ import org.ethereum.net.p2p.P2pHandler;
 import org.ethereum.net.rlpx.MessageCodec;
 import org.ethereum.net.rlpx.Node;
 import org.ethereum.util.ByteUtil;
+import org.rocksdb.CompressionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -802,6 +803,8 @@ public abstract class SystemProperties {
     public abstract int getRocksDbMaxOpenFiles();
 
     public abstract long getRocksDbSharedBlockCacheSize();
+
+    public abstract CompressionType getRocksDbCompressionType(String dbName);
 
     public long getCallGasCap() {
         if (!configFromFiles.hasPath(PROPERTY_RPC_CALL_GAS_CAP)) {

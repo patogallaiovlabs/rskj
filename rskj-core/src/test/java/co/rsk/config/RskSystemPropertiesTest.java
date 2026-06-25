@@ -30,6 +30,7 @@ import org.ethereum.net.rlpx.Node;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.rocksdb.CompressionType;
 
 import java.util.List;
 import java.util.Map;
@@ -336,6 +337,56 @@ class RskSystemPropertiesTest {
                         " }").withFallback(rawConfig));
 
         Assertions.assertThrows(RskConfigurationException.class, testSystemProperties::gasPriceMultiplier);
+    }
+
+    @Test
+    void getRocksDbCompressionTypeUsesDefaultValue() {
+        TestSystemProperties testSystemProperties = new TestSystemProperties();
+
+        assertEquals(CompressionType.NO_COMPRESSION, testSystemProperties.getRocksDbCompressionType("blocks"));
+    }
+
+    @Test
+    void getRocksDbCompressionTypeAcceptsAliasAndPerDbOverride() {
+        TestSystemProperties testSystemProperties = new TestSystemProperties(rawConfig ->
+                ConfigFactory.parseString("{" +
+                        "database.rocksdb.compressionType.default = snappy\n" +
+                        "database.rocksdb.compressionType.blocks = lz4\n" +
+                        "}").withFallback(rawConfig));
+
+        assertEquals(CompressionType.LZ4_COMPRESSION, testSystemProperties.getRocksDbCompressionType("blocks"));
+        assertEquals(CompressionType.SNAPPY_COMPRESSION, testSystemProperties.getRocksDbCompressionType("receipts"));
+    }
+
+    @Test
+    void getRocksDbCompressionTypeAcceptsEnumName() {
+        TestSystemProperties testSystemProperties = new TestSystemProperties(rawConfig ->
+                ConfigFactory.parseString("{" +
+                        "database.rocksdb.compressionType.default = ZSTD_COMPRESSION\n" +
+                        "}").withFallback(rawConfig));
+
+        assertEquals(CompressionType.ZSTD_COMPRESSION, testSystemProperties.getRocksDbCompressionType("stateRoots"));
+    }
+
+    @Test
+    void getRocksDbCompressionTypeAcceptsScalarFallback() {
+        TestSystemProperties testSystemProperties = new TestSystemProperties(rawConfig ->
+                ConfigFactory.parseString("{" +
+                        "database.rocksdb.compressionType = snappy\n" +
+                        "}").withFallback(rawConfig));
+
+        assertEquals(CompressionType.SNAPPY_COMPRESSION, testSystemProperties.getRocksDbCompressionType("wallet"));
+    }
+
+    @Test
+    void getRocksDbCompressionTypeThrowsForInvalidValue() {
+        TestSystemProperties testSystemProperties = new TestSystemProperties(rawConfig ->
+                ConfigFactory.parseString("{" +
+                        "database.rocksdb.compressionType.default = invalid\n" +
+                        "}").withFallback(rawConfig));
+
+        Assertions.assertThrows(RskConfigurationException.class,
+                () -> testSystemProperties.getRocksDbCompressionType("blocks"));
     }
 
     @Test
