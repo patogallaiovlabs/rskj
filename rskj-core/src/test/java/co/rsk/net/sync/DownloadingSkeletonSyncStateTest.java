@@ -21,11 +21,18 @@ package co.rsk.net.sync;
 import co.rsk.net.NodeID;
 import co.rsk.net.Peer;
 import co.rsk.scoring.EventType;
+import org.ethereum.core.BlockIdentifier;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
@@ -65,5 +72,56 @@ class DownloadingSkeletonSyncStateTest {
                         "Timeout waiting requests on {}", DownloadingSkeletonSyncState.class);
     }
 
+    private static List<BlockIdentifier> someSkeleton(String seed) {
+        List<BlockIdentifier> skeleton = new ArrayList<>();
+        skeleton.add(new BlockIdentifier((seed + "-0").getBytes(), 0));
+        skeleton.add(new BlockIdentifier((seed + "-1").getBytes(), 192));
+        return skeleton;
+    }
+
+    @Test
+    void singleCandidateTransitionsAfterFirstSkeleton() {
+        when(peersInformation.getBestPeerCandidates()).thenReturn(Arrays.asList(selectedPeer));
+
+        DownloadingSkeletonSyncState target = new DownloadingSkeletonSyncState(
+                syncConfiguration, syncEventsHandler, peersInformation, selectedPeer, 0);
+        target.onEnter();
+        verify(syncEventsHandler, times(1)).sendSkeletonRequest(selectedPeer, 0);
+
+        target.newSkeleton(someSkeleton("a"), selectedPeer);
+
+        verify(syncEventsHandler, times(1)).startDownloadingHeaders(anyMap(), eq(0L), eq(selectedPeer));
+    }
+
+    @Test
+    void waitsForAllCandidatesBeforeTransitioning() {
+        Peer helperPeer = mock(Peer.class);
+        when(helperPeer.getPeerNodeID()).thenReturn(mock(NodeID.class));
+        when(peersInformation.getBestPeerCandidates()).thenReturn(Arrays.asList(selectedPeer, helperPeer));
+
+        DownloadingSkeletonSyncState target = new DownloadingSkeletonSyncState(
+                syncConfiguration, syncEventsHandler, peersInformation, selectedPeer, 0);
+        target.onEnter();
+
+        // both candidates were asked for a skeleton
+        verify(syncEventsHandler, times(1)).sendSkeletonRequest(selectedPeer, 0);
+        verify(syncEventsHandler, times(1)).sendSkeletonRequest(helperPeer, 0);
+
+        // first skeleton arrives: must NOT transition yet
+        target.newSkeleton(someSkeleton("helper"), helperPeer);
+        verify(syncEventsHandler, never()).startDownloadingHeaders(anyMap(), anyLong(), any());
+
+        // second (and last) skeleton arrives: now it transitions, collecting both skeletons
+        target.newSkeleton(someSkeleton("selected"), selectedPeer);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Map<Peer, List<BlockIdentifier>>> captor = ArgumentCaptor.forClass(Map.class);
+        verify(syncEventsHandler, times(1)).startDownloadingHeaders(captor.capture(), eq(0L), eq(selectedPeer));
+
+        Map<Peer, List<BlockIdentifier>> collected = captor.getValue();
+        Assertions.assertEquals(2, collected.size());
+        Assertions.assertTrue(collected.containsKey(selectedPeer));
+        Assertions.assertTrue(collected.containsKey(helperPeer));
+    }
 }
 

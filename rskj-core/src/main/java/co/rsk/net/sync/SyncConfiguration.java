@@ -29,6 +29,13 @@ import java.util.stream.Collectors;
 
 @Immutable
 public final class SyncConfiguration {
+    /**
+     * Default amount of header chunks that may be requested from different peers concurrently.
+     * 1 preserves the legacy sequential, single-peer header download. The runtime value for a
+     * node is taken from {@code sync.maxConcurrentHeaderRequests} in the configuration files.
+     */
+    private static final int DEFAULT_MAX_CONCURRENT_HEADER_REQUESTS = 1;
+
     @VisibleForTesting
     public static final SyncConfiguration DEFAULT = new SyncConfiguration(5, 60, 30, 5, 20, 192, 20, 10, 0, false, false, 0);
 
@@ -46,6 +53,7 @@ public final class SyncConfiguration {
     private final double topBest;
     private final boolean isServerSnapSyncEnabled;
     private final boolean isClientSnapSyncEnabled;
+    private final int maxConcurrentHeaderRequests;
 
     private final int snapshotSyncLimit;
     private final Map<String, Node> nodeIdToSnapshotTrustedPeerMap;
@@ -106,6 +114,43 @@ public final class SyncConfiguration {
             boolean isClientSnapSyncEnabled,
             int snapshotSyncLimit,
             List<Node> snapBootNodes) {
+        this(expectedPeers,
+                timeoutWaitingPeers,
+                timeoutWaitingRequest,
+                expirationTimePeerStatus,
+                maxSkeletonChunks,
+                chunkSize,
+                maxRequestedBodies,
+                longSyncLimit,
+                topBest,
+                isServerSnapSyncEnabled,
+                isClientSnapSyncEnabled,
+                snapshotSyncLimit,
+                snapBootNodes,
+                DEFAULT_MAX_CONCURRENT_HEADER_REQUESTS);
+    }
+
+    /**
+     * @param maxConcurrentHeaderRequests Maximum number of block-header chunk requests that may be
+     *                                    in flight to different peers at the same time during the
+     *                                    header download phase. Values &gt; 1 enable parallel,
+     *                                    multi-peer header download; 1 keeps the sequential behavior.
+     */
+    public SyncConfiguration(
+            int expectedPeers,
+            int timeoutWaitingPeers,
+            int timeoutWaitingRequest,
+            int expirationTimePeerStatus,
+            int maxSkeletonChunks,
+            int chunkSize,
+            int maxRequestedBodies,
+            int longSyncLimit,
+            double topBest,
+            boolean isServerSnapSyncEnabled,
+            boolean isClientSnapSyncEnabled,
+            int snapshotSyncLimit,
+            List<Node> snapBootNodes,
+            int maxConcurrentHeaderRequests) {
         this.expectedPeers = expectedPeers;
         this.timeoutWaitingPeers = Duration.ofSeconds(timeoutWaitingPeers);
         this.timeoutWaitingRequest = Duration.ofSeconds(timeoutWaitingRequest);
@@ -118,6 +163,7 @@ public final class SyncConfiguration {
         this.isServerSnapSyncEnabled = isServerSnapSyncEnabled;
         this.isClientSnapSyncEnabled = isClientSnapSyncEnabled;
         this.snapshotSyncLimit = snapshotSyncLimit;
+        this.maxConcurrentHeaderRequests = Math.max(1, maxConcurrentHeaderRequests);
 
         List<Node> snapBootNodesList = snapBootNodes != null ? snapBootNodes : Collections.emptyList();
 
@@ -131,6 +177,10 @@ public final class SyncConfiguration {
 
     public int getMaxSkeletonChunks() {
         return maxSkeletonChunks;
+    }
+
+    public int getMaxConcurrentHeaderRequests() {
+        return maxConcurrentHeaderRequests;
     }
 
     public Duration getTimeoutWaitingPeers() {
