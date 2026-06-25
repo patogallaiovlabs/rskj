@@ -69,12 +69,15 @@ public class DownloadingSkeletonSyncState extends BaseSelectedPeerSyncState {
         expectedSkeletons--;
         selectedPeerAnswered = selectedPeerAnswered || isSelectedPeer;
 
-        if (expectedSkeletons <= 0){
+        // Transition only once every requested skeleton has been answered (or discarded). This way
+        // the skeletons map holds one entry per responsive peer, which lets the bodies phase fan out
+        // and download from all of them in parallel. Stragglers are handled by the tick() timeout.
+        if (expectedSkeletons <= 0 && selectedPeerAnswered){
             if (skeletons.isEmpty()){
                 syncEventsHandler.stopSyncing();
                 return;
             }
-            syncEventsHandler.startDownloadingHeaders(skeletons, connectionPoint, peer);
+            syncEventsHandler.startDownloadingHeaders(skeletons, connectionPoint, selectedPeer);
         }
     }
 
@@ -100,6 +103,10 @@ public class DownloadingSkeletonSyncState extends BaseSelectedPeerSyncState {
 
     @Override
     public void onEnter() {
-        peersInformation.getBestPeerCandidates().forEach(p -> syncEventsHandler.sendSkeletonRequest(p, connectionPoint));
+        // Request a skeleton from every best candidate and wait for all of them, so the bodies phase
+        // can later download in parallel from each responsive peer. These requests were already being
+        // sent before; the difference is that now every response is collected instead of just the first.
+        expectedSkeletons = candidates.size();
+        candidates.forEach(p -> syncEventsHandler.sendSkeletonRequest(p, connectionPoint));
     }
 }

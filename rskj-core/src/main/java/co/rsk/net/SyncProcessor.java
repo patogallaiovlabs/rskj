@@ -349,6 +349,7 @@ public class SyncProcessor implements SyncEventsHandler {
         setSyncState(new DownloadingHeadersSyncState(
                 syncConfiguration,
                 this,
+                peersInformation,
                 consensusValidationMainchainView,
                 difficultyRule,
                 blockHeaderValidationRule,
