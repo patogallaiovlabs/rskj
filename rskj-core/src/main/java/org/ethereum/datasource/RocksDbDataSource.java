@@ -491,14 +491,25 @@ public class RocksDbDataSource implements KeyValueDataSource {
         logger.info("Setting RocksDB maxOpenFiles to {}", maxOpenFiles);
         options.setMaxOpenFiles(maxOpenFiles);
 
-        BlockBasedTableConfig tableOptions = new BlockBasedTableConfig();
-        // Force index and filter blocks into a bounded SHARED LRU cache
-        // to prevent native OOMs and linear memory growth with many DBs
-        tableOptions.setBlockCache(getSharedBlockCache(config));
-        sharedBlockCacheAcquired = true;
-        tableOptions.setCacheIndexAndFilterBlocks(true);
-        tableOptions.setPinL0FilterAndIndexBlocksInCache(true);
-        options.setTableFormatConfig(tableOptions);
+        // Only configure a block cache when a shared block cache size is set
+        // (database.rocksdb.sharedBlockCacheSize). When unset (<= 0), leave RocksDB's
+        // own per-DB default cache in place and don't touch the table format config.
+        if (config.getRocksDbSharedBlockCacheSize() > 0) {
+            BlockBasedTableConfig tableOptions = new BlockBasedTableConfig();
+            // Force index and filter blocks into a bounded SHARED LRU cache
+            // to prevent native OOMs and linear memory growth with many DBs
+            tableOptions.setBlockCache(getSharedBlockCache(config));
+            sharedBlockCacheAcquired = true;
+            tableOptions.setCacheIndexAndFilterBlocks(true);
+            tableOptions.setPinL0FilterAndIndexBlocksInCache(true);
+            tableOptions.setPartitionFilters(true);
+            tableOptions.setMetadataBlockSize(4096);
+            tableOptions.setCacheIndexAndFilterBlocksWithHighPriority(true);
+            tableOptions.setPinTopLevelIndexAndFilter(true);
+            options.setTableFormatConfig(tableOptions);
+        } else {
+            logger.info("RocksDB sharedBlockCacheSize not set for {}; using RocksDB default block cache", name);
+        }
 
         return options;
     }

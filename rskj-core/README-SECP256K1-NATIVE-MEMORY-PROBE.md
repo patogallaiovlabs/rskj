@@ -19,6 +19,7 @@ If running from a fat jar:
 ```zsh
 ./gradlew :rskj-core:fatJar
 java -cp rskj-core/build/libs/rskj-core-*-all.jar co.rsk.cli.tools.Secp256k1NativeMemoryProbe --threads=200 --ops-per-thread=1000000 --hold-seconds=300 --report-every-seconds=5
+```
 
 To run continuously, set `--hold-seconds=0`.
 
@@ -26,7 +27,6 @@ To keep workers doing cryptographic work continuously (no idle phase), set `--op
 
 The probe now generates a mix of valid and intentionally invalid signatures and keeps running even if native calls fail.
 Control the ratio with `--invalid-rate-percent` (default `50`).
-```
 
 ## Notes
 
@@ -60,11 +60,17 @@ OPS_PER_THREAD=500000
 HOLD_SECONDS=0
 SAMPLE_SECONDS=3
 HISTORY_POINTS=80
+WAIT_FOR_PID_SECONDS=420
 OUT_DIR=./tmp/secp256k1-nmt
 sh scripts/secp256k1-nmt-docker.sh
 ```
 
 Both scripts output a live ASCII trend plot and persist samples in CSV for later analysis.
+
+Notes:
+
+- The docker script now waits up to `WAIT_FOR_PID_SECONDS` (default `300`) for the probe JVM to appear.
+- If an existing CSV uses an older/incompatible schema, the scripts archive it to `nmt.csv.bak.<epoch>` and start a fresh `nmt.csv`.
 
 ## Generate PNG plots from CSV
 
@@ -85,4 +91,15 @@ Plot only the latest window:
 ```zsh
 python3 scripts/nmt_plot.py ./tmp/secp256k1-nmt/nmt.csv --last 300 --out ./tmp/secp256k1-nmt/nmt-plot-last300.png
 ```
+
+Plot with smoothing to reduce noise/spikes in the graph:
+
+```zsh
+python3 scripts/nmt_plot.py ./tmp/secp256k1-nmt/nmt.csv --last 300 --smooth-window 7 --out ./tmp/secp256k1-nmt/nmt-plot-last300-smooth.png
+```
+
+Notes:
+
+- `--smooth-window=1` keeps raw plotting (default).
+- `--smooth-window>1` overlays smoothed lines (moving average), which helps when the live sampling is bursty.
 
