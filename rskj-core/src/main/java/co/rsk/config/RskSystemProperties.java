@@ -621,10 +621,11 @@ public class RskSystemProperties extends SystemProperties {
 
     @Override
     public long getRocksDbSharedBlockCacheSize() {
-        // Default to 256MB if not specified
+        // Return -1 when unset so callers can skip configuring a block cache entirely
+        // (RocksDB then uses its own per-DB default cache).
         return configFromFiles.hasPath(DATABASE_ROCKSDB_SHARED_BLOCK_CACHE_SIZE)
                 ? configFromFiles.getBytes(DATABASE_ROCKSDB_SHARED_BLOCK_CACHE_SIZE)
-                : 256 * 1024 * 1024L;
+                : -1L;
     }
 
     @Override
