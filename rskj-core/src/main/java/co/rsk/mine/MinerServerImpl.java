@@ -97,6 +97,7 @@ public class MinerServerImpl implements MinerServer {
     private final ActivationConfig activationConfig;
     private final MinerClock clock;
     private final BlockFactory blockFactory;
+    private final boolean skipPowValidation;
 
     private Timer refreshWorkTimer;
     private NewBlockTxListener blockListener;
@@ -162,6 +163,7 @@ public class MinerServerImpl implements MinerServer {
         this.clock = clock;
         this.blockFactory = blockFactory;
         this.activationConfig = config.getActivationConfig();
+        this.skipPowValidation = config.minerServerSkipPowValidation();
 
         this.submissionRateLimitHandler = Objects.requireNonNull(submissionRateLimitHandler);
         if (this.submissionRateLimitHandler.isEnabled()) {
@@ -354,9 +356,13 @@ public class MinerServerImpl implements MinerServer {
 
     private boolean isValid(Block block) {
         try {
+            if (skipPowValidation) {
+                logger.trace("Skipping PoW validation by configuration for block {}", block.getPrintableHash());
+                return true;
+            }
             return powRule.isValid(block);
         } catch (Exception e) {
-            logger.error("Failed to validate PoW from block {}: {}", block.getPrintableHash(), e);
+            logger.error("Failed to validate PoW from block {}", block.getPrintableHash(), e);
             return false;
         }
     }
