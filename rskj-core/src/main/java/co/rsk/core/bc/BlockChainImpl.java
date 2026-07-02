@@ -159,12 +159,32 @@ public class BlockChainImpl implements Blockchain {
                     ImportResult result = internalTryToConnect(block);
                     long totalTime = System.nanoTime() - saveTime;
                     String timeInSeconds = FormatUtils.formatNanosecondsToSeconds(totalTime);
+                    final String[] uncles = { "" };
+                    block.getUncleList().forEach(uncle -> {
+                        uncles[0] += uncle.getPrintableHash() + ", ";
+                    });
+                    final String[] txs = { "" };
+                    block.getTransactionsList().forEach(tx -> {
+                        txs[0] += tx.getHash().toHexString() + ", ";
+                    });
+                    // SIMULATION logs modified
 
                     if (BlockUtils.tooMuchProcessTime(totalTime)) {
-                        logger.warn("block: num: [{}] hash: [{}], processed after: [{}]seconds, result {}", block.getNumber(), block.getPrintableHash(), timeInSeconds, result);
-                    }
-                    else {
-                        logger.info("block: num: [{}] hash: [{}], processed after: [{}]seconds, result {}", block.getNumber(), block.getPrintableHash(), timeInSeconds, result);
+                        logger.warn(
+                                "block: num: [{}] hash: [{}], parentHash:[{}], coinbase:[{}], uncles:[{}], unclesCount:[{}], difficulty:[{}], txs:[{}], txsHashes:[{}], timestamp:{}, gasUsed: {}, gasLimit: {}, processed after: [{}]seconds, result {}",
+                                block.getNumber(), block.getPrintableHash(), block.getParentHash().toHexString(),
+                                block.getCoinbase().toHexString(),
+                                uncles[0], block.getUncleList().size(), block.getDifficulty().toString(),
+                                block.getTransactionsList().size(), "txs[0]", block.getTimestamp(), block.getGasUsed(),
+                                block.getGasLimitAsInteger(), timeInSeconds, result);
+                    } else {
+                        logger.info(
+                                "block: num: [{}] hash: [{}], parentHash:[{}], coinbase:[{}], uncles:[{}], unclesCount:[{}], difficulty:[{}], txs:[{}], txsHashes:[{}], timestamp:{}, gasUsed: {}, gasLimit: {}, processed after: [{}]seconds, result {}",
+                                block.getNumber(), block.getPrintableHash(), block.getParentHash().toHexString(),
+                                block.getCoinbase().toHexString(),
+                                uncles[0], block.getUncleList().size(), block.getDifficulty().toString(),
+                                block.getTransactionsList().size(), "txs[0]", block.getTimestamp(), block.getGasUsed(),
+                                block.getGasLimitAsInteger(), timeInSeconds, result);
                     }
 
                     return result;
