@@ -183,7 +183,7 @@ class NetBlockStoreTest {
         for (Block b : blocks2)
             store.saveBlock(b);
 
-        Assertions.assertEquals(2000, store.size());
+        Assertions.assertEquals(50, store.size());
 
         store.releaseRange(1, 1000);
 

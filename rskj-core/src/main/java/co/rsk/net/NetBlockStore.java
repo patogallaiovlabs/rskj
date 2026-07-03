@@ -18,6 +18,7 @@
 
 package co.rsk.net;
 
+import co.rsk.util.MaxSizeHashMap;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
 import co.rsk.crypto.Keccak256;
@@ -30,11 +31,25 @@ import java.util.stream.Collectors;
  * Created by ajlopez on 5/11/2016.
  */
 public class NetBlockStore {
-    private Map<Keccak256, Block> blocks = new HashMap<>();
+    private static final int MAX_BLOCKS = 50;
+    private static final int MAX_HEADERS = 100;
+
+    private Map<Keccak256, Block> blocks = new MaxSizeHashMap<Keccak256, Block>(MAX_BLOCKS, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Keccak256, Block> eldest) {
+            boolean remove = super.removeEldestEntry(eldest);
+            if (remove) {
+                Block block = eldest.getValue();
+                removeBlockByNumber(block.getHash(), block.getNumber());
+                removeBlockByParent(block.getHash(), block.getParentHash());
+            }
+            return remove;
+        }
+    };
     private Map<Long, Set<Block>> blocksbynumber = new HashMap<>();
     private Map<Keccak256, Set<Block>> blocksbyparent = new HashMap<>();
 
-    private final Map<Keccak256, BlockHeader> headers = new HashMap<>();
+    private final Map<Keccak256, BlockHeader> headers = new MaxSizeHashMap<>(MAX_HEADERS, true);
 
     public synchronized void saveBlock(Block block) {
         Keccak256 key = block.getHash();
