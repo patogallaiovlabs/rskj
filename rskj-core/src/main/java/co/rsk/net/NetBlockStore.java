@@ -180,6 +180,8 @@ public class NetBlockStore {
     public synchronized void releaseRange(long from, long to) {
         for (long k = from; k <= to; k++) {
             for (Block b : this.getBlocksByNumber(k)) {
+                // Drop paired header cache entries during range cleanup to avoid stale retention. fix by Pato
+                this.removeHeader(b.getHeader());
                 this.removeBlock(b);
             }
         }

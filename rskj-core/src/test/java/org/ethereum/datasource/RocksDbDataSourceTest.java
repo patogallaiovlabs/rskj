@@ -33,6 +33,7 @@ import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
+import org.rocksdb.ReadOptions;
 import org.rocksdb.WriteBatch;
 
 import java.nio.file.Path;
@@ -169,9 +170,9 @@ class RocksDbDataSourceTest {
 
         byte[] key = TestUtils.generateBytes(this.getClass(), "key", 20);
         RocksDBException fakeException = new RocksDBException("fake exception");
-        Mockito.when(db.get(key)).thenThrow(fakeException);
+        Mockito.when(db.get(any(ReadOptions.class), eq(key))).thenThrow(fakeException);
         Assertions.assertThrows(RuntimeException.class, () -> dataSource.get(key));
-        Mockito.verify(db, Mockito.times(2)).get(key);
+        Mockito.verify(db, Mockito.times(2)).get(any(ReadOptions.class), eq(key));
     }
 
     @Test

@@ -154,12 +154,13 @@ public class RocksDbDataSource implements KeyValueDataSource {
 
         try {
             while (retries < MAX_RETRIES) {
-                try {
+                try (ReadOptions readOptions = new ReadOptions()) {
+                    // Ensure per-read native options are released immediately. fix by Pato
                     if (logger.isTraceEnabled()) {
                         logger.trace("~> RocksDbDataSource.get(): {}, key: {}", name, Bytes.of(key));
                     }
 
-                    byte[] ret = db.get(key);
+                    byte[] ret = db.get(readOptions, key);
 
                     if (logger.isTraceEnabled()) {
                         logger.trace("<~ RocksDbDataSource.get(): {}, key: {}, return length: {}", name, Bytes.of(key), (ret == null ? "null" : ret.length));
@@ -359,6 +360,8 @@ public class RocksDbDataSource implements KeyValueDataSource {
                 stats = null;
             }
             db.close();
+            // Release native Options allocation when datasource is closed. fix by Pato
+            options.close();
 
             alive = false;
         } finally {
