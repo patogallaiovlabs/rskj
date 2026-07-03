@@ -25,6 +25,7 @@ import co.rsk.metrics.profilers.Profiler;
 import co.rsk.metrics.profilers.ProfilerFactory;
 import co.rsk.net.messages.*;
 import co.rsk.net.sync.SyncConfiguration;
+import co.rsk.util.MaxSizeHashMap;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
 import org.ethereum.core.BlockIdentifier;
@@ -54,7 +55,7 @@ public class NodeBlockProcessor implements BlockProcessor {
     private final BlockNodeInformation nodeInformation;
     private final SyncConfiguration syncConfiguration;
     // keeps on a map the hashes that belongs to the skeleton
-    private final Map <Long, byte[]> skeletonCache = new HashMap<>();
+    private final Map<Long, byte[]> skeletonCache;
 
     protected final NetBlockStore store;
     // keep tabs on which nodes know which blocks.
@@ -79,6 +80,8 @@ public class NodeBlockProcessor implements BlockProcessor {
         this.nodeInformation = nodeInformation;
         this.blockSyncService = blockSyncService;
         this.syncConfiguration = syncConfiguration;
+        // Bound skeleton cache growth during long sync sessions to avoid unbounded retention. fix by Pato
+        this.skeletonCache = new MaxSizeHashMap<>(1000, true);
     }
 
     /**
