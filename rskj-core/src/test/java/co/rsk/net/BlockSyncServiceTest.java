@@ -53,7 +53,8 @@ class BlockSyncServiceTest {
 
     @Test
     void sendBlockMessagesAndAddThemToBlockchainInReverseOrder() {
-        for (int i = 1; i < 52; i += 5) {
+        // Keep pending reverse-order blocks within bounded NetBlockStore capacity to avoid intentional evictions in this scenario. fix by Pato
+        for (int i = 1; i <= 50; i += 5) {
             Blockchain blockchain = new BlockChainBuilder().ofSize(10 * i);
             NetBlockStore store = new NetBlockStore();
             BlockNodeInformation nodeInformation = new BlockNodeInformation();
