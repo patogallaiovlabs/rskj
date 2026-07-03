@@ -63,23 +63,8 @@ public class NetBlockStore {
             removeBlockByParent(previous.getHash(), previous.getParentHash());
         }
 
-        Set<Block> bsbynumber = this.blocksbynumber.get(nkey);
-
-        if (bsbynumber == null) {
-            bsbynumber = new HashSet<>();
-            this.blocksbynumber.put(nkey, bsbynumber);
-        }
-
-        bsbynumber.add(block);
-
-        Set<Block> bsbyphash = this.blocksbyparent.get(pkey);
-
-        if (bsbyphash == null) {
-            bsbyphash = new HashSet<>();
-            this.blocksbyparent.put(pkey, bsbyphash);
-        }
-
-        bsbyphash.add(block);
+        this.blocksbynumber.computeIfAbsent(nkey, k -> new HashSet<>()).add(block);
+        this.blocksbyparent.computeIfAbsent(pkey, k -> new HashSet<>()).add(block);
     }
 
     public synchronized void removeBlock(Block block) {

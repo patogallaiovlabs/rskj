@@ -281,14 +281,16 @@ public class RocksDbDataSource implements KeyValueDataSource {
             throw new IllegalArgumentException("Cannot update null values");
         }
         // Note that this is not atomic.
-        try (WriteBatch batch = new WriteBatch()) {
+        try (WriteBatch batch = new WriteBatch();
+                // Ensure native write options are released on every batch write path. fix by Pato
+                WriteOptions writeOptions = new WriteOptions()) {
             for (Map.Entry<ByteArrayWrapper, byte[]> entry : rows.entrySet()) {
                 batch.put(entry.getKey().getData(), entry.getValue());
             }
             for (ByteArrayWrapper deleteKey : deleteKeys) {
                 batch.delete(deleteKey.getData());
             }
-            db.write(new WriteOptions(), batch);
+            db.write(writeOptions, batch);
         } catch (RocksDBException e) {
             logger.error("Exception. Not retrying.", e);
             throw new RuntimeException(e);
