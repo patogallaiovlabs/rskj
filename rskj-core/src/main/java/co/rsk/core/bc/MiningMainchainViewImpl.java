@@ -188,9 +188,18 @@ public class MiningMainchainViewImpl implements MiningMainchainView {
 
     private void deleteEntriesOutOfBoundaries(long bestBlockNumber) {
         long blocksHeightToDelete = bestBlockNumber - height;
-        if(blocksHeightToDelete >= 0 && blockHashesByNumber.containsKey(blocksHeightToDelete)) {
-            blockHashesByNumber.get(blocksHeightToDelete).forEach(blockHashToDelete -> blocksByHash.remove(blockHashToDelete));
-            blockHashesByNumber.remove(blocksHeightToDelete);
+        if (blocksHeightToDelete < 0) {
+            return;
+        }
+
+        Iterator<Map.Entry<Long, List<Keccak256>>> iterator = blockHashesByNumber.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Long, List<Keccak256>> entry = iterator.next();
+            // Remove all stale heights up to the boundary to avoid retained headers on long sync jumps. fix by Pato
+            if (entry.getKey() <= blocksHeightToDelete) {
+                entry.getValue().forEach(blockHashToDelete -> blocksByHash.remove(blockHashToDelete));
+                iterator.remove();
+            }
         }
     }
 
