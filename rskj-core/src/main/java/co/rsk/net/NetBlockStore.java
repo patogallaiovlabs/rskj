@@ -55,7 +55,13 @@ public class NetBlockStore {
         Keccak256 key = block.getHash();
         Keccak256 pkey = block.getParentHash();
         Long nkey = Long.valueOf(block.getNumber());
-        this.blocks.put(key, block);
+        Block previous = this.blocks.put(key, block);
+
+        // Remove stale index references when the same hash is replaced to avoid retained entries. fix by Pato
+        if (previous != null) {
+            removeBlockByNumber(previous.getHash(), previous.getNumber());
+            removeBlockByParent(previous.getHash(), previous.getParentHash());
+        }
 
         Set<Block> bsbynumber = this.blocksbynumber.get(nkey);
 
@@ -95,21 +101,10 @@ public class NetBlockStore {
         Set<Block> byparent = this.blocksbyparent.get(pkey);
 
         if (byparent != null && !byparent.isEmpty()) {
-            Block toremove = null;
+            byparent.removeIf(blk -> blk.getHash().equals(key));
 
-            for (Block blk : byparent) {
-                if (blk.getHash().equals(key)) {
-                    toremove = blk;
-                    break;
-                }
-            }
-
-            if (toremove != null){
-                byparent.remove(toremove);
-
-                if (byparent.isEmpty()) {
-                    this.blocksbyparent.remove(pkey);
-                }
+            if (byparent.isEmpty()) {
+                this.blocksbyparent.remove(pkey);
             }
         }
     }
@@ -118,20 +113,10 @@ public class NetBlockStore {
         Set<Block> bynumber = this.blocksbynumber.get(nkey);
 
         if (bynumber != null && !bynumber.isEmpty()) {
-            Block toremove = null;
+            bynumber.removeIf(blk -> blk.getHash().equals(key));
 
-            for (Block blk : bynumber) {
-                if (blk.getHash().equals(key)) {
-                    toremove = blk;
-                    break;
-                }
-            }
-
-            if (toremove != null) {
-                bynumber.remove(toremove);
-                if (bynumber.isEmpty()) {
-                    this.blocksbynumber.remove(nkey);
-                }
+            if (bynumber.isEmpty()) {
+                this.blocksbynumber.remove(nkey);
             }
         }
     }
