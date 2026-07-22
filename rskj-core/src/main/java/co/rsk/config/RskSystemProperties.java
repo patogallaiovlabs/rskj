@@ -519,6 +519,14 @@ public class RskSystemProperties extends SystemProperties {
         return configFromFiles.getInt("cache.btcBlockStore.depth");
     }
 
+    public int getBlockStoreCacheSize() {
+        return configFromFiles.getInt("cache.blockStore.size");
+    }
+
+    public int getRemascCacheSize() {
+        return configFromFiles.getInt("cache.remascCache.size");
+    }
+
     public long getVmExecutionStackSize() {
         return configFromFiles.getBytes("vm.executionStackSize");
     }

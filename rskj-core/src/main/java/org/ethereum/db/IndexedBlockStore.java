@@ -52,6 +52,8 @@ public class IndexedBlockStore implements BlockStore {
 
     private static final Logger logger = LoggerFactory.getLogger("general");
     private static final Profiler profiler = ProfilerFactory.getInstance();
+    private static final int DEFAULT_BLOCK_CACHE_SIZE = 500;
+    private static final int DEFAULT_REMASC_CACHE_SIZE = 5000;
 
     private final BlockCache blockCache;
     private final MaxSizeHashMap<Keccak256, Map<Long, List<Sibling>>> remascCache;
@@ -64,13 +66,22 @@ public class IndexedBlockStore implements BlockStore {
             BlockFactory blockFactory,
             KeyValueDataSource blocks,
             BlocksIndex index) {
+        this(blockFactory, blocks, index, DEFAULT_BLOCK_CACHE_SIZE, DEFAULT_REMASC_CACHE_SIZE);
+    }
+
+    public IndexedBlockStore(
+            BlockFactory blockFactory,
+            KeyValueDataSource blocks,
+            BlocksIndex index,
+            int blockCacheSize,
+            int remascCacheSize) {
         this.index = index;
         this.blocks = blocks;
         this.blockFactory = blockFactory;
         //TODO(lsebrie): move these maps creation outside blockstore,
         // remascCache should be an external component and not be inside blockstore
-        this.blockCache = new BlockCache(5000);
-        this.remascCache = new MaxSizeHashMap<>(50000, true);
+        this.blockCache = new BlockCache(blockCacheSize);
+        this.remascCache = new MaxSizeHashMap<>(remascCacheSize, true);
     }
 
     @Override

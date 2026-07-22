@@ -1250,7 +1250,12 @@ public class RskContext implements NodeContext, NodeBootstrapper {
         DbKind currentDbKind = getDbKind(databaseDir);
         KeyValueDataSource blocksDB = KeyValueDataSourceUtils.makeDataSource(blocksDbPath, currentDbKind);
 
-        return new IndexedBlockStore(getBlockFactory(), blocksDB, new MapDBBlocksIndex(indexDB));
+        return new IndexedBlockStore(
+                getBlockFactory(),
+                blocksDB,
+                new MapDBBlocksIndex(indexDB),
+                getRskSystemProperties().getBlockStoreCacheSize(),
+                getRskSystemProperties().getRemascCacheSize());
     }
 
     public synchronized PeerScoringReporterService getPeerScoringReporterService() {
