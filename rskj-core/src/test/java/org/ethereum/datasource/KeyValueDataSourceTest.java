@@ -1,6 +1,8 @@
 package org.ethereum.datasource;
 
+import co.rsk.config.TestSystemProperties;
 import co.rsk.util.SystemUtils;
+import org.ethereum.config.SystemProperties;
 import org.ethereum.TestUtils;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.util.ByteUtil;
@@ -23,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class KeyValueDataSourceTest {
 
     private static final int CACHE_SIZE = 100;
+    private static final SystemProperties config = new TestSystemProperties();
 
     @ParameterizedTest(name = "{1}, flush = {2}")
     @ArgumentsSource(DatasourceArgumentsProvider.class)
@@ -306,7 +309,7 @@ class KeyValueDataSourceTest {
         }
 
         private static RocksDbDataSource initRocksDBDatasource(Path tmpDir) throws IOException {
-            RocksDbDataSource rocksDbDataSource = new RocksDbDataSource("test", Files.createTempDirectory(tmpDir, "default").toString());
+            RocksDbDataSource rocksDbDataSource = new RocksDbDataSource("test", Files.createTempDirectory(tmpDir, "default").toString(), config);
             rocksDbDataSource.init();
             return rocksDbDataSource;
         }

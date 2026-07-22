@@ -156,8 +156,8 @@ public class DbMigrate extends PicoCliToolRskContextAware {
     ) {
         logger.info("Preparing data sources for db: {}", dbName);
 
-        KeyValueDataSource sourceDataSource = KeyValueDataSourceUtils.makeDataSource(Paths.get(sourceDbDir, dbName), sourceDbKind);
-        KeyValueDataSource targetDataSource = KeyValueDataSourceUtils.makeDataSource(Paths.get(targetDbDir, dbName), targetDbKind);
+        KeyValueDataSource sourceDataSource = KeyValueDataSourceUtils.makeDataSource(Paths.get(sourceDbDir, dbName), sourceDbKind, ctx.getRskSystemProperties());
+        KeyValueDataSource targetDataSource = KeyValueDataSourceUtils.makeDataSource(Paths.get(targetDbDir, dbName), targetDbKind, ctx.getRskSystemProperties());
 
         logger.info("Data sources prepared successfully");
         logger.info("Preparing indexes for db: {}", dbName);

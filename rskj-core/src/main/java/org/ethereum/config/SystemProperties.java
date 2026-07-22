@@ -796,6 +796,10 @@ public abstract class SystemProperties {
         return DbKind.ofName(configFromFiles.getString(PROPERTY_KEYVALUE_DATASOURCE));
     }
 
+    public abstract int getRocksDbMaxOpenFiles();
+
+    public abstract long getRocksDbSharedBlockCacheSize();
+
     public long getCallGasCap() {
         if (!configFromFiles.hasPath(PROPERTY_RPC_CALL_GAS_CAP)) {
             return 0L;

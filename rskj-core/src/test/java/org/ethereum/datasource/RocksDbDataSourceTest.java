@@ -19,7 +19,9 @@
 
 package org.ethereum.datasource;
 
+import co.rsk.config.TestSystemProperties;
 import com.google.common.collect.ImmutableSet;
+import org.ethereum.config.SystemProperties;
 import org.awaitility.Awaitility;
 import org.ethereum.TestUtils;
 import org.ethereum.db.ByteArrayWrapper;
@@ -58,7 +60,8 @@ class RocksDbDataSourceTest {
 
     @BeforeEach
     void setUp() {
-        dataSource = new RocksDbDataSource("test", databaseDir.toString());
+        SystemProperties config = new TestSystemProperties();
+        dataSource = new RocksDbDataSource("test", databaseDir.toString(), config);
         dataSource.init();
     }
 

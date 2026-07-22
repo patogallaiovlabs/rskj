@@ -1,5 +1,6 @@
 package org.ethereum.datasource;
 
+import org.ethereum.config.SystemProperties;
 import org.ethereum.db.ByteArrayWrapper;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,7 @@ public class KeyValueDataSourceUtils {
     private KeyValueDataSourceUtils() { /* hidden */ }
 
     @Nonnull
-    public static KeyValueDataSource makeDataSource(@Nonnull Path datasourcePath, @Nonnull DbKind kind) {
+    public static KeyValueDataSource makeDataSource(@Nonnull Path datasourcePath, @Nonnull DbKind kind, SystemProperties config) {
         String name = datasourcePath.getFileName().toString();
         String databaseDir = datasourcePath.getParent().toString();
 
@@ -29,7 +30,7 @@ public class KeyValueDataSourceUtils {
                 ds = new LevelDbDataSource(name, databaseDir);
                 break;
             case ROCKS_DB:
-                ds = new RocksDbDataSource(name, databaseDir);
+                ds = new RocksDbDataSource(name, databaseDir, config);
                 break;
             default:
                 throw new IllegalArgumentException("kind");
@@ -40,16 +41,16 @@ public class KeyValueDataSourceUtils {
         return ds;
     }
 
-    public static void mergeDataSources(@Nonnull Path destinationPath, @Nonnull List<Path> originPaths, @Nonnull DbKind kind) {
+    public static void mergeDataSources(@Nonnull Path destinationPath, @Nonnull List<Path> originPaths, @Nonnull DbKind kind, SystemProperties config) {
         Map<ByteArrayWrapper, byte[]> mergedStores = new HashMap<>();
         for (Path originPath : originPaths) {
-            KeyValueDataSource singleOriginDataSource = makeDataSource(originPath, kind);
+            KeyValueDataSource singleOriginDataSource = makeDataSource(originPath, kind, config);
             for (ByteArrayWrapper byteArrayWrapper : singleOriginDataSource.keys()) {
                 mergedStores.put(byteArrayWrapper, singleOriginDataSource.get(byteArrayWrapper.getData()));
             }
             singleOriginDataSource.close();
         }
-        KeyValueDataSource destinationDataSource = makeDataSource(destinationPath, kind);
+        KeyValueDataSource destinationDataSource = makeDataSource(destinationPath, kind, config);
         destinationDataSource.updateBatch(mergedStores, Collections.emptySet());
         destinationDataSource.close();
     }
