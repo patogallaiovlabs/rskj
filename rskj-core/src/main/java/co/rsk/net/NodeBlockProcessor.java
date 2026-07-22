@@ -19,6 +19,7 @@
 package co.rsk.net;
 
 import co.rsk.crypto.Keccak256;
+import co.rsk.util.MaxSizeHashMap;
 import co.rsk.metrics.profilers.Metric;
 import co.rsk.metrics.profilers.MetricKind;
 import co.rsk.metrics.profilers.Profiler;
@@ -54,7 +55,7 @@ public class NodeBlockProcessor implements BlockProcessor {
     private final BlockNodeInformation nodeInformation;
     private final SyncConfiguration syncConfiguration;
     // keeps on a map the hashes that belongs to the skeleton
-    private final Map <Long, byte[]> skeletonCache = new HashMap<>();
+    private final Map<Long, byte[]> skeletonCache;
 
     protected final NetBlockStore store;
     // keep tabs on which nodes know which blocks.
@@ -79,6 +80,7 @@ public class NodeBlockProcessor implements BlockProcessor {
         this.nodeInformation = nodeInformation;
         this.blockSyncService = blockSyncService;
         this.syncConfiguration = syncConfiguration;
+        this.skeletonCache = new MaxSizeHashMap<>(syncConfiguration.getSkeletonCacheSize(), true);
     }
 
     /**
