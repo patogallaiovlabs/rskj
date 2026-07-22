@@ -171,7 +171,7 @@ class NetBlockStoreTest {
 
     @Test
     void releaseRange() {
-        NetBlockStore store = new NetBlockStore();
+        NetBlockStore store = new NetBlockStore(2_000, 2_000);
         final BlockGenerator generator = new BlockGenerator();
         Block genesis = generator.getGenesisBlock();
 

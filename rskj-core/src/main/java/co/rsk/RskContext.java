@@ -1560,6 +1560,9 @@ public class RskContext implements NodeContext, NodeBootstrapper {
                 rskSystemProperties.isServerSnapshotSyncEnabled(),
                 rskSystemProperties.isClientSnapshotSyncEnabled(),
                 rskSystemProperties.getSnapshotSyncLimit(),
+                rskSystemProperties.getSkeletonCacheSize(),
+                rskSystemProperties.getNetBlockStoreMaxBlocks(),
+                rskSystemProperties.getNetBlockStoreMaxHeaders(),
                 rskSystemProperties.getSnapBootNodes());
     }
 
@@ -2233,7 +2236,9 @@ public class RskContext implements NodeContext, NodeBootstrapper {
 
     private NetBlockStore getNetBlockStore() {
         if (netBlockStore == null) {
-            netBlockStore = new NetBlockStore();
+            netBlockStore = new NetBlockStore(
+                    getSyncConfiguration().getNetBlockStoreMaxBlocks(),
+                    getSyncConfiguration().getNetBlockStoreMaxHeaders());
         }
 
         return netBlockStore;
