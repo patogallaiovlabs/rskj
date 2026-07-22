@@ -43,9 +43,6 @@ import java.util.*;
 public class BlockSyncService {
     private static final Logger logger = LoggerFactory.getLogger("blocksyncservice");
 
-    private static final int PROCESSED_BLOCKS_TO_CHECK_STORE = 200;
-    private static final int RELEASED_RANGE = 1000;
-
     private long processedBlocksCounter;
     private long lastKnownBlockNumber = 0;
 
@@ -139,13 +136,13 @@ public class BlockSyncService {
     }
 
     private void tryReleaseStore(long bestBlockNumber) {
-        if ((++processedBlocksCounter % PROCESSED_BLOCKS_TO_CHECK_STORE) == 0) {
+        if ((++processedBlocksCounter % syncConfiguration.getProcessedBlocksToCheckStore()) == 0) {
             long minimal = store.minimalHeight();
             long maximum = store.maximumHeight();
             logger.trace("Blocks in block processor {} from height {} to height {}", this.store.size(), minimal, maximum);
 
-            if (minimal < bestBlockNumber - RELEASED_RANGE) {
-                store.releaseRange(minimal, minimal + RELEASED_RANGE);
+            if (minimal < bestBlockNumber - syncConfiguration.getReleasedRange()) {
+                store.releaseRange(minimal, minimal + syncConfiguration.getReleasedRange());
             }
         }
     }
