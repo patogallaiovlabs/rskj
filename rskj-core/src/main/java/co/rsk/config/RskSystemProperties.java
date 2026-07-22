@@ -567,6 +567,14 @@ public class RskSystemProperties extends SystemProperties {
         return configFromFiles.getInt("sync.netBlockStore.maxHeaders");
     }
 
+    public int getProcessedBlocksToCheckStore() {
+        return configFromFiles.getInt("sync.netBlockStore.processedBlocksToCheckStore");
+    }
+
+    public int getReleasedRange() {
+        return configFromFiles.getInt("sync.netBlockStore.releasedRange");
+    }
+
     public boolean rpcZeroSignatureIfRemasc() {
         return configFromFiles.getBoolean("rpc.zeroSignatureIfRemasc");
     }

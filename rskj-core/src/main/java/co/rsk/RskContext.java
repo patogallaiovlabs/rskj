@@ -1563,6 +1563,8 @@ public class RskContext implements NodeContext, NodeBootstrapper {
                 rskSystemProperties.getSkeletonCacheSize(),
                 rskSystemProperties.getNetBlockStoreMaxBlocks(),
                 rskSystemProperties.getNetBlockStoreMaxHeaders(),
+                rskSystemProperties.getProcessedBlocksToCheckStore(),
+                rskSystemProperties.getReleasedRange(),
                 rskSystemProperties.getSnapBootNodes());
     }
 

@@ -36,7 +36,7 @@ class BlockSyncServiceTest {
     void sendBlockMessagesAndAddThemToBlockchain() {
         for (int i = 0; i < 50; i += 5) {
             Blockchain blockchain = new BlockChainBuilder().ofSize(10 * i);
-            NetBlockStore store = new NetBlockStore();
+            NetBlockStore store = new NetBlockStore(2_000, 2_000);
             BlockNodeInformation nodeInformation = new BlockNodeInformation();
             TestSystemProperties config = new TestSystemProperties();
             BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, SyncConfiguration.IMMEDIATE_FOR_TESTING, DummyBlockValidator.VALID_RESULT_INSTANCE);
@@ -55,7 +55,7 @@ class BlockSyncServiceTest {
     void sendBlockMessagesAndAddThemToBlockchainInReverseOrder() {
         for (int i = 1; i < 52; i += 5) {
             Blockchain blockchain = new BlockChainBuilder().ofSize(10 * i);
-            NetBlockStore store = new NetBlockStore();
+            NetBlockStore store = new NetBlockStore(2_000, 2_000);
             BlockNodeInformation nodeInformation = new BlockNodeInformation();
             TestSystemProperties config = new TestSystemProperties();
             BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, SyncConfiguration.IMMEDIATE_FOR_TESTING, DummyBlockValidator.VALID_RESULT_INSTANCE);
@@ -84,7 +84,7 @@ class BlockSyncServiceTest {
     @Test
     void sendBlockMessageAndAddItToBlockchainWithCommonAncestors() {
         Blockchain blockchain = new BlockChainBuilder().ofSize(10);
-        NetBlockStore store = new NetBlockStore();
+        NetBlockStore store = new NetBlockStore(2_000, 2_000);
         BlockNodeInformation nodeInformation = new BlockNodeInformation();
         TestSystemProperties config = new TestSystemProperties();
         BlockSyncService blockSyncService = new BlockSyncService(config, store, blockchain, nodeInformation, SyncConfiguration.IMMEDIATE_FOR_TESTING, DummyBlockValidator.VALID_RESULT_INSTANCE);
