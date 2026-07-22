@@ -29,11 +29,16 @@ import java.util.stream.Collectors;
 
 @Immutable
 public final class SyncConfiguration {
-    @VisibleForTesting
-    public static final SyncConfiguration DEFAULT = new SyncConfiguration(5, 60, 30, 5, 20, 192, 20, 10, 0, false, false, 0);
+
+    private static final int DEFAULT_SKELETON_CACHE_SIZE = 1000;
+    private static final int DEFAULT_NET_BLOCK_STORE_MAX_BLOCKS = 50;
+    private static final int DEFAULT_NET_BLOCK_STORE_MAX_HEADERS = 100;
 
     @VisibleForTesting
-    public static final SyncConfiguration IMMEDIATE_FOR_TESTING = new SyncConfiguration(1, 1, 3, 1, 5, 192, 20, 10, 0, false, false, 0);
+    public static final SyncConfiguration DEFAULT = new SyncConfiguration(5, 60, 30, 5, 20, 192, 20, 10, 0, false, false, 0, DEFAULT_SKELETON_CACHE_SIZE, DEFAULT_NET_BLOCK_STORE_MAX_BLOCKS, DEFAULT_NET_BLOCK_STORE_MAX_HEADERS);
+
+    @VisibleForTesting
+    public static final SyncConfiguration IMMEDIATE_FOR_TESTING = new SyncConfiguration(1, 1, 3, 1, 5, 192, 20, 10, 0, false, false, 0, DEFAULT_SKELETON_CACHE_SIZE, DEFAULT_NET_BLOCK_STORE_MAX_BLOCKS, DEFAULT_NET_BLOCK_STORE_MAX_HEADERS);
 
     private final int expectedPeers;
     private final Duration timeoutWaitingPeers;
@@ -46,6 +51,9 @@ public final class SyncConfiguration {
     private final double topBest;
     private final boolean isServerSnapSyncEnabled;
     private final boolean isClientSnapSyncEnabled;
+    private final int skeletonCacheSize;
+    private final int netBlockStoreMaxBlocks;
+    private final int netBlockStoreMaxHeaders;
 
     private final int snapshotSyncLimit;
     private final Map<String, Node> nodeIdToSnapshotTrustedPeerMap;
@@ -89,6 +97,9 @@ public final class SyncConfiguration {
                 isServerSnapSyncEnabled,
                 isClientSnapSyncEnabled,
                 snapshotSyncLimit,
+                DEFAULT_SKELETON_CACHE_SIZE,
+                DEFAULT_NET_BLOCK_STORE_MAX_BLOCKS,
+                DEFAULT_NET_BLOCK_STORE_MAX_HEADERS,
                 Collections.emptyList());
     }
 
@@ -106,6 +117,108 @@ public final class SyncConfiguration {
             boolean isClientSnapSyncEnabled,
             int snapshotSyncLimit,
             List<Node> snapBootNodes) {
+        this(expectedPeers,
+                timeoutWaitingPeers,
+                timeoutWaitingRequest,
+                expirationTimePeerStatus,
+                maxSkeletonChunks,
+                chunkSize,
+                maxRequestedBodies,
+                longSyncLimit,
+                topBest,
+                isServerSnapSyncEnabled,
+                isClientSnapSyncEnabled,
+                snapshotSyncLimit,
+                DEFAULT_SKELETON_CACHE_SIZE,
+                DEFAULT_NET_BLOCK_STORE_MAX_BLOCKS,
+                DEFAULT_NET_BLOCK_STORE_MAX_HEADERS,
+                snapBootNodes);
+    }
+
+    public SyncConfiguration(
+            int expectedPeers,
+            int timeoutWaitingPeers,
+            int timeoutWaitingRequest,
+            int expirationTimePeerStatus,
+            int maxSkeletonChunks,
+            int chunkSize,
+            int maxRequestedBodies,
+            int longSyncLimit,
+            double topBest,
+            boolean isServerSnapSyncEnabled,
+            boolean isClientSnapSyncEnabled,
+            int snapshotSyncLimit,
+            int skeletonCacheSize,
+            List<Node> snapBootNodes) {
+        this(expectedPeers,
+                timeoutWaitingPeers,
+                timeoutWaitingRequest,
+                expirationTimePeerStatus,
+                maxSkeletonChunks,
+                chunkSize,
+                maxRequestedBodies,
+                longSyncLimit,
+                topBest,
+                isServerSnapSyncEnabled,
+                isClientSnapSyncEnabled,
+                snapshotSyncLimit,
+                skeletonCacheSize,
+                DEFAULT_NET_BLOCK_STORE_MAX_BLOCKS,
+                DEFAULT_NET_BLOCK_STORE_MAX_HEADERS,
+                snapBootNodes);
+    }
+
+    public SyncConfiguration(
+            int expectedPeers,
+            int timeoutWaitingPeers,
+            int timeoutWaitingRequest,
+            int expirationTimePeerStatus,
+            int maxSkeletonChunks,
+            int chunkSize,
+            int maxRequestedBodies,
+            int longSyncLimit,
+            double topBest,
+            boolean isServerSnapSyncEnabled,
+            boolean isClientSnapSyncEnabled,
+            int snapshotSyncLimit,
+            int skeletonCacheSize,
+            int netBlockStoreMaxBlocks,
+            int netBlockStoreMaxHeaders) {
+        this(expectedPeers,
+                timeoutWaitingPeers,
+                timeoutWaitingRequest,
+                expirationTimePeerStatus,
+                maxSkeletonChunks,
+                chunkSize,
+                maxRequestedBodies,
+                longSyncLimit,
+                topBest,
+                isServerSnapSyncEnabled,
+                isClientSnapSyncEnabled,
+                snapshotSyncLimit,
+                skeletonCacheSize,
+                netBlockStoreMaxBlocks,
+                netBlockStoreMaxHeaders,
+                Collections.emptyList());
+    }
+
+    public SyncConfiguration(
+            int expectedPeers,
+            int timeoutWaitingPeers,
+            int timeoutWaitingRequest,
+            int expirationTimePeerStatus,
+            int maxSkeletonChunks,
+            int chunkSize,
+            int maxRequestedBodies,
+            int longSyncLimit,
+            double topBest,
+            boolean isServerSnapSyncEnabled,
+            boolean isClientSnapSyncEnabled,
+            int snapshotSyncLimit,
+            int skeletonCacheSize,
+            int netBlockStoreMaxBlocks,
+            int netBlockStoreMaxHeaders,
+            List<Node> snapBootNodes) {
         this.expectedPeers = expectedPeers;
         this.timeoutWaitingPeers = Duration.ofSeconds(timeoutWaitingPeers);
         this.timeoutWaitingRequest = Duration.ofSeconds(timeoutWaitingRequest);
@@ -118,6 +231,9 @@ public final class SyncConfiguration {
         this.isServerSnapSyncEnabled = isServerSnapSyncEnabled;
         this.isClientSnapSyncEnabled = isClientSnapSyncEnabled;
         this.snapshotSyncLimit = snapshotSyncLimit;
+        this.skeletonCacheSize = skeletonCacheSize;
+        this.netBlockStoreMaxBlocks = netBlockStoreMaxBlocks;
+        this.netBlockStoreMaxHeaders = netBlockStoreMaxHeaders;
 
         List<Node> snapBootNodesList = snapBootNodes != null ? snapBootNodes : Collections.emptyList();
 
@@ -171,6 +287,18 @@ public final class SyncConfiguration {
 
     public int getSnapshotSyncLimit() {
         return snapshotSyncLimit;
+    }
+
+    public int getSkeletonCacheSize() {
+        return skeletonCacheSize;
+    }
+
+    public int getNetBlockStoreMaxBlocks() {
+        return netBlockStoreMaxBlocks;
+    }
+
+    public int getNetBlockStoreMaxHeaders() {
+        return netBlockStoreMaxHeaders;
     }
 
     public Map<String, Node> getNodeIdToSnapshotTrustedPeerMap() {

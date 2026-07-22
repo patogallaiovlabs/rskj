@@ -555,6 +555,18 @@ public class RskSystemProperties extends SystemProperties {
         return configFromFiles.getInt("peer.messageQueue.thresholdPerMinutePerPeer");
     }
 
+    public int getSkeletonCacheSize() {
+        return configFromFiles.getInt("sync.skeletonCache.maxElements");
+    }
+
+    public int getNetBlockStoreMaxBlocks() {
+        return configFromFiles.getInt("sync.netBlockStore.maxBlocks");
+    }
+
+    public int getNetBlockStoreMaxHeaders() {
+        return configFromFiles.getInt("sync.netBlockStore.maxHeaders");
+    }
+
     public boolean rpcZeroSignatureIfRemasc() {
         return configFromFiles.getBoolean("rpc.zeroSignatureIfRemasc");
     }
