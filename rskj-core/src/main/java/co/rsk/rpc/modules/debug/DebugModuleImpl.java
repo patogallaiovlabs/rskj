@@ -31,6 +31,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 public class DebugModuleImpl implements DebugModule {
     //this could be configurable
     public static final TracerType DEFAULT_TRACER_TYPE = TracerType.RSK_TRACER;
@@ -50,6 +52,11 @@ public class DebugModuleImpl implements DebugModule {
     public String wireProtocolQueueSize() {
         long n = messageHandler.getMessageQueueSize();
         return HexUtils.toQuantityJsonHex(n);
+    }
+
+    @Override
+    public Map<String, Long> wireProtocolQueueSizeByType() {
+        return messageHandler.getMessageQueueSizeByType();
     }
 
     @Override

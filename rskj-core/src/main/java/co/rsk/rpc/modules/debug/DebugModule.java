@@ -22,9 +22,13 @@ import co.rsk.net.handler.quota.TxQuota;
 import co.rsk.rpc.modules.debug.trace.TracerType;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.Map;
+
 public interface DebugModule {
 
     String wireProtocolQueueSize();
+
+    Map<String, Long> wireProtocolQueueSizeByType();
 
     JsonNode traceTransaction(String transactionHash) throws Exception;
 

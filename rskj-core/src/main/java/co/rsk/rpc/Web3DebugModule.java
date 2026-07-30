@@ -23,11 +23,17 @@ import co.rsk.rpc.modules.debug.DebugModule;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.ethereum.rpc.parameters.DebugTracerParam;
 
+import java.util.Map;
+
 @java.lang.SuppressWarnings("squid:S100")
 public interface Web3DebugModule {
 
     default String debug_wireProtocolQueueSize() {
         return getDebugModule().wireProtocolQueueSize();
+    }
+
+    default Map<String, Long> debug_wireProtocolQueueSizeByType() {
+        return getDebugModule().wireProtocolQueueSizeByType();
     }
 
     default JsonNode debug_traceTransaction(String transactionHash) throws Exception {

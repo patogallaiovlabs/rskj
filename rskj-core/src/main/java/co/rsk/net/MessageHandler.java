@@ -24,10 +24,21 @@ package co.rsk.net;
 
 import co.rsk.net.messages.Message;
 
+import java.util.Collections;
+import java.util.Map;
+
 public interface MessageHandler {
     void processMessage(Peer sender, Message message);
 
     void postMessage(Peer sender, Message message, NodeMsgTraceInfo traceInfo) throws InterruptedException;
 
     long getMessageQueueSize();
+
+    /**
+     * Breakdown of the messages currently waiting in the processing queue, keyed by
+     * {@link co.rsk.net.messages.MessageType} name. Intended for monitoring/introspection only.
+     */
+    default Map<String, Long> getMessageQueueSizeByType() {
+        return Collections.emptyMap();
+    }
 }
