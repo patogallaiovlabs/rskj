@@ -63,7 +63,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -720,13 +724,15 @@ public abstract class MinerServerTest {
 
         // assert the event was received and build block was called
         // it need to be 2 because the minerServer.start() calls it once
-        verify(minerServer, times(2)).buildBlockToMine(false);
+        verify(minerServer, timeout(2_000).times(2)).buildBlockToMine(false);
+
+        listener.stop();
 
         minerServer.stop();
     }
 
     @Test
-    void onNewTxBuildBlockToMine() throws InterruptedException {
+    void onNewTxBuildBlockToMine() {
 
         // prepare for miner server
         Ethereum ethereum = spy(new EthereumImpl(
@@ -778,12 +784,57 @@ public abstract class MinerServerTest {
 
         // assert the event was received and build block was called
         // it need to be 2 because the minerServer.start() calls it once
-        verify(minerServer, times(2)).buildBlockToMine(false);
+        verify(minerServer, timeout(2_000).times(2)).buildBlockToMine(false);
+
+        listener.stop();
 
         minerServer.stop();
 
 
 
+    }
+
+    @Test
+    void onNewTxEventsAreThrottledWhenBuildQueueIsBacklogged() throws InterruptedException {
+        BlockProcessor blockProcessor = mock(NodeBlockProcessor.class);
+        when(blockProcessor.hasBetterBlockToSync()).thenReturn(false);
+
+        CountDownLatch firstBuildStarted = new CountDownLatch(1);
+        CountDownLatch releaseFirstBuild = new CountDownLatch(1);
+        AtomicInteger buildCalls = new AtomicInteger(0);
+
+        MinerServerImpl.NewBlockTxListener listener = new MinerServerImpl.NewBlockTxListener(
+                this.miningMainchainView,
+                unused -> {
+                    int callNumber = buildCalls.incrementAndGet();
+                    if (callNumber == 1) {
+                        firstBuildStarted.countDown();
+                        try {
+                            assertTrue(releaseFirstBuild.await(2, TimeUnit.SECONDS));
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            Assertions.fail("Interrupted while waiting for first build release", e);
+                        }
+                    }
+                },
+                blockProcessor,
+                true
+        );
+
+        List<Transaction> txs = List.of(mock(Transaction.class));
+
+        listener.onPendingTransactionsReceived(txs);
+        assertTrue(firstBuildStarted.await(2, TimeUnit.SECONDS));
+
+        for (int i = 0; i < 100; i++) {
+            listener.onPendingTransactionsReceived(txs);
+        }
+
+        releaseFirstBuild.countDown();
+
+        await().atMost(2, TimeUnit.SECONDS).until(() -> buildCalls.get() >= 2);
+        await().atMost(2, TimeUnit.SECONDS).until(() -> buildCalls.get() <= 3);
+        listener.stop();
     }
 
 
