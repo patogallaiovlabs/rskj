@@ -20,6 +20,7 @@
 package org.ethereum.datasource;
 
 import co.rsk.core.types.bytes.Bytes;
+import co.rsk.datasource.RocksDbStats;
 import co.rsk.metrics.profilers.Metric;
 import co.rsk.metrics.profilers.MetricKind;
 import co.rsk.metrics.profilers.Profiler;
@@ -58,6 +59,7 @@ public class RocksDbDataSource implements KeyValueDataSource {
     private static Cache sharedBlockCache;
     private Options options;
     private RocksDB db;
+    private RocksDbStats stats;
     private boolean alive;
 
     // The native LevelDB insert/update/delete are normally thread-safe
@@ -115,6 +117,7 @@ public class RocksDbDataSource implements KeyValueDataSource {
 
     private void openDb(Path dbPath) throws RocksDBException {
         db = RocksDB.open(options, dbPath.toString());
+        stats = new RocksDbStats(db, name);
         alive = true;
     }
 
@@ -357,6 +360,10 @@ public class RocksDbDataSource implements KeyValueDataSource {
             }
 
             logger.debug("Close db: {}", name);
+            if (stats != null) {
+                stats.unregister();
+                stats = null;
+            }
             db.close();
 
             if (options != null) {
