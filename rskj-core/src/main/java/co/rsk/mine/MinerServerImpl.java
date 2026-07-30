@@ -28,6 +28,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -219,6 +222,10 @@ public class MinerServerImpl implements MinerServer {
         synchronized (lock) {
             started = false;
             ethereum.removeListener(blockListener);
+            if (blockListener != null) {
+                blockListener.stop();
+                blockListener = null;
+            }
             if (refreshWorkTimer != null) {
                 refreshWorkTimer.cancel();
                 refreshWorkTimer = null;
@@ -505,10 +512,10 @@ public class MinerServerImpl implements MinerServer {
         logger.info("Starting block to mine from parent {} {}", newBlockParentHeader.getNumber(), newBlockParentHeader.getHash());
 
         List<BlockHeader> mainchainHeaders = mainchainView.get();
-        final Block newBlock = builder.build(mainchainHeaders, extraData).getBlock();
         clock.clearIncreaseTime();
-
+        final Block newBlock;
         synchronized (lock) {
+            newBlock = builder.build(mainchainHeaders, extraData).getBlock();
             Keccak256 parentHash = newBlockParentHeader.getHash();
             boolean notify = this.getNotify(newBlock, parentHash);
 
@@ -563,20 +570,47 @@ public class MinerServerImpl implements MinerServer {
     @VisibleForTesting
     static class NewBlockTxListener extends EthereumListenerAdapter {
 
+        private static final int BUILD_TASK_QUEUE_CAPACITY = 2;
+        private static final int MAX_ALLOWED_QUEUED_TASKS = 1;
+
         private final MiningMainchainView mainchainView;
         private final Consumer<Boolean> buildBlock;
         private final BlockProcessor nodeBlockProcessor;
-        
+
         private final boolean updateWorkOnNewTransaction;
-        
+        private final ThreadPoolExecutor buildBlockExecutor;
+
         public NewBlockTxListener(MiningMainchainView mainchainView, Consumer<Boolean> buildBlock, BlockProcessor nodeBlockProcessor, boolean updateWorkOnNewTransaction) {
             this.mainchainView = mainchainView;
             this.buildBlock = buildBlock;
             this.nodeBlockProcessor = nodeBlockProcessor;
             this.updateWorkOnNewTransaction = updateWorkOnNewTransaction;
+            this.buildBlockExecutor = new ThreadPoolExecutor(
+                    1,
+                    1,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    new ArrayBlockingQueue<>(BUILD_TASK_QUEUE_CAPACITY),
+                    runnable -> new Thread(runnable, "miner-build-block-listener"),
+                    new ThreadPoolExecutor.DiscardPolicy());
         }
-        
-        
+
+        void stop() {
+            buildBlockExecutor.shutdownNow();
+        }
+
+        private void scheduleBuildBlock() {
+            if (buildBlockExecutor.getQueue().size() > MAX_ALLOWED_QUEUED_TASKS) {
+                return;
+            }
+
+            try {
+                buildBlockExecutor.execute(() -> buildBlock.accept(false));
+            } catch (RejectedExecutionException e) {
+                logger.debug("Skipping miner block rebuild request because listener is shutting down");
+            }
+        }
+
         // This event executes in the thread context of the caller.
         // In case of private miner, it's the "Private Mining timer" task
         @Override
@@ -596,7 +630,7 @@ public class MinerServerImpl implements MinerServer {
 
             mainchainView.addBest(newBestBlock.getHeader());
 
-            buildBlock.accept(false);
+            scheduleBuildBlock();
 
             logger.trace("End onBestBlock");
         }
@@ -610,7 +644,7 @@ public class MinerServerImpl implements MinerServer {
 
             logger.trace("Pending Transactions Received");
 
-            buildBlock.accept(false);
+            scheduleBuildBlock();
 
         }
 

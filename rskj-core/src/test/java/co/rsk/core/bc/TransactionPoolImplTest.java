@@ -30,6 +30,7 @@ import co.rsk.test.builders.BlockBuilder;
 import org.ethereum.TestUtils;
 import org.ethereum.core.*;
 import org.ethereum.core.genesis.GenesisLoader;
+import org.ethereum.listener.EthereumListener;
 import org.ethereum.listener.GasPriceTracker;
 import org.ethereum.util.RskTestContext;
 import org.ethereum.vm.DataWord;
@@ -40,11 +41,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.ethereum.util.TransactionFactoryHelper.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -994,5 +998,52 @@ class TransactionPoolImplTest {
 
         List<Transaction> queued = transactionPool.getQueuedTransactions();
         Assertions.assertTrue(queued.isEmpty());
+    }
+
+    @Test
+    void emitEventsDoesNotCreateUnboundedEventDispatchBacklog() throws Exception {
+        CountDownLatch releaseListener = new CountDownLatch(1);
+        CountDownLatch listenerStarted = new CountDownLatch(1);
+
+        EthereumListener eventListener = mock(EthereumListener.class);
+        doAnswer(invocation -> {
+            if (Thread.currentThread().getName().equals("event-dispatch-thread")) {
+                listenerStarted.countDown();
+                Assertions.assertTrue(releaseListener.await(5, TimeUnit.SECONDS));
+            }
+            return null;
+        }).when(eventListener).onPendingTransactionsReceived(any());
+
+        TransactionPoolImpl pool = new TransactionPoolImpl(
+                rskTestContext.getRskSystemProperties(),
+                rskTestContext.getRepositoryLocator(),
+                rskTestContext.getBlockStore(),
+                rskTestContext.getBlockFactory(),
+                eventListener,
+                rskTestContext.getTransactionExecutorFactory(),
+                signatureCache,
+                10,
+                100,
+                quotaChecker,
+                Mockito.mock(GasPriceTracker.class));
+
+        Method emitEvents = TransactionPoolImpl.class.getDeclaredMethod("emitEvents", List.class);
+        emitEvents.setAccessible(true);
+
+        List<Transaction> notificationBatch = List.of(mock(Transaction.class));
+        emitEvents.invoke(pool, notificationBatch);
+        Assertions.assertTrue(listenerStarted.await(2, TimeUnit.SECONDS));
+
+        int capacity = EventDispatchThread.getQueueCapacity();
+        for (int i = 0; i < capacity + 500; i++) {
+            emitEvents.invoke(pool, notificationBatch);
+        }
+
+        Assertions.assertTrue(EventDispatchThread.getQueueSize() <= capacity);
+
+        releaseListener.countDown();
+        CountDownLatch drained = new CountDownLatch(1);
+        EventDispatchThread.invokeLater(drained::countDown);
+        Assertions.assertTrue(drained.await(5, TimeUnit.SECONDS));
     }
 }
