@@ -329,6 +329,16 @@ public class NodeMessageHandler implements MessageHandler, InternalService, Runn
         return this.queue.size();
     }
 
+    @Override
+    public Map<String, Long> getMessageQueueSizeByType() {
+        // PriorityBlockingQueue's iterator is weakly consistent and thread-safe, so this
+        // snapshot never throws ConcurrentModificationException even under active processing.
+        return this.queue.stream()
+                .collect(Collectors.groupingBy(
+                        task -> task.getMessage().getMessageType().name(),
+                        Collectors.counting()));
+    }
+
     @VisibleForTesting
     int getMessageQueueSize(Peer peer) {
         return messageCounter.getValue(peer);

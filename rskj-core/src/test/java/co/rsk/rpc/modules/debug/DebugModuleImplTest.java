@@ -96,6 +96,27 @@ class DebugModuleImplTest {
     }
 
     @Test
+    void debug_wireProtocolQueueSizeByType_empty() {
+        when(messageHandlerMock.getMessageQueueSizeByType()).thenReturn(Collections.emptyMap());
+        Map<String, Long> result = mockedDebugModule.wireProtocolQueueSizeByType();
+        Assertions.assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void debug_wireProtocolQueueSizeByType_value() {
+        Map<String, Long> breakdown = new HashMap<>();
+        breakdown.put("BLOCK_MESSAGE", 3L);
+        breakdown.put("TRANSACTIONS", 7L);
+        when(messageHandlerMock.getMessageQueueSizeByType()).thenReturn(breakdown);
+
+        Map<String, Long> result = mockedDebugModule.wireProtocolQueueSizeByType();
+
+        Assertions.assertEquals(2, result.size());
+        Assertions.assertEquals(3L, result.get("BLOCK_MESSAGE"));
+        Assertions.assertEquals(7L, result.get("TRANSACTIONS"));
+    }
+
+    @Test
     void debug_traceTransaction_retrieveUnknownTransactionAsNull() throws Exception {
         byte[] hash = HexUtils.stringHexToByteArray("0x00");
 
