@@ -257,13 +257,18 @@ public class BlockSyncService {
      */
     @CheckForNull
     public Block getBlockFromStoreOrBlockchain(@Nonnull final byte[] hash) {
+        return getBlockFromStoreOrBlockchain(hash, true);
+    }
+
+    @CheckForNull
+    public Block getBlockFromStoreOrBlockchain(@Nonnull final byte[] hash, boolean addToCache) {
         final Block block = store.getBlockByHash(hash);
 
         if (block != null) {
             return block;
         }
 
-        return blockchain.getBlockByHash(hash);
+        return blockchain.getBlockByHash(hash, addToCache);
     }
 
     private boolean isBlockHeaderValid(Block block) {

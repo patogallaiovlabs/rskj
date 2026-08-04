@@ -270,6 +270,11 @@ public class IndexedBlockStore implements BlockStore {
 
     @Override
     public synchronized Block getBlockByHash(byte[] hash) {
+        return getBlockByHash(hash, true);
+    }
+
+    @Override
+    public synchronized Block getBlockByHash(byte[] hash, boolean addToCache) {
 
         Block block = getBlock(hash);
         if (block == null) {
@@ -278,6 +283,7 @@ public class IndexedBlockStore implements BlockStore {
 
         blockCache.addBlock(block);
         remascCache.put(block.getHash(), getSiblingsFromBlock(block));
+
         return block;
     }
 

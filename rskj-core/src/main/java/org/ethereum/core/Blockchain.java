@@ -43,6 +43,10 @@ public interface Blockchain {
      */
     Block getBlockByHash(byte[] hash);
 
+    default Block getBlockByHash(byte[] hash, boolean addToCache) {
+        return getBlockByHash(hash);
+    }
+
     /**
      * Get total difficulty from the start
      * and until the head of the chain
