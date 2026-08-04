@@ -50,11 +50,11 @@ class TimedMinerClientMiningTest {
         mockWork = mock(MinerWork.class);
         
         // Setup mock work with easy target for testing
-        when(mockWork.getBlockHashForMergedMining()).thenReturn("0x404142");
-        when(mockWork.getTarget()).thenReturn("0x10000000000000000000000000000000000000000000000000000000000000");
-        
-        when(minerServer.getWork()).thenReturn(mockWork);
-        
+        lenient().when(mockWork.getBlockHashForMergedMining()).thenReturn("0x404142");
+        lenient().when(mockWork.getTarget()).thenReturn("0x10000000000000000000000000000000000000000000000000000000000000");
+
+        lenient().when(minerServer.getWork()).thenReturn(mockWork);
+
         timedMinerClient = new TimedMinerClient(minerServer, Duration.ofSeconds(1), false);
     }
 

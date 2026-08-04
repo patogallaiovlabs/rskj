@@ -29,9 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import co.rsk.bitcoinj.core.BtcBlock;
-import co.rsk.util.HexUtils;
+import co.rsk.net.BlockProcessor;
 import co.rsk.util.DifficultyUtils;
-import co.rsk.mine.MinerUtils;
+import co.rsk.util.HexUtils;
 
 /**
  * MinerClient for timed mining with exponential distribution
@@ -45,6 +45,7 @@ public class TimedMinerClient implements MinerClient {
     private final ScheduledExecutorService scheduler;
     private final Random random;
     private final boolean skipPowValidation;
+    private final BlockProcessor nodeBlockProcessor;
     private final long baseMedianMillis;
     private volatile double difficultyScale = 1.0; // currentDifficulty / baselineDifficulty
     private BigInteger baselineDifficulty = null;
@@ -53,9 +54,14 @@ public class TimedMinerClient implements MinerClient {
     private volatile boolean isMining = false;
 
     public TimedMinerClient(MinerServer minerServer, Duration medianBlockTime, boolean skipPowValidation) {
+        this(minerServer, medianBlockTime, skipPowValidation, null);
+    }
+
+    public TimedMinerClient(MinerServer minerServer, Duration medianBlockTime, boolean skipPowValidation, BlockProcessor nodeBlockProcessor) {
         this.minerServer = minerServer;
         this.medianBlockTime = medianBlockTime;
         this.skipPowValidation = skipPowValidation;
+        this.nodeBlockProcessor = nodeBlockProcessor;
         this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "TimedMinerClient");
             t.setDaemon(true);
@@ -86,6 +92,17 @@ public class TimedMinerClient implements MinerClient {
         // if miner server was stopped for some reason, we don't mine.
         if (stop) {
             return false;
+        }
+
+        if (this.nodeBlockProcessor != null) {
+            if (this.nodeBlockProcessor.hasBetterBlockToSync()) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ex) {
+                    logger.error("Interrupted mining sleep", ex);
+                }
+                return false;
+            }
         }
 
         try {
