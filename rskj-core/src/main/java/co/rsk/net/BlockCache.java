@@ -32,7 +32,7 @@ public class BlockCache {
     private final Map<Keccak256, Block> blockMap;
 
     public BlockCache(int cacheSize) {
-        this.blockMap = new MaxSizeHashMap<>(cacheSize, true);
+        this.blockMap = new MaxSizeHashMap<>(cacheSize, MaxSizeHashMap.EvictionPolicy.LFU_THEN_AGE);
     }
 
     public void removeBlock(Block block) {

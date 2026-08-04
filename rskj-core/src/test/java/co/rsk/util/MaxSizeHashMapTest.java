@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MaxSizeHashMapTest {
 
@@ -35,5 +37,46 @@ class MaxSizeHashMapTest {
             maxSizeMap.put(i, i);
         }
         assertEquals(maxSize, maxSizeMap.size());
+    }
+
+    @Test
+    void lruEvictionRemovesLeastRecentlyAccessedEntry() {
+        Map<Integer, Integer> map = new MaxSizeHashMap<>(2, MaxSizeHashMap.EvictionPolicy.LRU);
+
+        map.put(1, 1);
+        map.put(2, 2);
+        map.get(1);
+        map.put(3, 3);
+
+        assertTrue(map.containsKey(1));
+        assertFalse(map.containsKey(2));
+        assertTrue(map.containsKey(3));
+    }
+
+    @Test
+    void lfuThenAgeEvictionRemovesLeastFrequentlyUsedEntry() {
+        Map<Integer, Integer> map = new MaxSizeHashMap<>(2, MaxSizeHashMap.EvictionPolicy.LFU_THEN_AGE);
+
+        map.put(1, 1);
+        map.put(2, 2);
+        map.get(1);
+        map.put(3, 3);
+
+        assertTrue(map.containsKey(1));
+        assertFalse(map.containsKey(2));
+        assertTrue(map.containsKey(3));
+    }
+
+    @Test
+    void lfuThenAgeEvictionUsesAgeAsTieBreaker() {
+        Map<Integer, Integer> map = new MaxSizeHashMap<>(2, MaxSizeHashMap.EvictionPolicy.LFU_THEN_AGE);
+
+        map.put(1, 1);
+        map.put(2, 2);
+        map.put(3, 3);
+
+        assertFalse(map.containsKey(1));
+        assertTrue(map.containsKey(2));
+        assertTrue(map.containsKey(3));
     }
 }
