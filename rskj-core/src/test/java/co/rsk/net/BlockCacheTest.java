@@ -106,6 +106,27 @@ class BlockCacheTest {
         assertThat(store.getBlockByHash(HASH_1), nullValue());
     }
 
+    @Test
+    void evictLeastAccessedAndThenOldest() {
+        BlockCache store = getSubject();
+        store.addBlock(blockWithHash(new Keccak256(HASH_1)));
+        store.addBlock(blockWithHash(new Keccak256(HASH_2)));
+        store.addBlock(blockWithHash(new Keccak256(HASH_3)));
+        store.addBlock(blockWithHash(new Keccak256(HASH_4)));
+
+        // Increase access counts so only HASH_3 and HASH_4 remain equally least-used.
+        store.getBlockByHash(HASH_1);
+        store.getBlockByHash(HASH_2);
+
+        store.addBlock(blockWithHash(new Keccak256(HASH_5)));
+
+        assertThat(store.getBlockByHash(HASH_1), notNullValue());
+        assertThat(store.getBlockByHash(HASH_2), notNullValue());
+        assertThat(store.getBlockByHash(HASH_3), nullValue());
+        assertThat(store.getBlockByHash(HASH_4), notNullValue());
+        assertThat(store.getBlockByHash(HASH_5), notNullValue());
+    }
+
     private BlockCache getSubject() {
         return new BlockCache(4);
     }
