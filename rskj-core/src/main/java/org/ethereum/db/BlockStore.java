@@ -49,6 +49,10 @@ public interface BlockStore extends RemascCache {
 
     Block getBlockByHash(byte[] hash);
 
+    default Block getBlockByHash(byte[] hash, boolean addToCache) {
+        return getBlockByHash(hash);
+    }
+
     Block getBlockAtDepthStartingAt(long depth, byte[] hash);
 
     boolean isBlockExist(byte[] hash);

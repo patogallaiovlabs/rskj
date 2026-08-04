@@ -387,6 +387,11 @@ public class BlockChainImpl implements Blockchain {
     }
 
     @Override
+    public Block getBlockByHash(byte[] hash, boolean addToCache) {
+        return blockStore.getBlockByHash(hash, addToCache);
+    }
+
+    @Override
     public List<Block> getBlocksByNumber(long number) {
         return blockStore.getChainBlocksByNumber(number);
     }

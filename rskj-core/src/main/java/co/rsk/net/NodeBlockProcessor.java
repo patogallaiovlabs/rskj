@@ -148,7 +148,7 @@ public class NodeBlockProcessor implements BlockProcessor {
     @Override
     public void processGetBlock(@Nonnull final Peer sender, @Nonnull final byte[] hash) {
         logger.trace("Processing get block {} from {}", ByteUtil.toHexString(hash), sender.getPeerNodeID());
-        final Block block = blockSyncService.getBlockFromStoreOrBlockchain(hash);
+        final Block block = blockSyncService.getBlockFromStoreOrBlockchain(hash, false);
 
         if (block == null) {
             return;
@@ -168,7 +168,7 @@ public class NodeBlockProcessor implements BlockProcessor {
     @Override
     public void processBlockRequest(@Nonnull final Peer sender, long requestId, @Nonnull final byte[] hash) {
         logger.trace("Processing get block by hash {} {} from {}", requestId, ByteUtil.toHexString(hash), sender.getPeerNodeID());
-        final Block block = blockSyncService.getBlockFromStoreOrBlockchain(hash);
+        final Block block = blockSyncService.getBlockFromStoreOrBlockchain(hash, false);
 
         if (block == null) {
             return;
@@ -197,7 +197,7 @@ public class NodeBlockProcessor implements BlockProcessor {
             return;
         }
 
-        Block block = blockSyncService.getBlockFromStoreOrBlockchain(hash);
+        Block block = blockSyncService.getBlockFromStoreOrBlockchain(hash, false);
 
         if (block == null) {
             return;
@@ -207,7 +207,7 @@ public class NodeBlockProcessor implements BlockProcessor {
         headers.add(block.getHeader());
 
         for (int k = 1; k < count; k++) {
-            block = blockSyncService.getBlockFromStoreOrBlockchain(block.getParentHash().getBytes());
+            block = blockSyncService.getBlockFromStoreOrBlockchain(block.getParentHash().getBytes(), false);
 
             if (block == null) {
                 break;
@@ -233,7 +233,7 @@ public class NodeBlockProcessor implements BlockProcessor {
     @Override
     public void processBodyRequest(@Nonnull final Peer sender, long requestId, @Nonnull final byte[] hash) {
         logger.trace("Processing body request {} {} from {}", requestId, ByteUtil.toHexString(hash), sender.getPeerNodeID());
-        final Block block = blockSyncService.getBlockFromStoreOrBlockchain(hash);
+        final Block block = blockSyncService.getBlockFromStoreOrBlockchain(hash, false);
 
         if (block == null) {
             // Don't waste time sending an empty response.

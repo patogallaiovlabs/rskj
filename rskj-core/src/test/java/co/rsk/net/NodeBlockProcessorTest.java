@@ -42,10 +42,10 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
@@ -53,6 +53,40 @@ import static org.mockito.Mockito.times;
  * Created by ajlopez on 5/11/2016.
  */
 class NodeBlockProcessorTest {
+    @Test
+    void processGetBlockUsesNoCacheLookup() throws UnknownHostException {
+        NetBlockStore store = new NetBlockStore();
+        Blockchain blockchain = mock(Blockchain.class);
+        BlockNodeInformation nodeInformation = new BlockNodeInformation();
+        SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
+        BlockSyncService blockSyncService = mock(BlockSyncService.class);
+        NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        Peer sender = new SimplePeer();
+        byte[] hash = TestUtils.generateBytes("requestedHash", 32);
+
+        processor.processGetBlock(sender, hash);
+
+        verify(blockSyncService).getBlockFromStoreOrBlockchain(hash, false);
+        verifyNoMoreInteractions(blockSyncService);
+    }
+
+    @Test
+    void processBodyRequestUsesNoCacheLookup() throws UnknownHostException {
+        NetBlockStore store = new NetBlockStore();
+        Blockchain blockchain = mock(Blockchain.class);
+        BlockNodeInformation nodeInformation = new BlockNodeInformation();
+        SyncConfiguration syncConfiguration = SyncConfiguration.IMMEDIATE_FOR_TESTING;
+        BlockSyncService blockSyncService = mock(BlockSyncService.class);
+        NodeBlockProcessor processor = new NodeBlockProcessor(store, blockchain, nodeInformation, blockSyncService, syncConfiguration);
+        Peer sender = new SimplePeer();
+        byte[] hash = TestUtils.generateBytes("requestedBodyHash", 32);
+
+        processor.processBodyRequest(sender, 42L, hash);
+
+        verify(blockSyncService).getBlockFromStoreOrBlockchain(hash, false);
+        verifyNoMoreInteractions(blockSyncService);
+    }
+
     @Test
     void processBlockSavingInStore() throws UnknownHostException {
         final NetBlockStore store = new NetBlockStore();
