@@ -57,6 +57,7 @@ public class IndexedBlockStore implements BlockStore {
 
     private final BlockCache blockCache;
     private final MaxSizeHashMap<Keccak256, Map<Long, List<Sibling>>> remascCache;
+    private final IndexedBlockStoreStats stats;
 
     private final BlocksIndex index;
     private final KeyValueDataSource blocks;
@@ -81,7 +82,8 @@ public class IndexedBlockStore implements BlockStore {
         //TODO(lsebrie): move these maps creation outside blockstore,
         // remascCache should be an external component and not be inside blockstore
         this.blockCache = new BlockCache(blockCacheSize);
-        this.remascCache = new MaxSizeHashMap<>(remascCacheSize, true);
+        this.remascCache = new MaxSizeHashMap<>(remascCacheSize, MaxSizeHashMap.EvictionPolicy.LRU);
+        this.stats = new IndexedBlockStoreStats("indexed-block-store");
     }
 
     @Override
@@ -291,6 +293,7 @@ public class IndexedBlockStore implements BlockStore {
         Block block = this.blockCache.getBlockByHash(hash);
 
         if (block != null) {
+            this.stats.recordCacheHit();
             return block;
         }
 
@@ -299,7 +302,12 @@ public class IndexedBlockStore implements BlockStore {
             return null;
         }
 
-        return blockFactory.decodeBlock(blockRlp);
+        this.stats.recordCacheMiss();
+
+        block = blockFactory.decodeBlock(blockRlp);
+        logger.info("Cache miss: {} - {}", block.getNumber(), block.getHash());
+
+        return block;
     }
 
     @Override
