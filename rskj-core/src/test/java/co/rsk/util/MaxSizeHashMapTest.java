@@ -79,4 +79,44 @@ class MaxSizeHashMapTest {
         assertTrue(map.containsKey(2));
         assertTrue(map.containsKey(3));
     }
+
+    @Test
+    void policiesDifferForRemascLikeRollingWindowPattern() {
+        int cacheSize = 128;
+        int chainLength = 4_000;
+        int lookbackWindow = 128;
+
+        long lruHits = runRollingWindowHitSimulation(MaxSizeHashMap.EvictionPolicy.LRU, cacheSize, chainLength, lookbackWindow);
+        long lfuHits = runRollingWindowHitSimulation(MaxSizeHashMap.EvictionPolicy.LFU_THEN_AGE, cacheSize, chainLength, lookbackWindow);
+
+        assertTrue(lruHits > 0 && lfuHits > 0, "Expected non-zero hits for both policies");
+        assertTrue(lruHits != lfuHits,
+                String.format("Expected distinct hit counts for LRU and LFU+age, but both were %d", lruHits));
+    }
+
+    private static long runRollingWindowHitSimulation(MaxSizeHashMap.EvictionPolicy policy,
+                                                      int cacheSize,
+                                                      int chainLength,
+                                                      int lookbackWindow) {
+        Map<Long, Long> cache = new MaxSizeHashMap<>(cacheSize, policy);
+        long hits = 0;
+
+        for (long currentHeight = 1; currentHeight <= chainLength; currentHeight++) {
+            for (long offset = 0; offset < lookbackWindow; offset++) {
+                long targetHeight = currentHeight - offset;
+                if (targetHeight <= 0) {
+                    break;
+                }
+
+                Long cached = cache.get(targetHeight);
+                if (cached != null) {
+                    hits++;
+                } else {
+                    cache.put(targetHeight, targetHeight);
+                }
+            }
+        }
+
+        return hits;
+    }
 }
