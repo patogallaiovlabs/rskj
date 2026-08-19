@@ -1379,7 +1379,7 @@ public class RskContext implements NodeContext, NodeBootstrapper {
             CacheSnapshotHandler cacheSnapshotHandler = getRskSystemProperties().shouldPersistBloomsCacheSnapshot()
                     ? new CacheSnapshotHandler(resolveCacheSnapshotPath(bloomsStorePath))
                     : null;
-            ds = new DataSourceWithCache(ds, bloomsCacheSize, cacheSnapshotHandler);
+            ds = new DataSourceWithCache(ds, bloomsCacheSize, cacheSnapshotHandler, true);
         }
 
         return ds;
@@ -1459,7 +1459,7 @@ public class RskContext implements NodeContext, NodeBootstrapper {
         KeyValueDataSource ds = KeyValueDataSourceUtils.makeDataSource(receiptsDbPath, currentDbKind, getRskSystemProperties());
 
         if (receiptsCacheSize != 0) {
-            ds = new DataSourceWithCache(ds, receiptsCacheSize);
+            ds = new DataSourceWithCache(ds, receiptsCacheSize, true);
         }
 
         return new ReceiptStoreImplV2(ds);
@@ -1504,7 +1504,7 @@ public class RskContext implements NodeContext, NodeBootstrapper {
             CacheSnapshotHandler cacheSnapshotHandler = rskSystemProperties.shouldPersistStatesCacheSnapshot()
                     ? new CacheSnapshotHandler(resolveCacheSnapshotPath(trieStorePath))
                     : null;
-            ds = new DataSourceWithCache(ds, statesCacheSize, cacheSnapshotHandler);
+            ds = new DataSourceWithCache(ds, statesCacheSize, cacheSnapshotHandler, true);
         }
 
         return new TrieStoreImpl(ds);
@@ -1532,7 +1532,7 @@ public class RskContext implements NodeContext, NodeBootstrapper {
         KeyValueDataSource stateRootsDB = KeyValueDataSourceUtils.makeDataSource(stateRootsDbPath, currentDbKind, getRskSystemProperties());
 
         if (stateRootsCacheSize > 0) {
-            stateRootsDB = new DataSourceWithCache(stateRootsDB, stateRootsCacheSize);
+            stateRootsDB = new DataSourceWithCache(stateRootsDB, stateRootsCacheSize, true);
         }
 
         return new StateRootsStoreImpl(stateRootsDB);
