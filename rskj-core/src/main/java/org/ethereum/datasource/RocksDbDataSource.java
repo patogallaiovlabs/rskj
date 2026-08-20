@@ -57,6 +57,7 @@ public class RocksDbDataSource implements KeyValueDataSource {
     private final SystemProperties config;
 
     private static Cache sharedBlockCache;
+    private static Filter sharedBloomFilter;
     private Options options;
     private RocksDB db;
     private RocksDbStats stats;
@@ -397,6 +398,25 @@ public class RocksDbDataSource implements KeyValueDataSource {
         return sharedBlockCache;
     }
 
+    // Scoped to the "receipts" table only, not shared across every table like
+    // sharedBlockCache above. A bloom filter isn't free: RocksDB computes and stores
+    // filter bits for every key written, a real write-side cost. Receipts is the one
+    // table with a proven true-negative-heavy read pattern -- ReceiptStoreImplV2.
+    // saveMultiple()'s per-tx-hash existence check, which is a guaranteed miss for
+    // brand-new transactions, and today has to consult on-disk index/data blocks to
+    // conclude "not found" without a filter. Measured against the deterministic-replay
+    // harness applying this to every table (states/trie included): saveReceiptsMs
+    // improved ~27% as expected, but statePersistMs regressed ~7% -- the trie store gets
+    // none of the read-side benefit (its access pattern is mostly cache hits, not
+    // true-negative lookups) but still paid the write-side cost. Scoping to receipts only
+    // keeps the win without that regression.
+    private static synchronized Filter getSharedBloomFilter() {
+        if (sharedBloomFilter == null) {
+            sharedBloomFilter = new BloomFilter(10);
+        }
+        return sharedBloomFilter;
+    }
+
     private Options createOptions() {
         Options options = new Options();
         options.setCreateIfMissing(true);
@@ -415,6 +435,9 @@ public class RocksDbDataSource implements KeyValueDataSource {
         tableOptions.setBlockCache(getSharedBlockCache(config));
         tableOptions.setCacheIndexAndFilterBlocks(true);
         tableOptions.setPinL0FilterAndIndexBlocksInCache(true);
+        if ("receipts".equals(name)) {
+            tableOptions.setFilterPolicy(getSharedBloomFilter());
+        }
         options.setTableFormatConfig(tableOptions);
 
         return options;
