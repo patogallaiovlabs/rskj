@@ -178,6 +178,84 @@ public class DataSourceWithCache implements KeyValueDataSource {
     }
 
     @Override
+    public Map<ByteArrayWrapper, byte[]> multiGet(Set<ByteArrayWrapper> keys) {
+        if (keys.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        ensureNoAsyncFlushFailure();
+        boolean traceEnabled = logger.isTraceEnabled();
+
+        Map<ByteArrayWrapper, byte[]> result = new HashMap<>();
+        Set<ByteArrayWrapper> missing = new HashSet<>();
+
+        this.lock.readLock().lock();
+
+        try {
+            for (ByteArrayWrapper key : keys) {
+                if (committedCache.containsKey(key)) {
+                    byte[] value = committedCache.get(key);
+                    if (value != null) {
+                        result.put(key, value);
+                    }
+                    continue;
+                }
+
+                if (uncommittedCache.containsKey(key)) {
+                    byte[] value = uncommittedCache.get(key);
+                    if (value != null) {
+                        result.put(key, value);
+                    }
+                    continue;
+                }
+
+                boolean foundPending = false;
+                if (asyncFlushEnabled) {
+                    synchronized (pendingFlushMonitor) {
+                        if (pendingFlushIndex.containsKey(key)) {
+                            byte[] value = pendingFlushIndex.get(key);
+                            committedCache.put(key, value);
+                            if (value != null) {
+                                result.put(key, value);
+                            }
+                            foundPending = true;
+                        }
+                    }
+                }
+
+                if (!foundPending) {
+                    missing.add(key);
+                }
+            }
+
+            if (!missing.isEmpty()) {
+                Map<ByteArrayWrapper, byte[]> fromBase = base.multiGet(missing);
+
+                if (traceEnabled) {
+                    numOfGetsFromStore.addAndGet(missing.size());
+                }
+
+                for (ByteArrayWrapper key : missing) {
+                    // null, as expected, is allowed here to be stored in committedCache
+                    byte[] value = fromBase.get(key);
+                    committedCache.put(key, value);
+                    if (value != null) {
+                        result.put(key, value);
+                    }
+                }
+            }
+        } finally {
+            if (traceEnabled) {
+                numOfGets.addAndGet(keys.size());
+            }
+
+            this.lock.readLock().unlock();
+        }
+
+        return result;
+    }
+
+    @Override
     public byte[] put(byte[] key, byte[] value) {
         ByteArrayWrapper wrappedKey = ByteUtil.wrap(key);
 

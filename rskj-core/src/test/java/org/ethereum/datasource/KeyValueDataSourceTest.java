@@ -261,6 +261,38 @@ class KeyValueDataSourceTest {
         assertEquals("Cannot update null values", iae.getMessage());
     }
 
+    @ParameterizedTest(name = "{1}, flush = {2}")
+    @ArgumentsSource(DatasourceArgumentsProvider.class)
+    void multiGetReturnsStoredValuesAndOmitsMissingKeys(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
+        byte[] key1 = TestUtils.generateBytes(this.getClass(), "mgKey1", 20);
+        byte[] value1 = TestUtils.generateBytes(this.getClass(), "mgValue1", 20);
+        byte[] key2 = TestUtils.generateBytes(this.getClass(), "mgKey2", 20);
+        byte[] value2 = TestUtils.generateBytes(this.getClass(), "mgValue2", 20);
+        byte[] missingKey = TestUtils.generateBytes(this.getClass(), "mgMissingKey", 20);
+
+        keyValueDataSource.put(key1, value1);
+        keyValueDataSource.put(key2, value2);
+
+        if (withFlush) {
+            keyValueDataSource.flush();
+        }
+
+        Set<ByteArrayWrapper> keysToFetch = new HashSet<>(Arrays.asList(
+                ByteUtil.wrap(key1), ByteUtil.wrap(key2), ByteUtil.wrap(missingKey)));
+        Map<ByteArrayWrapper, byte[]> result = keyValueDataSource.multiGet(keysToFetch);
+
+        assertEquals(2, result.size());
+        assertArrayEquals(value1, result.get(ByteUtil.wrap(key1)));
+        assertArrayEquals(value2, result.get(ByteUtil.wrap(key2)));
+        assertFalse(result.containsKey(ByteUtil.wrap(missingKey)));
+    }
+
+    @ParameterizedTest(name = "{1}, flush = {2}")
+    @ArgumentsSource(DatasourceArgumentsProvider.class)
+    void multiGetWithEmptySetReturnsEmptyMap(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
+        assertTrue(keyValueDataSource.multiGet(Collections.emptySet()).isEmpty());
+    }
+
     private Map<ByteArrayWrapper, byte[]> generateRandomValuesToUpdate(int maxValuesToCreate) {
         Map<ByteArrayWrapper, byte[]> updatedValues;
         updatedValues = new HashMap<>();

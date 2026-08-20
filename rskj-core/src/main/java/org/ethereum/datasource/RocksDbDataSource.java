@@ -442,4 +442,68 @@ public class RocksDbDataSource implements KeyValueDataSource {
 
         return options;
     }
+
+    @Override
+    public Map<ByteArrayWrapper, byte[]> multiGet(Set<ByteArrayWrapper> keys) {
+        if (keys.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<ByteArrayWrapper> keyList = new ArrayList<>(keys);
+        List<byte[]> rawKeys = new ArrayList<>(keyList.size());
+        for (ByteArrayWrapper key : keyList) {
+            rawKeys.add(key.getData());
+        }
+
+        Map<ByteArrayWrapper, byte[]> result = new HashMap<>();
+
+        Metric metric = profiler.start(MetricKind.DB_READ);
+        resetDbLock.readLock().lock();
+
+        int retries = 0;
+        Exception exCaught = null;
+
+        try {
+            while (retries < MAX_RETRIES) {
+                try {
+                    try (ReadOptions readOptions = new ReadOptions()) {
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("~> RocksDbDataSource.multiGet(): {}, keys: {}", name, keyList.size());
+                        }
+
+                        List<byte[]> values = db.multiGetAsList(readOptions, rawKeys);
+                        for (int i = 0; i < keyList.size(); i++) {
+                            byte[] value = values.get(i);
+                            if (value != null) {
+                                result.put(keyList.get(i), value);
+                            }
+                        }
+
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("<~ RocksDbDataSource.multiGet(): {}, keys: {}, found: {}", name,
+                                    keyList.size(), result.size());
+                        }
+                    }
+                    break;
+                } catch (RocksDBException e) {
+                    logger.error("Exception. Retrying again...", e);
+                    exCaught = e;
+                    result.clear();
+                }
+
+                retries++;
+            }
+        } finally {
+            resetDbLock.readLock().unlock();
+            profiler.stop(metric);
+        }
+
+        if (exCaught != null && retries > 1) {
+            logger.error("Exception. Not retrying.", exCaught);
+            panicProcessor.panic("rocksdb", String.format("Exception. Not retrying. %s", exCaught.getMessage()));
+            throw new RuntimeException("Couldn't get the data back for the given keys");
+        }
+
+        return result;
+    }
 }

@@ -22,6 +22,7 @@ package org.ethereum.datasource;
 import org.ethereum.db.ByteArrayWrapper;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +30,26 @@ public interface KeyValueDataSource extends DataSource {
 
     @Nullable
     byte[] get(byte[] key);
+
+    /**
+     * Batch read. Keys not found in the datasource are simply omitted from the
+     * result map (equivalent to get()'s null-for-missing, without storing nulls).
+     * Default implementation is a plain loop over get() -- override where a real
+     * batched/underlying multi-get call is available and cheaper than N round trips.
+     *
+     * @param keys the keys to look up
+     * @return a map of the keys that were found to their values
+     */
+    default Map<ByteArrayWrapper, byte[]> multiGet(Set<ByteArrayWrapper> keys) {
+        Map<ByteArrayWrapper, byte[]> result = new HashMap<>();
+        for (ByteArrayWrapper key : keys) {
+            byte[] value = get(key.getData());
+            if (value != null) {
+                result.put(key, value);
+            }
+        }
+        return result;
+    }
 
     /**
      * null puts() are NOT allowed.

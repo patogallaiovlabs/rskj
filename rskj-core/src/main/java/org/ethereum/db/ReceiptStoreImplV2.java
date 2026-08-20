@@ -99,12 +99,19 @@ public class ReceiptStoreImplV2 extends ReceiptStoreImpl {
                     .add(new TransactionInfo(receipt, blockHash, txIndex++));
         }
 
+        // One batched read instead of one receiptsDS.get() call per unique tx hash --
+        // each of these is checking whether a brand-new transaction hash has ever been
+        // recorded before, which is almost always a miss, so batching mainly saves
+        // round-trip/call overhead rather than avoiding real reads.
+        Map<ByteArrayWrapper, byte[]> existingTxInfoByHash = receiptsDS.multiGet(txInfosByHash.keySet());
+
         Map<ByteArrayWrapper, byte[]> entriesToUpdate = new HashMap<>();
         List<TransactionInfo> legacyFormatEntries = new ArrayList<>();
 
         for (Map.Entry<ByteArrayWrapper, List<TransactionInfo>> txInfoEntry : txInfosByHash.entrySet()) {
-            byte[] txHash = txInfoEntry.getKey().getData();
-            byte[] txInfoBytes = receiptsDS.get(txHash);
+            ByteArrayWrapper txHashWrapper = txInfoEntry.getKey();
+            byte[] txHash = txHashWrapper.getData();
+            byte[] txInfoBytes = existingTxInfoByHash.get(txHashWrapper);
 
             RLPList txList = null;
             int txListSize = 0;

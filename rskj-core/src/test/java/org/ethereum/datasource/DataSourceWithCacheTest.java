@@ -63,6 +63,57 @@ class DataSourceWithCacheTest {
         verify(baseDataSource, times(1)).get(any(byte[].class));
     }
 
+    /**
+     * Checks that multiGet serves already-cached keys from the committed cache without
+     * touching base, and batches the remaining misses into a single base.multiGet() call
+     * instead of one base.get() per missing key.
+     */
+    @Test
+    void multiGetServesCachedKeysAndBatchesMisses() {
+        byte[] cachedKey = TestUtils.generateBytes(DataSourceWithCacheTest.class, "cachedKey", 20);
+        byte[] cachedValue = TestUtils.generateBytes(DataSourceWithCacheTest.class, "cachedValue", 20);
+        byte[] uncachedKey1 = TestUtils.generateBytes(DataSourceWithCacheTest.class, "uncachedKey1", 20);
+        byte[] uncachedValue1 = TestUtils.generateBytes(DataSourceWithCacheTest.class, "uncachedValue1", 20);
+        byte[] uncachedKey2 = TestUtils.generateBytes(DataSourceWithCacheTest.class, "uncachedKey2", 20);
+        byte[] missingKey = TestUtils.generateBytes(DataSourceWithCacheTest.class, "missingKey", 20);
+
+        baseDataSource.put(cachedKey, cachedValue);
+        baseDataSource.put(uncachedKey1, uncachedValue1);
+        // uncachedKey2 and missingKey are intentionally absent from the base
+
+        // warm the committed cache for cachedKey only
+        dataSourceWithCache.get(cachedKey);
+        verify(baseDataSource, times(1)).get(any(byte[].class));
+
+        Set<ByteArrayWrapper> keysToFetch = new HashSet<>(Arrays.asList(
+                ByteUtil.wrap(cachedKey), ByteUtil.wrap(uncachedKey1),
+                ByteUtil.wrap(uncachedKey2), ByteUtil.wrap(missingKey)));
+        Map<ByteArrayWrapper, byte[]> result = dataSourceWithCache.multiGet(keysToFetch);
+
+        assertEquals(2, result.size());
+        assertArrayEquals(cachedValue, result.get(ByteUtil.wrap(cachedKey)));
+        assertArrayEquals(uncachedValue1, result.get(ByteUtil.wrap(uncachedKey1)));
+        assertFalse(result.containsKey(ByteUtil.wrap(uncachedKey2)));
+        assertFalse(result.containsKey(ByteUtil.wrap(missingKey)));
+
+        // the 3 misses must go through exactly one batched base.multiGet() call (not one
+        // base.get() per missing key issued directly by DataSourceWithCache itself), and
+        // cachedKey -- already resident in the committed cache -- must be excluded from it
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Set<ByteArrayWrapper>> missesCaptor = ArgumentCaptor.forClass(Set.class);
+        verify(baseDataSource, times(1)).multiGet(missesCaptor.capture());
+        Set<ByteArrayWrapper> requestedMisses = missesCaptor.getValue();
+        assertEquals(3, requestedMisses.size());
+        assertFalse(requestedMisses.contains(ByteUtil.wrap(cachedKey)));
+        assertTrue(requestedMisses.contains(ByteUtil.wrap(uncachedKey1)));
+        assertTrue(requestedMisses.contains(ByteUtil.wrap(uncachedKey2)));
+        assertTrue(requestedMisses.contains(ByteUtil.wrap(missingKey)));
+
+        // a repeat multiGet for the same keys must now be fully served from cache
+        dataSourceWithCache.multiGet(keysToFetch);
+        verify(baseDataSource, times(1)).multiGet(any());
+    }
+
     @Test
     void getAfterModification() {
         byte[] randomKey = TestUtils.generateBytes(DataSourceWithCacheTest.class,"randomKey", 20);
