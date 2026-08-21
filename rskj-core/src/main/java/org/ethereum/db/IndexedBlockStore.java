@@ -277,28 +277,24 @@ public class IndexedBlockStore implements BlockStore {
 
     @Override
     public synchronized Block getBlockByHash(byte[] hash, boolean addToCache) {
-
-        Block block = getBlock(hash);
-        if (block == null) {
-            return null;
-        }
-
-        // The addToCache=false contract exists so that serving a block to a peer does not
-        // evict hot entries from the (bounded) block cache. It used to be ignored here, so
-        // every caller populated the caches regardless of what it asked for.
-        if (addToCache) {
-            blockCache.addBlock(block);
-            remascCache.put(block.getHash(), getSiblingsFromBlock(block));
-        }
-
-        return block;
+        return getBlock(hash, addToCache);
     }
 
     private synchronized Block getBlock(byte[] hash) {
+        // Internal lookups never populated the caches, so this keeps that behaviour.
+        return getBlock(hash, false);
+    }
+
+    private synchronized Block getBlock(byte[] hash, boolean addToCache) {
         Block block = this.blockCache.getBlockByHash(hash);
 
         if (block != null) {
             this.stats.recordCacheHit();
+            // Already cached, so there is nothing to populate: re-adding it was a no-op for
+            // LRU ordering (BlockCache is access-ordered, so the get above already refreshed
+            // recency) while still recomputing an identical siblings map -- a stream,
+            // groupingBy and HashMap allocation on every hit, and this is one of the most
+            // frequently called methods on the connect path.
             return block;
         }
 
@@ -318,6 +314,14 @@ public class IndexedBlockStore implements BlockStore {
 
         block = blockFactory.decodeBlock(blockRlp);
         logger.info("Cache miss: {} - {}", block.getNumber(), block.getHash());
+
+        // Populated here, on the genuine store load, rather than on every lookup. The
+        // addToCache=false contract exists so that serving a block to a peer does not evict
+        // hot entries from the bounded block cache.
+        if (addToCache) {
+            blockCache.addBlock(block);
+            remascCache.put(block.getHash(), getSiblingsFromBlock(block));
+        }
 
         return block;
     }
