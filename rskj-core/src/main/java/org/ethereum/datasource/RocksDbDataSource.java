@@ -408,8 +408,15 @@ public class RocksDbDataSource implements KeyValueDataSource {
     // harness applying this to every table (states/trie included): saveReceiptsMs
     // improved ~27% as expected, but statePersistMs regressed ~7% -- the trie store gets
     // none of the read-side benefit (its access pattern is mostly cache hits, not
-    // true-negative lookups) but still paid the write-side cost. Scoping to receipts only
-    // keeps the win without that regression.
+    // true-negative lookups) but still paid the write-side cost. Scoping to the stores whose
+    // reads are actually true-negative-heavy keeps the win without that regression.
+    //
+    // "blocks" qualifies for the same reason receipts does: BlockChainImpl.tryToConnect
+    // probes "does this block already exist" for every block it processes, which is a
+    // guaranteed miss for any new block, whether self-mined or received from a peer.
+    private static final Set<String> BLOOM_FILTERED_STORES =
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList("receipts", "blocks")));
+
     private static synchronized Filter getSharedBloomFilter() {
         if (sharedBloomFilter == null) {
             sharedBloomFilter = new BloomFilter(10);
@@ -435,7 +442,7 @@ public class RocksDbDataSource implements KeyValueDataSource {
         tableOptions.setBlockCache(getSharedBlockCache(config));
         tableOptions.setCacheIndexAndFilterBlocks(true);
         tableOptions.setPinL0FilterAndIndexBlocksInCache(true);
-        if ("receipts".equals(name)) {
+        if (BLOOM_FILTERED_STORES.contains(name)) {
             tableOptions.setFilterPolicy(getSharedBloomFilter());
         }
         options.setTableFormatConfig(tableOptions);
