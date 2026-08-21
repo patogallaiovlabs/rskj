@@ -283,8 +283,13 @@ public class IndexedBlockStore implements BlockStore {
             return null;
         }
 
-        blockCache.addBlock(block);
-        remascCache.put(block.getHash(), getSiblingsFromBlock(block));
+        // The addToCache=false contract exists so that serving a block to a peer does not
+        // evict hot entries from the (bounded) block cache. It used to be ignored here, so
+        // every caller populated the caches regardless of what it asked for.
+        if (addToCache) {
+            blockCache.addBlock(block);
+            remascCache.put(block.getHash(), getSiblingsFromBlock(block));
+        }
 
         return block;
     }
