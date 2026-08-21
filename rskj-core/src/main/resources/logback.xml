@@ -46,9 +46,9 @@
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>./logs/rskj-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <maxFileSize>100MB</maxFileSize>
+            <maxFileSize>200MB</maxFileSize>
             <maxHistory>7</maxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
+            <totalSizeCap>2GB</totalSizeCap>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>${logging:-TRACE}</level>
@@ -58,8 +58,8 @@
     <!-- Loggers -->
     <logger name="execute" level="INFO"/>
     <logger name="blockvalidator" level="INFO"/>
-    <logger name="blockexecutor" level="INFO"/>
-    <logger name="general" level="INFO"/>
+    <logger name="blockexecutor" level="${logging.blockexecutor:-INFO}"/>
+    <logger name="general" level="${logging.general:-INFO}"/>
     <logger name="gaspricetracker" level="INFO"/>
     <logger name="web3" level="INFO"/>
     <logger name="repository" level="INFO"/>
@@ -93,23 +93,26 @@
     <logger name="BridgeSupport" level="INFO"/>
     <logger name="jsonrpc" level="INFO"/>
     <logger name="wallet" level="INFO"/>
-    <logger name="blockchain" level="INFO"/>
-    <logger name="blockprocessor" level="INFO"/>
-    <logger name="asyncblockprocessor" level="INFO"/>
-    <logger name="state" level="INFO"/>
+    <logger name="blockchain" level="${logging.blockchain:-INFO}"/>
+    <logger name="blockprocessor" level="${logging.blockprocessor:-INFO}"/>
+    <logger name="asyncblockprocessor" level="${logging.asyncblockprocessor:-INFO}"/>
+    <logger name="blocksyncservice" level="${logging.blocksyncservice:-INFO}"/>
+    <logger name="state" level="${logging.state:-INFO}"/>
     <logger name="org.bitcoinj" level="INFO"/>
     <logger name="metrics" level="INFO"/>
     <logger name="messageProcess" level="INFO"/>
     <logger name="co.rsk.db.migration.OrchidToUnitrieMigrator" level="INFO"/>
     <logger name="co.rsk.db.migration.MissingOrchidStorageKeysProvider" level="INFO"/>
     <logger name="blooms" level="INFO"/>
-    <logger name="triestore" level="INFO" />
+    <logger name="triestore" level="${logging.triestore:-INFO}" />
+    <logger name="datasourcewithcache" level="${logging.datasourcewithcache:-INFO}" />
     <logger name="btcBlockStore" level="INFO" />
     <logger name="secp256k1" level="INFO" />
     <logger name="altbn128" level="INFO" />
     <logger name="co.rsk.net.discovery.PeerExplorer" level="INFO" />
     <logger name="co.rsk.net.discovery.NodeChallengeManager" level="INFO" />
     <logger name="co.rsk.RskContext" level="INFO" />
+    <logger name="peerScoring" level="INFO" />
 
     <!-- Use INFO or upper levels for production environments. -->
     <logger name="com.googlecode.jsonrpc4j" level="INFO" />

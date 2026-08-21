@@ -20,6 +20,7 @@ package co.rsk.core.bc;
 
 import co.rsk.core.BlockDifficulty;
 import co.rsk.db.StateRootHandler;
+import co.rsk.metrics.BlockProcessingStats;
 import co.rsk.metrics.profilers.Metric;
 import co.rsk.metrics.profilers.MetricKind;
 import co.rsk.metrics.profilers.Profiler;
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ajlopez on 29/07/2016.
@@ -205,6 +207,25 @@ public class BlockChainImpl implements Blockchain {
     }
 
     private ImportResult internalTryToConnect(Block block) {
+        // BlockProcessingStats.ENABLED keeps these nanoTime captures firing (and the JMX
+        // gauges below updated) even when the "blockchain" logger itself is below DEBUG --
+        // the metrics are meant to be visible in Grafana without needing the verbose debug
+        // logging this project deliberately keeps off by default (see block-breakdown.log's
+        // own isolation rationale in rsk/logback.xml). logger.debug() below is still a no-op
+        // unless the logger is actually at DEBUG, so this doesn't reintroduce log volume.
+        boolean debugEnabled = logger.isDebugEnabled() || BlockProcessingStats.ENABLED;
+        long connectStartNanos = debugEnabled ? System.nanoTime() : 0;
+        long initialValidationNanos = 0;
+        long executeNanos = 0;
+        long postExecuteValidationNanos = 0;
+        long stateRootRegisterNanos = 0;
+        long switchChainNanos = 0;
+        long extendAltChainNanos = 0;
+        long saveReceiptsNanos = 0;
+        long processBestNanos = 0;
+        long onBestBlockNanos = 0;
+        long onBlockNanos = 0;
+
         Metric metric = profiler.start(MetricKind.BEFORE_BLOCK_EXEC);
 
         if (blockStore.getBlockByHash(block.getHash().getBytes()) != null &&
@@ -254,12 +275,16 @@ public class BlockChainImpl implements Blockchain {
         }
 
         // Validate incoming block before its processing
+        long validationStartNanos = debugEnabled ? System.nanoTime() : 0;
         if (!isValid(block)) {
             long blockNumber = block.getNumber();
             logger.warn("Invalid block with number: {}", blockNumber);
             panicProcessor.panic("invalidblock", String.format("Invalid block %s %s", blockNumber, block.getHash()));
             profiler.stop(metric);
             return ImportResult.INVALID_BLOCK;
+        }
+        if (debugEnabled) {
+            initialValidationNanos = System.nanoTime() - validationStartNanos;
         }
 
         profiler.stop(metric);
@@ -269,12 +294,20 @@ public class BlockChainImpl implements Blockchain {
             long saveTime = System.nanoTime();
             logger.trace("execute start");
 
+            long executeStartNanos = debugEnabled ? System.nanoTime() : 0;
             result = blockExecutor.execute(null, 0, block, parent.getHeader(), false, noValidation, true);
+            if (debugEnabled) {
+                executeNanos = System.nanoTime() - executeStartNanos;
+            }
 
             logger.trace("execute done");
 
             metric = profiler.start(MetricKind.AFTER_BLOCK_EXEC);
+            long postExecuteValidationStartNanos = debugEnabled ? System.nanoTime() : 0;
             boolean isValid = noValidation ? true : blockExecutor.validate(block, result);
+            if (debugEnabled) {
+                postExecuteValidationNanos = System.nanoTime() - postExecuteValidationStartNanos;
+            }
 
             logger.trace("validate done");
 
@@ -296,7 +329,11 @@ public class BlockChainImpl implements Blockchain {
             }
 
             // the block is valid at this point
+            long stateRootRegisterStartNanos = debugEnabled ? System.nanoTime() : 0;
             stateRootHandler.register(block.getHeader(), result.getFinalState());
+            if (debugEnabled) {
+                stateRootRegisterNanos = System.nanoTime() - stateRootRegisterStartNanos;
+            }
             profiler.stop(metric);
         }
 
@@ -315,15 +352,35 @@ public class BlockChainImpl implements Blockchain {
             }
 
             logger.trace("Start switchToBlockChain");
+            long switchChainStartNanos = debugEnabled ? System.nanoTime() : 0;
             switchToBlockChain(block, totalDifficulty);
+            if (debugEnabled) {
+                switchChainNanos = System.nanoTime() - switchChainStartNanos;
+            }
             logger.trace("Start saveReceipts");
+            long saveReceiptsStartNanos = debugEnabled ? System.nanoTime() : 0;
             saveReceipts(block, result);
+            if (debugEnabled) {
+                saveReceiptsNanos = System.nanoTime() - saveReceiptsStartNanos;
+            }
             logger.trace("Start processBest");
+            long processBestStartNanos = debugEnabled ? System.nanoTime() : 0;
             processBest(block);
+            if (debugEnabled) {
+                processBestNanos = System.nanoTime() - processBestStartNanos;
+            }
             logger.trace("Start onBestBlock");
+            long onBestBlockStartNanos = debugEnabled ? System.nanoTime() : 0;
             onBestBlock(block, result);
+            if (debugEnabled) {
+                onBestBlockNanos = System.nanoTime() - onBestBlockStartNanos;
+            }
             logger.trace("Start onBlock");
+            long onBlockStartNanos = debugEnabled ? System.nanoTime() : 0;
             onBlock(block, result);
+            if (debugEnabled) {
+                onBlockNanos = System.nanoTime() - onBlockStartNanos;
+            }
             logger.trace("Start flushData");
 
             logger.trace("Better block {} {}", block.getNumber(), block.getPrintableHash());
@@ -331,6 +388,41 @@ public class BlockChainImpl implements Blockchain {
             logger.debug("block added to the blockChain: index: [{}]", block.getNumber());
             if (block.getNumber() % 100 == 0) {
                 logger.info("*** Last block added [ #{} ]", block.getNumber());
+            }
+
+            if (debugEnabled) {
+                logger.debug(
+                        "block connect breakdown best: block={} hash={} totalMs={} initialValidationMs={} executeMs={} postExecuteValidationMs={} stateRootRegisterMs={} switchChainMs={} saveReceiptsMs={} processBestMs={} onBestBlockMs={} onBlockMs={} txCount={} gasUsed={}",
+                        block.getNumber(),
+                        block.getHash(),
+                        TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - connectStartNanos),
+                        TimeUnit.NANOSECONDS.toMillis(initialValidationNanos),
+                        TimeUnit.NANOSECONDS.toMillis(executeNanos),
+                        TimeUnit.NANOSECONDS.toMillis(postExecuteValidationNanos),
+                        TimeUnit.NANOSECONDS.toMillis(stateRootRegisterNanos),
+                        TimeUnit.NANOSECONDS.toMillis(switchChainNanos),
+                        TimeUnit.NANOSECONDS.toMillis(saveReceiptsNanos),
+                        TimeUnit.NANOSECONDS.toMillis(processBestNanos),
+                        TimeUnit.NANOSECONDS.toMillis(onBestBlockNanos),
+                        TimeUnit.NANOSECONDS.toMillis(onBlockNanos),
+                        block.getTransactionsList().size(),
+                        block.getGasUsed()
+                );
+            }
+
+            if (BlockProcessingStats.ENABLED) {
+                BlockProcessingStats.recordConnect(
+                        block.getNumber(),
+                        block.getGasUsed(),
+                        block.getTransactionsList().size(),
+                        TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - connectStartNanos),
+                        TimeUnit.NANOSECONDS.toMillis(initialValidationNanos),
+                        TimeUnit.NANOSECONDS.toMillis(stateRootRegisterNanos),
+                        TimeUnit.NANOSECONDS.toMillis(switchChainNanos),
+                        TimeUnit.NANOSECONDS.toMillis(saveReceiptsNanos),
+                        TimeUnit.NANOSECONDS.toMillis(onBestBlockNanos),
+                        TimeUnit.NANOSECONDS.toMillis(onBlockNanos)
+                );
             }
 
             profiler.stop(metric);
@@ -345,11 +437,23 @@ public class BlockChainImpl implements Blockchain {
             }
 
             logger.trace("Start extendAlternativeBlockChain");
+            long extendAltChainStartNanos = debugEnabled ? System.nanoTime() : 0;
             extendAlternativeBlockChain(block, totalDifficulty);
+            if (debugEnabled) {
+                extendAltChainNanos = System.nanoTime() - extendAltChainStartNanos;
+            }
             logger.trace("Start saveReceipts");
+            long saveReceiptsStartNanos = debugEnabled ? System.nanoTime() : 0;
             saveReceipts(block, result);
+            if (debugEnabled) {
+                saveReceiptsNanos = System.nanoTime() - saveReceiptsStartNanos;
+            }
             logger.trace("Start onBlock");
+            long onBlockStartNanos = debugEnabled ? System.nanoTime() : 0;
             onBlock(block, result);
+            if (debugEnabled) {
+                onBlockNanos = System.nanoTime() - onBlockStartNanos;
+            }
             logger.trace("Start flushData");
 
             if (bestBlock != null && block.getNumber() > bestBlock.getNumber()) {
@@ -357,6 +461,23 @@ public class BlockChainImpl implements Blockchain {
             }
 
             logger.trace("Block not imported {} {}", block.getNumber(), block.getPrintableHash());
+            if (debugEnabled) {
+                logger.debug(
+                        "block connect breakdown alt: block={} hash={} totalMs={} initialValidationMs={} executeMs={} postExecuteValidationMs={} stateRootRegisterMs={} extendAlternativeChainMs={} saveReceiptsMs={} onBlockMs={} txCount={} gasUsed={}",
+                        block.getNumber(),
+                        block.getHash(),
+                        TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - connectStartNanos),
+                        TimeUnit.NANOSECONDS.toMillis(initialValidationNanos),
+                        TimeUnit.NANOSECONDS.toMillis(executeNanos),
+                        TimeUnit.NANOSECONDS.toMillis(postExecuteValidationNanos),
+                        TimeUnit.NANOSECONDS.toMillis(stateRootRegisterNanos),
+                        TimeUnit.NANOSECONDS.toMillis(extendAltChainNanos),
+                        TimeUnit.NANOSECONDS.toMillis(saveReceiptsNanos),
+                        TimeUnit.NANOSECONDS.toMillis(onBlockNanos),
+                        block.getTransactionsList().size(),
+                        block.getGasUsed()
+                );
+            }
             profiler.stop(metric);
             return ImportResult.IMPORTED_NOT_BEST;
         }

@@ -24,6 +24,7 @@ import co.rsk.core.TransactionExecutorFactory;
 import co.rsk.core.TransactionListExecutor;
 import co.rsk.crypto.Keccak256;
 import co.rsk.db.RepositoryLocator;
+import co.rsk.metrics.BlockProcessingStats;
 import co.rsk.metrics.profilers.Metric;
 import co.rsk.metrics.profilers.MetricKind;
 import co.rsk.metrics.profilers.Profiler;
@@ -91,7 +92,16 @@ import static org.ethereum.util.ByteUtil.toHexString;
  */
 public class BlockExecutor {
     private static final Logger logger = LoggerFactory.getLogger("blockexecutor");
+    // Separate logger for the execute/persist timing breakdown, deliberately distinct from
+    // `logger`: "blockexecutor" also carries high-frequency per-discarded-tx WARN logging
+    // (loggingDiscardedBlock) that fires on every candidate-block rebuild under mempool
+    // pressure. Sharing one logger meant enabling this breakdown at DEBUG also silently
+    // turned that WARN logging on (previously a cheap no-op at the default ERROR level),
+    // flooding logs with hundreds of thousands of lines and adding real I/O that skewed
+    // the very block-processing timings being measured.
+    private static final Logger breakdownLogger = LoggerFactory.getLogger("blockexecutor.breakdown");
     private static final Profiler profiler = ProfilerFactory.getInstance();
+    private static final long SLOW_TX_LOG_THRESHOLD_MILLIS = Long.getLong("logging.blockexecutor.slowTxThresholdMillis", 5L);
 
     /**
      * Intent of a per-tx execution loop, used to decide how an unexpected {@link Throwable} is handled:
@@ -401,8 +411,14 @@ public class BlockExecutor {
             boolean saveState,
             ExecutionMode mode) {
         boolean vmTrace = programTraceProcessor != null;
+        // BlockProcessingStats.ENABLED keeps these nanoTime captures (and the JMX gauges
+        // they feed) firing regardless of the "blockexecutor.breakdown" logger's actual
+        // level -- see the same rationale on BlockChainImpl.internalTryToConnect().
+        boolean debugEnabled = breakdownLogger.isDebugEnabled() || BlockProcessingStats.ENABLED;
         logger.trace("Start execute pre RSKIP144.");
         loggingApplyBlock(block);
+
+        long executeStartNanos = debugEnabled ? System.nanoTime() : 0;
 
         // Forks the repo, does not change "repository". It will have a completely different
         // image of the repo, where the middle caches are immediately ignored.
@@ -434,6 +450,8 @@ public class BlockExecutor {
 
         List<Transaction> invalidTransactions = new ArrayList<>();
 
+        long txExecutionLoopStartNanos = debugEnabled ? System.nanoTime() : 0;
+
         for (Transaction tx : block.getTransactionsList()) {
             loggingApplyBlockToTx(block, i);
 
@@ -449,6 +467,7 @@ public class BlockExecutor {
                     vmTraceOptions,
                     deletedAccounts);
             boolean transactionExecuted;
+            long txExecutionStartNanos = debugEnabled ? System.nanoTime() : 0;
             try {
                 transactionExecuted = txExecutor.executeTransaction();
             } catch (Exception e) {
@@ -467,6 +486,10 @@ public class BlockExecutor {
                 transactionExecuted = markTxInvalidOnFailure(tx, txSubTrack, invalidTransactions, e);
             }
 
+            long txExecutionElapsedMillis = debugEnabled
+                    ? TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - txExecutionStartNanos)
+                    : 0;
+
             if (!acceptInvalidTransactions && !transactionExecuted) {
                 if (!discardInvalidTxs) {
                     return getBlockResultAndLogExecutionInterrupted(block, metric, tx);
@@ -482,6 +505,19 @@ public class BlockExecutor {
 
             long gasUsed = txExecutor.getGasConsumed();
             totalGasUsed += gasUsed;
+
+            if (debugEnabled && txExecutionElapsedMillis >= SLOW_TX_LOG_THRESHOLD_MILLIS) {
+                breakdownLogger.debug(
+                        "slow tx execution: block={} hash={} tx={} txIndex={} txDurationMs={} gasUsed={} thresholdMs={}",
+                        block.getNumber(),
+                        block.getHash(),
+                        tx.getHash(),
+                        txindex - 1,
+                        txExecutionElapsedMillis,
+                        gasUsed,
+                        SLOW_TX_LOG_THRESHOLD_MILLIS
+                );
+            }
 
             totalPaidFees = addTotalPaidFees(totalPaidFees, txExecutor);
 
@@ -499,8 +535,11 @@ public class BlockExecutor {
             loggingTxDone();
         }
 
+        long txExecutionElapsedNanos = debugEnabled ? System.nanoTime() - txExecutionLoopStartNanos : 0;
 
-        saveOrCommitTrackState(saveState, track);
+        long statePersistStartNanos = debugEnabled ? System.nanoTime() : 0;
+        saveOrCommitTrackState(saveState, track, block, block.getTransactionsList().size(), totalGasUsed);
+        long statePersistElapsedNanos = debugEnabled ? System.nanoTime() - statePersistStartNanos : 0;
 
         BlockResult result = new BlockResult(
                 block,
@@ -513,6 +552,29 @@ public class BlockExecutor {
                 invalidTransactions
         );
         profiler.stop(metric);
+        if (debugEnabled) {
+            long totalElapsedNanos = System.nanoTime() - executeStartNanos;
+            breakdownLogger.debug(
+                    "block execute breakdown pre-RSKIP144: block={} hash={} totalMs={} txExecutionMs={} statePersistMs={} txCount={} invalidTxCount={} gasUsed={}",
+                    block.getNumber(),
+                    block.getHash(),
+                    TimeUnit.NANOSECONDS.toMillis(totalElapsedNanos),
+                    TimeUnit.NANOSECONDS.toMillis(txExecutionElapsedNanos),
+                    TimeUnit.NANOSECONDS.toMillis(statePersistElapsedNanos),
+                    block.getTransactionsList().size(),
+                    invalidTransactions.size(),
+                    totalGasUsed
+            );
+        }
+
+        if (BlockProcessingStats.ENABLED) {
+            BlockProcessingStats.recordExecute(
+                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - executeStartNanos),
+                    TimeUnit.NANOSECONDS.toMillis(txExecutionElapsedNanos),
+                    TimeUnit.NANOSECONDS.toMillis(statePersistElapsedNanos)
+            );
+        }
+
         logger.trace("End execute pre RSKIP144.");
         return result;
     }
@@ -526,8 +588,11 @@ public class BlockExecutor {
             boolean acceptInvalidTransactions,
             boolean saveState) {
         boolean vmTrace = programTraceProcessor != null;
+        boolean debugEnabled = breakdownLogger.isDebugEnabled() || BlockProcessingStats.ENABLED;
         logger.trace("Start executeParallel.");
         loggingApplyBlock(block);
+
+        long executeStartNanos = debugEnabled ? System.nanoTime() : 0;
 
         // Forks the repo, does not change "repository". It will have a completely different
         // image of the repo, where the middle caches are immediately ignored.
@@ -592,6 +657,7 @@ public class BlockExecutor {
             start = end;
         }
 
+        long parallelCompletionWaitStartNanos = debugEnabled ? System.nanoTime() : 0;
         for (int i = 0; i < transactionListExecutors.size(); i++) {
             try {
                 Future<Boolean> success = completionService.take();
@@ -613,6 +679,7 @@ public class BlockExecutor {
                 return BlockResult.INTERRUPTED_EXECUTION_BLOCK_RESULT;
             }
         }
+        long parallelCompletionWaitElapsedNanos = debugEnabled ? System.nanoTime() - parallelCompletionWaitStartNanos : 0;
 
         // Review collision
         if (readWrittenKeysTracker.detectCollision()) {
@@ -629,6 +696,7 @@ public class BlockExecutor {
         Coin totalPaidFees = Coin.ZERO;
         long totalGasUsed = 0;
 
+        long mergeStartNanos = debugEnabled ? System.nanoTime() : 0;
         for (TransactionListExecutor tle : transactionListExecutors) {
             tle.getRepository().commit();
             deletedAccounts.addAll(tle.getDeletedAccounts());
@@ -638,6 +706,7 @@ public class BlockExecutor {
             totalPaidFees = totalPaidFees.add(tle.getTotalFees());
             totalGasUsed += tle.getTotalGas();
         }
+        long mergeElapsedNanos = debugEnabled ? System.nanoTime() - mergeStartNanos : 0;
 
         // execute remaining transactions after the parallel subsets
         List<Transaction> sublist = block.getTransactionsList().subList(start, block.getTransactionsList().size());
@@ -662,7 +731,9 @@ public class BlockExecutor {
                 Collections.emptySet(), // precompiled contracts are always allowed in a sequential list, as there's no concurrency in it
                 BlockUtils.getSublistGasLimit(block, true, minSequentialSetGasLimit)
         );
+        long sequentialTailStartNanos = debugEnabled ? System.nanoTime() : 0;
         Boolean success = txListExecutor.call();
+        long sequentialTailElapsedNanos = debugEnabled ? System.nanoTime() - sequentialTailStartNanos : 0;
         if (!Boolean.TRUE.equals(success)) {
             return BlockResult.INTERRUPTED_EXECUTION_BLOCK_RESULT;
         }
@@ -670,14 +741,18 @@ public class BlockExecutor {
         Coin totalBlockPaidFees = txListExecutor.getTotalFees();
         totalGasUsed += txListExecutor.getTotalGas();
 
-        saveOrCommitTrackState(saveState, track);
+        long statePersistStartNanos = debugEnabled ? System.nanoTime() : 0;
+        saveOrCommitTrackState(saveState, track, block, block.getTransactionsList().size(), totalGasUsed);
+        long statePersistElapsedNanos = debugEnabled ? System.nanoTime() - statePersistStartNanos : 0;
 
         // get a correctly ordered list of receipts and update log indices
+        long reorderReceiptsStartNanos = debugEnabled ? System.nanoTime() : 0;
         List<TransactionReceipt> receiptList = updateReceipts(receipts.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(Map.Entry::getValue)
                 .toList()
         );
+        long reorderReceiptsElapsedNanos = debugEnabled ? System.nanoTime() - reorderReceiptsStartNanos : 0;
 
         BlockResult result = new BlockResult(
                 block,
@@ -689,6 +764,23 @@ public class BlockExecutor {
                 vmTrace ? null : track.getTrie()
         );
         profiler.stop(metric);
+        if (debugEnabled) {
+            long totalElapsedNanos = System.nanoTime() - executeStartNanos;
+            breakdownLogger.debug(
+                    "block execute breakdown parallel: block={} hash={} totalMs={} parallelCompletionMs={} mergeMs={} sequentialTailMs={} statePersistMs={} receiptReorderMs={} txCount={} parallelSublists={} gasUsed={}",
+                    block.getNumber(),
+                    block.getHash(),
+                    TimeUnit.NANOSECONDS.toMillis(totalElapsedNanos),
+                    TimeUnit.NANOSECONDS.toMillis(parallelCompletionWaitElapsedNanos),
+                    TimeUnit.NANOSECONDS.toMillis(mergeElapsedNanos),
+                    TimeUnit.NANOSECONDS.toMillis(sequentialTailElapsedNanos),
+                    TimeUnit.NANOSECONDS.toMillis(statePersistElapsedNanos),
+                    TimeUnit.NANOSECONDS.toMillis(reorderReceiptsElapsedNanos),
+                    block.getTransactionsList().size(),
+                    txExecutionEdges.length,
+                    totalGasUsed
+            );
+        }
         logger.trace("End executeParallel.");
         return result;
     }
@@ -837,7 +929,7 @@ public class BlockExecutor {
             }
         }
 
-        saveOrCommitTrackState(saveState, track);
+        saveOrCommitTrackState(saveState, track, block, transactionsList.size(), totalGasUsed);
 
         List<Transaction> executedTransactions = parallelizeTransactionHandler.getTransactionsInOrder();
         short[] sublistOrder = parallelizeTransactionHandler.getTransactionsPerSublistInOrder();
@@ -912,7 +1004,10 @@ public class BlockExecutor {
         return sublistGasAccumulated;
     }
 
-    private void saveOrCommitTrackState(boolean saveState, Repository track) {
+    private void saveOrCommitTrackState(boolean saveState, Repository track, Block block, int txCount, long totalGasUsed) {
+        boolean debugEnabled = breakdownLogger.isDebugEnabled();
+        long persistStartNanos = debugEnabled ? System.nanoTime() : 0;
+
         logger.trace("End txs executions.");
         if (saveState) {
             logger.trace("Saving track.");
@@ -922,6 +1017,18 @@ public class BlockExecutor {
             logger.trace("Committing track.");
             track.commit();
             logger.trace("End committing track.");
+        }
+
+        if (debugEnabled) {
+            breakdownLogger.debug(
+                    "block persistence step: block={} hash={} action={} durationMs={} txCount={} gasUsed={}",
+                    block.getNumber(),
+                    block.getHash(),
+                    saveState ? "save" : "commit",
+                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - persistStartNanos),
+                    txCount,
+                    totalGasUsed
+            );
         }
     }
 

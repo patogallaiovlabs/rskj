@@ -18,13 +18,11 @@
 package co.rsk.cli.tools;
 
 import co.rsk.cli.PicoCliToolRskContextAware;
-import co.rsk.trie.TrieStore;
+import co.rsk.core.bc.BlockChainFlusher;
 import org.bouncycastle.util.encoders.Hex;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockFactory;
 import org.ethereum.core.Blockchain;
-import org.ethereum.db.BlockStore;
-import org.ethereum.db.ReceiptStore;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
@@ -54,14 +52,19 @@ public class ConnectBlocks extends PicoCliToolRskContextAware {
     public Integer call() throws IOException {
         BlockFactory blockFactory = ctx.getBlockFactory();
         Blockchain blockchain = ctx.getBlockchain();
-        TrieStore trieStore = ctx.getTrieStore();
-        BlockStore blockStore = ctx.getBlockStore();
-        ReceiptStore receiptStore = ctx.getReceiptStore();
+        // ConnectBlocks calls RskContext getters directly instead of buildInternalServices(),
+        // so nothing else starts this -- without it, the periodic every-flushNumberOfBlocks
+        // flush (which onBestBlock listeners, incl. BlockChainFlusher, rely on) never fires,
+        // and replayed blocks silently skip the flush cost a real running node incurs.
+        BlockChainFlusher blockChainFlusher = ctx.getBlockChainFlusher();
 
         long startTime = System.currentTimeMillis();
 
+        blockChainFlusher.start();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            connectBlocks(blockFactory, blockchain, trieStore, blockStore, receiptStore, reader);
+            connectBlocks(blockFactory, blockchain, reader);
+        } finally {
+            blockChainFlusher.stop();
         }
 
         long endTime = System.currentTimeMillis();
@@ -71,7 +74,7 @@ public class ConnectBlocks extends PicoCliToolRskContextAware {
         return 0;
     }
 
-    private void connectBlocks(BlockFactory blockFactory, Blockchain blockchain, TrieStore trieStore, BlockStore blockStore, ReceiptStore receiptStore, BufferedReader reader) throws IOException {
+    private void connectBlocks(BlockFactory blockFactory, Blockchain blockchain, BufferedReader reader) throws IOException {
         for (String line = reader.readLine(); line != null; line = reader.readLine()) {
             String[] parts = line.split(",");
 
@@ -86,9 +89,5 @@ public class ConnectBlocks extends PicoCliToolRskContextAware {
 
             blockchain.tryToConnect(block);
         }
-
-        blockStore.flush();
-        trieStore.flush();
-        receiptStore.flush();
     }
 }
