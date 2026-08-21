@@ -251,6 +251,20 @@ class InvalidTxMiningEvictionTest {
                 anyLong(), anyBoolean(), anyInt(), any(), anyBoolean(), anyLong()
         );
 
+        doAnswer(inv -> {
+            Transaction tx = inv.getArgument(0);
+            if (invalidTxRef[0] != null && tx.getHash().equals(invalidTxRef[0].getHash())) {
+                TransactionExecutor throwingExecutor = mock(TransactionExecutor.class);
+                doThrow(new RuntimeException("Simulated exception for testing"))
+                        .when(throwingExecutor).executeTransaction();
+                return throwingExecutor;
+            }
+            return inv.callRealMethod();
+        }).when(spyFactory).newInstance(
+                any(), anyInt(), any(), any(), any(),
+                anyLong(), anyBoolean(), anyInt(), any()
+        );
+
         return new BlockExecutor(
                 new RepositoryLocator(store, stateRootHandler),
                 spyFactory,

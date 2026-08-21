@@ -277,6 +277,9 @@ tasks.withType(Javadoc) {
 }
 
 repositories {
+    // Local ~/.m2 first, so a locally built co.rsk:native SNAPSHOT wins over
+    // the published releases on deps.rsklabs.io.
+    mavenLocal()
     mavenCentral()
     gradlePluginPortal()
     maven {
@@ -320,7 +323,7 @@ ext {
             picocliVer           : '4.6.3',
 
             bitcoinjThinVer: '0.14.4-rsk-18',
-            rskjNativeVer: '1.3.0',
+            rskjNativeVer: '1.4.0-SNAPSHOT',
     ]
 
     libs = [

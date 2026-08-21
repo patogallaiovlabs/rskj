@@ -6,6 +6,9 @@
       <trusted-artifacts>
          <trust file=".*-javadoc[.]jar" regex="true"/>
          <trust file=".*-sources[.]jar" regex="true"/>
+         <!-- Locally built native snapshot resolved from mavenLocal; its checksum
+              changes on every rebuild, so it cannot be pinned here. -->
+         <trust group="co.rsk" name="native" version="1.4.0-SNAPSHOT"/>
       </trusted-artifacts>
    </configuration>
    <components>
