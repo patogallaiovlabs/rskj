@@ -302,12 +302,19 @@ public class IndexedBlockStore implements BlockStore {
             return block;
         }
 
+        // Counted before consulting the store, not after a successful read: a lookup that
+        // finds nothing still missed the cache and still cost a store read. Recording it
+        // only on success hid every true-negative lookup -- notably tryToConnect's "does
+        // this block already exist" probe, which misses by design for every new block -- so
+        // CacheHitRatio reported 1.0 while real store reads were happening on each connect.
+        this.stats.recordCacheMiss();
+
         byte[] blockRlp = blocks.get(hash);
         if (blockRlp == null) {
             return null;
         }
 
-        this.stats.recordCacheMiss();
+        this.stats.recordDbRead();
 
         block = blockFactory.decodeBlock(blockRlp);
         logger.info("Cache miss: {} - {}", block.getNumber(), block.getHash());

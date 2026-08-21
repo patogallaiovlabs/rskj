@@ -165,26 +165,22 @@ public class BlockChainImpl implements Blockchain {
                     block.getUncleList().forEach(uncle -> {
                         uncles[0] += uncle.getPrintableHash() + ", ";
                     });
-                    final String[] txs = { "" };
-                    block.getTransactionsList().forEach(uncle -> {
-                        txs[0] += uncle.getHash().toHexString() + ", ";
-                    });
                     // SIMULATION logs modified
                     if (BlockUtils.tooMuchProcessTime(totalTime)) {
                         logger.warn(
-                                "block: num: [{}] hash: [{}], parentHash:[{}], coinbase:[{}], uncles:[{}], unclesCount:[{}], difficulty:[{}], txs:[{}], txsHashes:[{}], timestamp:{}, gasUsed: {}, gasLimit: {}, processed after: [{}]seconds, result {}",
+                                "block: num: [{}] hash: [{}], parentHash:[{}], coinbase:[{}], uncles:[{}], unclesCount:[{}], difficulty:[{}], txs:[{}], timestamp:{}, gasUsed: {}, gasLimit: {}, processed after: [{}]seconds, result {}",
                                 block.getNumber(), block.getPrintableHash(), block.getParentHash().toHexString(),
                                 block.getCoinbase().toHexString(),
                                 uncles[0], block.getUncleList().size(), block.getDifficulty().toString(),
-                                block.getTransactionsList().size(), "txs[0]", block.getTimestamp(), block.getGasUsed(),
+                                block.getTransactionsList().size(), block.getTimestamp(), block.getGasUsed(),
                                 block.getGasLimitAsInteger(), timeInSeconds, result);
                     } else {
                         logger.info(
-                                "block: num: [{}] hash: [{}], parentHash:[{}], coinbase:[{}], uncles:[{}], unclesCount:[{}], difficulty:[{}], txs:[{}], txsHashes:[{}], timestamp:{}, gasUsed: {}, gasLimit: {}, processed after: [{}]seconds, result {}",
+                                "block: num: [{}] hash: [{}], parentHash:[{}], coinbase:[{}], uncles:[{}], unclesCount:[{}], difficulty:[{}], txs:[{}], timestamp:{}, gasUsed: {}, gasLimit: {}, processed after: [{}]seconds, result {}",
                                 block.getNumber(), block.getPrintableHash(), block.getParentHash().toHexString(),
                                 block.getCoinbase().toHexString(),
                                 uncles[0], block.getUncleList().size(), block.getDifficulty().toString(),
-                                block.getTransactionsList().size(), "txs[0]", block.getTimestamp(), block.getGasUsed(),
+                                block.getTransactionsList().size(), block.getTimestamp(), block.getGasUsed(),
                                 block.getGasLimitAsInteger(), timeInSeconds, result);
                     }
 
@@ -319,13 +315,15 @@ public class BlockChainImpl implements Blockchain {
             // to the parent's repository.
 
             long totalTime = System.nanoTime() - saveTime;
-            String timeInSeconds = FormatUtils.formatNanosecondsToSeconds(totalTime);
 
+            // Formatted per branch rather than up front: the warn fires only on an unusually
+            // slow block and the trace is normally disabled, so computing it unconditionally
+            // paid for a string nearly every block that nothing ever read.
             if (BlockUtils.tooMuchProcessTime(totalTime)) {
-                logger.warn("block: num: [{}] hash: [{}], executed after: [{}]seconds", block.getNumber(), block.getPrintableHash(), timeInSeconds);
+                logger.warn("block: num: [{}] hash: [{}], executed after: [{}]seconds", block.getNumber(), block.getPrintableHash(), FormatUtils.formatNanosecondsToSeconds(totalTime));
             }
-            else {
-                logger.trace("block: num: [{}] hash: [{}], executed after: [{}]seconds", block.getNumber(), block.getPrintableHash(), timeInSeconds);
+            else if (logger.isTraceEnabled()) {
+                logger.trace("block: num: [{}] hash: [{}], executed after: [{}]seconds", block.getNumber(), block.getPrintableHash(), FormatUtils.formatNanosecondsToSeconds(totalTime));
             }
 
             // the block is valid at this point

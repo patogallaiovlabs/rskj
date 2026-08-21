@@ -38,6 +38,7 @@ public class IndexedBlockStoreStats implements IndexedBlockStoreStatsMBean {
     private final ObjectName objectName;
     private final AtomicLong cacheHits = new AtomicLong();
     private final AtomicLong cacheMisses = new AtomicLong();
+    private final AtomicLong dbReads = new AtomicLong();
 
     public IndexedBlockStoreStats(String name) {
         this.objectName = createObjectName(name);
@@ -52,6 +53,15 @@ public class IndexedBlockStoreStats implements IndexedBlockStoreStatsMBean {
         cacheMisses.incrementAndGet();
     }
 
+    /**
+     * A cache miss that actually found the block in the store, i.e. one that cost a
+     * deserialization on top of the store read. A miss with no matching record (a
+     * true-negative lookup) counts in {@link #recordCacheMiss()} only.
+     */
+    public void recordDbRead() {
+        dbReads.incrementAndGet();
+    }
+
     @Override
     public long getCacheHits() {
         return cacheHits.get();
@@ -64,7 +74,7 @@ public class IndexedBlockStoreStats implements IndexedBlockStoreStatsMBean {
 
     @Override
     public long getDbReads() {
-        return cacheMisses.get();
+        return dbReads.get();
     }
 
     @Override
