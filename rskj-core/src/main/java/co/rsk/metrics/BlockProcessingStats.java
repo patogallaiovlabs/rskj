@@ -57,7 +57,10 @@ public final class BlockProcessingStats implements BlockProcessingStatsMBean {
     private volatile long gasUsed;
     private volatile int txCount;
     private volatile long totalMs;
+    private volatile long preambleMs;
     private volatile long initialValidationMs;
+    private volatile long postExecuteValidationMs;
+    private volatile long processBestMs;
     private volatile long stateRootRegisterMs;
     private volatile long switchChainMs;
     private volatile long saveReceiptsMs;
@@ -90,7 +93,10 @@ public final class BlockProcessingStats implements BlockProcessingStatsMBean {
             long gasUsed,
             int txCount,
             long totalMs,
+            long preambleMs,
             long initialValidationMs,
+            long postExecuteValidationMs,
+            long processBestMs,
             long stateRootRegisterMs,
             long switchChainMs,
             long saveReceiptsMs,
@@ -104,7 +110,10 @@ public final class BlockProcessingStats implements BlockProcessingStatsMBean {
         INSTANCE.gasUsed = gasUsed;
         INSTANCE.txCount = txCount;
         INSTANCE.totalMs = totalMs;
+        INSTANCE.preambleMs = preambleMs;
         INSTANCE.initialValidationMs = initialValidationMs;
+        INSTANCE.postExecuteValidationMs = postExecuteValidationMs;
+        INSTANCE.processBestMs = processBestMs;
         INSTANCE.stateRootRegisterMs = stateRootRegisterMs;
         INSTANCE.switchChainMs = switchChainMs;
         INSTANCE.saveReceiptsMs = saveReceiptsMs;
@@ -147,8 +156,23 @@ public final class BlockProcessingStats implements BlockProcessingStatsMBean {
     }
 
     @Override
+    public long getPreambleMs() {
+        return preambleMs;
+    }
+
+    @Override
     public long getInitialValidationMs() {
         return initialValidationMs;
+    }
+
+    @Override
+    public long getPostExecuteValidationMs() {
+        return postExecuteValidationMs;
+    }
+
+    @Override
+    public long getProcessBestMs() {
+        return processBestMs;
     }
 
     @Override

@@ -40,14 +40,17 @@ class BlockProcessingStatsTest {
 
         assertEquals(true, mBeanServer.isRegistered(objectName));
 
-        BlockProcessingStats.recordConnect(123L, 24_500_000L, 42, 111L, 22L, 3L, 4L, 5L, 6L, 7L);
+        BlockProcessingStats.recordConnect(123L, 24_500_000L, 42, 111L, 8L, 22L, 9L, 10L, 3L, 4L, 5L, 6L, 7L);
         BlockProcessingStats.recordExecute(55L, 33L, 11L);
 
         assertEquals(123L, mBeanServer.getAttribute(objectName, "BlockNumber"));
         assertEquals(24_500_000L, mBeanServer.getAttribute(objectName, "GasUsed"));
         assertEquals(42, mBeanServer.getAttribute(objectName, "TxCount"));
         assertEquals(111L, mBeanServer.getAttribute(objectName, "TotalMs"));
+        assertEquals(8L, mBeanServer.getAttribute(objectName, "PreambleMs"));
         assertEquals(22L, mBeanServer.getAttribute(objectName, "InitialValidationMs"));
+        assertEquals(9L, mBeanServer.getAttribute(objectName, "PostExecuteValidationMs"));
+        assertEquals(10L, mBeanServer.getAttribute(objectName, "ProcessBestMs"));
         assertEquals(3L, mBeanServer.getAttribute(objectName, "StateRootRegisterMs"));
         assertEquals(4L, mBeanServer.getAttribute(objectName, "SwitchChainMs"));
         assertEquals(5L, mBeanServer.getAttribute(objectName, "SaveReceiptsMs"));

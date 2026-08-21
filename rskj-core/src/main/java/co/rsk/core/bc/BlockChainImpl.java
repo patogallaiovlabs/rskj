@@ -390,10 +390,11 @@ public class BlockChainImpl implements Blockchain {
 
             if (debugEnabled) {
                 logger.debug(
-                        "block connect breakdown best: block={} hash={} totalMs={} initialValidationMs={} executeMs={} postExecuteValidationMs={} stateRootRegisterMs={} switchChainMs={} saveReceiptsMs={} processBestMs={} onBestBlockMs={} onBlockMs={} txCount={} gasUsed={}",
+                        "block connect breakdown best: block={} hash={} totalMs={} preambleMs={} initialValidationMs={} executeMs={} postExecuteValidationMs={} stateRootRegisterMs={} switchChainMs={} saveReceiptsMs={} processBestMs={} onBestBlockMs={} onBlockMs={} txCount={} gasUsed={}",
                         block.getNumber(),
                         block.getHash(),
                         TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - connectStartNanos),
+                        TimeUnit.NANOSECONDS.toMillis(validationStartNanos - connectStartNanos),
                         TimeUnit.NANOSECONDS.toMillis(initialValidationNanos),
                         TimeUnit.NANOSECONDS.toMillis(executeNanos),
                         TimeUnit.NANOSECONDS.toMillis(postExecuteValidationNanos),
@@ -414,7 +415,12 @@ public class BlockChainImpl implements Blockchain {
                         block.getGasUsed(),
                         block.getTransactionsList().size(),
                         TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - connectStartNanos),
+                        // validationStartNanos is captured right after the exists-check /
+                        // accessLock / parent lookups, so this needs no extra nanoTime call.
+                        TimeUnit.NANOSECONDS.toMillis(validationStartNanos - connectStartNanos),
                         TimeUnit.NANOSECONDS.toMillis(initialValidationNanos),
+                        TimeUnit.NANOSECONDS.toMillis(postExecuteValidationNanos),
+                        TimeUnit.NANOSECONDS.toMillis(processBestNanos),
                         TimeUnit.NANOSECONDS.toMillis(stateRootRegisterNanos),
                         TimeUnit.NANOSECONDS.toMillis(switchChainNanos),
                         TimeUnit.NANOSECONDS.toMillis(saveReceiptsNanos),
