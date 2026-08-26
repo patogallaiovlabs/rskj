@@ -34,6 +34,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -85,6 +86,14 @@ import co.rsk.validators.ProofOfWorkRule;
 public class MinerServerImpl implements MinerServer {
     private static final long DELAY_BETWEEN_BUILD_BLOCKS_MS = TimeUnit.MINUTES.toMillis(1);
 
+    /**
+     * Fraction of the current candidate's fees that newly arrived transactions must add
+     * before the candidate is rebuilt on their account. Override with
+     * -Dminer.server.rebuildFeeFraction. Zero restores the previous behaviour of rebuilding
+     * on every batch of pending transactions.
+     */
+    private static final double DEFAULT_REBUILD_FEE_FRACTION = 0.1d;
+
     private static final Logger logger = LoggerFactory.getLogger("minerserver");
     private static final PanicProcessor panicProcessor = new PanicProcessor();
 
@@ -126,6 +135,9 @@ public class MinerServerImpl implements MinerServer {
      * which getWork() and processSolution() need. See buildBlockToMine.
      */
     private final Object buildLock = new Object();
+
+    private final double rebuildFeeFraction = Double.parseDouble(
+            System.getProperty("miner.server.rebuildFeeFraction", Double.toString(DEFAULT_REBUILD_FEE_FRACTION)));
 
     private final RskAddress coinbaseAddress;
     private final BigDecimal minFeesNotifyInDollars;
@@ -247,7 +259,8 @@ public class MinerServerImpl implements MinerServer {
 
         synchronized (lock) {
             started = true;
-            blockListener = new NewBlockTxListener(mainchainView, this::buildBlockToMine, nodeBlockProcessor, updateWorkOnNewTransaction);
+            blockListener = new NewBlockTxListener(mainchainView, this::buildBlockToMine, nodeBlockProcessor, updateWorkOnNewTransaction,
+                    () -> latestBlock == null ? null : latestBlock.getFeesPaidToMiner(), rebuildFeeFraction);
             ethereum.addListener(blockListener);
             buildBlockToMine(false);
 
@@ -602,11 +615,21 @@ public class MinerServerImpl implements MinerServer {
         private final boolean updateWorkOnNewTransaction;
         private final ThreadPoolExecutor buildBlockExecutor;
 
-        public NewBlockTxListener(MiningMainchainView mainchainView, Consumer<Boolean> buildBlock, BlockProcessor nodeBlockProcessor, boolean updateWorkOnNewTransaction) {
+        /** Fees of the candidate currently being mined, to judge new arrivals against. */
+        private final Supplier<Coin> currentCandidateFees;
+        private final double rebuildFeeFraction;
+
+        /** Fees arrived since the last rebuild was scheduled. */
+        private BigInteger feesSinceLastBuild = BigInteger.ZERO;
+
+        public NewBlockTxListener(MiningMainchainView mainchainView, Consumer<Boolean> buildBlock, BlockProcessor nodeBlockProcessor, boolean updateWorkOnNewTransaction,
+                                  Supplier<Coin> currentCandidateFees, double rebuildFeeFraction) {
             this.mainchainView = mainchainView;
             this.buildBlock = buildBlock;
             this.nodeBlockProcessor = nodeBlockProcessor;
             this.updateWorkOnNewTransaction = updateWorkOnNewTransaction;
+            this.currentCandidateFees = currentCandidateFees;
+            this.rebuildFeeFraction = rebuildFeeFraction;
             this.buildBlockExecutor = new ThreadPoolExecutor(
                     1,
                     1,
@@ -652,6 +675,9 @@ public class MinerServerImpl implements MinerServer {
 
             mainchainView.addBest(newBestBlock.getHeader());
 
+            // Unconditional: a new parent invalidates the candidate outright, and this is
+            // also what guarantees transactions held back by isWorthRebuilding get picked up.
+            resetAccumulatedFees();
             scheduleBuildBlock();
 
             logger.trace("End onBestBlock");
@@ -666,8 +692,51 @@ public class MinerServerImpl implements MinerServer {
 
             logger.trace("Pending Transactions Received");
 
-            scheduleBuildBlock();
+            if (isWorthRebuilding(transactions)) {
+                scheduleBuildBlock();
+            }
+        }
 
+        /**
+         * Rebuilding the candidate re-executes every transaction in it, so it is only worth
+         * doing when the transactions that arrived since the last rebuild add enough value
+         * to change the block meaningfully. Without this, every batch triggered a rebuild:
+         * with the executor's queue cap that becomes a treadmill, one rebuild starting the
+         * moment the previous finishes, measured at ~13 per second against a ~10s block --
+         * roughly 130 candidates built per block, of which only the last is ever mined.
+         *
+         * Skipping a rebuild only delays including a transaction, never drops it: the next
+         * best block rebuilds unconditionally, and the refresh timer rebuilds regardless
+         * every {@link #DELAY_BETWEEN_BUILD_BLOCKS_MS}.
+         */
+        private synchronized void resetAccumulatedFees() {
+            feesSinceLastBuild = BigInteger.ZERO;
+        }
+
+        private synchronized boolean isWorthRebuilding(List<Transaction> transactions) {
+            Coin candidateFees = currentCandidateFees.get();
+            if (candidateFees == null || candidateFees.asBigInteger().signum() <= 0) {
+                // Nothing to compare against yet (no candidate, or one paying no fees), so
+                // any new transaction is worth building on.
+                feesSinceLastBuild = BigInteger.ZERO;
+                return true;
+            }
+
+            for (Transaction tx : transactions) {
+                feesSinceLastBuild = feesSinceLastBuild.add(
+                        tx.getGasPrice().asBigInteger().multiply(tx.getGasLimitAsInteger()));
+            }
+
+            BigInteger threshold = new BigDecimal(candidateFees.asBigInteger())
+                    .multiply(BigDecimal.valueOf(rebuildFeeFraction))
+                    .toBigInteger();
+
+            if (feesSinceLastBuild.compareTo(threshold) < 0) {
+                return false;
+            }
+
+            feesSinceLastBuild = BigInteger.ZERO;
+            return true;
         }
 
         private boolean isSyncing() {

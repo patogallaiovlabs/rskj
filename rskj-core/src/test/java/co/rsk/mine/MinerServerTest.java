@@ -714,7 +714,7 @@ public abstract class MinerServerTest {
         minerServer.start();
 
         // create listener
-        MinerServerImpl.NewBlockTxListener listener = new MinerServerImpl.NewBlockTxListener(this.miningMainchainView, minerServer::buildBlockToMine, blockProcessor, true);
+        MinerServerImpl.NewBlockTxListener listener = new MinerServerImpl.NewBlockTxListener(this.miningMainchainView, minerServer::buildBlockToMine, blockProcessor, true, () -> null, 0d);
 
         Block block = mock(Block.class);
         when(block.getHeader()).thenReturn(this.miningMainchainView.get().get(0));
@@ -774,7 +774,7 @@ public abstract class MinerServerTest {
         minerServer.start();
 
         // create listener
-        MinerServerImpl.NewBlockTxListener listener = new MinerServerImpl.NewBlockTxListener(this.miningMainchainView, minerServer::buildBlockToMine, blockProcessor, true);
+        MinerServerImpl.NewBlockTxListener listener = new MinerServerImpl.NewBlockTxListener(this.miningMainchainView, minerServer::buildBlockToMine, blockProcessor, true, () -> null, 0d);
 
         Block block = mock(Block.class);
         when(block.getHeader()).thenReturn(this.miningMainchainView.get().get(0));
@@ -792,6 +792,62 @@ public abstract class MinerServerTest {
 
 
 
+    }
+
+    private static Transaction txPaying(long fee) {
+        Transaction tx = mock(Transaction.class);
+        when(tx.getGasPrice()).thenReturn(Coin.valueOf(fee));
+        when(tx.getGasLimitAsInteger()).thenReturn(BigInteger.ONE);
+        return tx;
+    }
+
+    @Test
+    void rebuildsOnlyOnceArrivingFeesAreMaterialAgainstTheCandidate() {
+        BlockProcessor blockProcessor = mock(NodeBlockProcessor.class);
+        when(blockProcessor.hasBetterBlockToSync()).thenReturn(false);
+
+        AtomicInteger buildCalls = new AtomicInteger(0);
+
+        // Candidate paying 1000; rebuild once arrivals add at least 10% of that.
+        MinerServerImpl.NewBlockTxListener listener = new MinerServerImpl.NewBlockTxListener(
+                this.miningMainchainView,
+                unused -> buildCalls.incrementAndGet(),
+                blockProcessor,
+                true,
+                () -> Coin.valueOf(1000L),
+                0.1d);
+
+        listener.onPendingTransactionsReceived(List.of(txPaying(40L)));
+        assertEquals(0, buildCalls.get(), "40 of the 100 needed should not trigger a rebuild");
+
+        listener.onPendingTransactionsReceived(List.of(txPaying(40L)));
+        assertEquals(0, buildCalls.get(), "80 accumulated is still below the threshold");
+
+        // Crossing 100 triggers, and resets the accumulator.
+        listener.onPendingTransactionsReceived(List.of(txPaying(40L)));
+        await().atMost(2, TimeUnit.SECONDS).until(() -> buildCalls.get() == 1);
+
+        listener.onPendingTransactionsReceived(List.of(txPaying(40L)));
+        assertEquals(1, buildCalls.get(), "accumulator resets after a rebuild");
+    }
+
+    @Test
+    void rebuildsOnEveryBatchWhenThereIsNoCandidateToCompareAgainst() {
+        BlockProcessor blockProcessor = mock(NodeBlockProcessor.class);
+        when(blockProcessor.hasBetterBlockToSync()).thenReturn(false);
+
+        AtomicInteger buildCalls = new AtomicInteger(0);
+
+        MinerServerImpl.NewBlockTxListener listener = new MinerServerImpl.NewBlockTxListener(
+                this.miningMainchainView,
+                unused -> buildCalls.incrementAndGet(),
+                blockProcessor,
+                true,
+                () -> null,
+                0.1d);
+
+        listener.onPendingTransactionsReceived(List.of(mock(Transaction.class)));
+        await().atMost(2, TimeUnit.SECONDS).until(() -> buildCalls.get() == 1);
     }
 
     @Test
@@ -818,7 +874,9 @@ public abstract class MinerServerTest {
                     }
                 },
                 blockProcessor,
-                true
+                true,
+                () -> null,
+                0d
         );
 
         List<Transaction> txs = List.of(mock(Transaction.class));
