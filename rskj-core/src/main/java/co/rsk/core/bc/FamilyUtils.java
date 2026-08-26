@@ -175,11 +175,28 @@ public class FamilyUtils {
         return getUncles(store, block.getNumber(), block.getParentHash(), levels);
     }
 
+    /**
+     * Candidate uncles for a new block: the siblings of our ancestors, minus the ancestors
+     * themselves and minus any uncle already used by one of them.
+     *
+     * getFamily, getAncestors and getUsedUncles each walk the very same parent-hash chain
+     * over the same range, so calling all three walked it three times. getFamily already
+     * loads each ancestor Block, which is all the other two need -- ancestors are those
+     * blocks' hashes and used-uncles are their uncle lists -- so one walk produces all
+     * three sets. This runs on every candidate-block rebuild, which under load happens many
+     * times a second.
+     */
     public static Set<Keccak256> getUncles(BlockStore store, long blockNumber, Keccak256 parentHash, int levels) {
-        Set<Keccak256> family = getFamily(store, blockNumber, parentHash, levels);
-        Set<Keccak256> ancestors = getAncestors(store, blockNumber, parentHash, levels);
-        family.removeAll(ancestors);
-        family.removeAll(getUsedUncles(store, blockNumber, parentHash, levels));
+        List<Block> ancestorBlocks = getAncestorBlocks(store, blockNumber, parentHash, levels);
+
+        Set<Keccak256> family = collectFamily(store, ancestorBlocks);
+
+        for (Block ancestor : ancestorBlocks) {
+            family.remove(ancestor.getHash());
+            for (BlockHeader uncle : ancestor.getUncleList()) {
+                family.remove(uncle.getHash());
+            }
+        }
 
         return family;
     }
@@ -189,6 +206,13 @@ public class FamilyUtils {
     }
 
     public static Set<Keccak256> getFamily(BlockStore store, long blockNumber, Keccak256 parentHash, int levels) {
+        return collectFamily(store, getAncestorBlocks(store, blockNumber, parentHash, levels));
+    }
+
+    /**
+     * The chain of blocks from parentHash back to blockNumber - levels, oldest first.
+     */
+    private static List<Block> getAncestorBlocks(BlockStore store, long blockNumber, Keccak256 parentHash, int levels) {
         long minNumber = max(0, blockNumber - levels);
 
         List<Block> ancestors = new ArrayList<>();
@@ -199,6 +223,10 @@ public class FamilyUtils {
             parent = store.getBlockByHash(parent.getParentHash().getBytes());
         }
 
+        return ancestors;
+    }
+
+    private static Set<Keccak256> collectFamily(BlockStore store, List<Block> ancestors) {
         Set<Keccak256> family = ancestors.stream().map(Block::getHash).collect(Collectors.toSet());
 
         for (int k = 1; k < ancestors.size(); k++) {
