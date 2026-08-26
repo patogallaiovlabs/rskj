@@ -43,8 +43,10 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 public class MinerUtils {
@@ -154,6 +156,7 @@ public class MinerUtils {
 
     public List<org.ethereum.core.Transaction> filterTransactions(List<Transaction> txsToRemove, List<Transaction> txs, Map<RskAddress, BigInteger> accountNonces, RepositorySnapshot originalRepo, Coin minGasPrice, boolean isRskip252Enabled, SignatureCache signatureCache) {
         List<org.ethereum.core.Transaction> txsResult = new ArrayList<>();
+        Set<RskAddress> sendersWithNonceGap = new HashSet<>();
         int nonceSkipped = 0;
         for (org.ethereum.core.Transaction tx : txs) {
             try {
@@ -162,14 +165,6 @@ public class MinerUtils {
                 BigInteger txNonce = new BigInteger(1, tx.getNonce());
                 RskAddress txSender = tx.getSender(signatureCache);
                 logger.debug("Examining tx={} sender: {} value: {} nonce: {}", hash, txSender, txValue, txNonce);
-
-                BigInteger expectedNonce;
-
-                if (accountNonces.containsKey(txSender)) {
-                    expectedNonce = accountNonces.get(txSender).add(BigInteger.ONE);
-                } else {
-                    expectedNonce = originalRepo.getNonce(txSender);
-                }
 
                 if (isLowGasPriced(minGasPrice, tx)) {
                     txsToRemove.add(tx);
@@ -183,7 +178,34 @@ public class MinerUtils {
                     continue;
                 }
 
+                // Once a sender is missing a nonce, none of its later transactions can be
+                // included either: sortByPriceTakingIntoAccountSenderAndNonce guarantees a
+                // sender's transactions appear in ascending nonce order, so every one that
+                // follows is further past the gap. Skipping them here avoids a repository
+                // nonce read per transaction -- the pool holds hundreds of these while a
+                // sender pipelines faster than blocks are mined, and the whole pool is
+                // re-examined on every candidate rebuild.
+                //
+                // Only a gap (nonce above expected) blocks the sender. A nonce below
+                // expected is an already-mined leftover, and a later transaction from that
+                // same sender may still be the one we want.
+                if (sendersWithNonceGap.contains(txSender)) {
+                    nonceSkipped++;
+                    continue;
+                }
+
+                BigInteger expectedNonce;
+
+                if (accountNonces.containsKey(txSender)) {
+                    expectedNonce = accountNonces.get(txSender).add(BigInteger.ONE);
+                } else {
+                    expectedNonce = originalRepo.getNonce(txSender);
+                }
+
                 if (!expectedNonce.equals(txNonce)) {
+                    if (txNonce.compareTo(expectedNonce) > 0) {
+                        sendersWithNonceGap.add(txSender);
+                    }
                     // Debug, not warn: a sender pipelining several transactions leaves
                     // future-nonce entries sitting in the pool until the earlier ones are
                     // mined, which is entirely normal. Logged at warn this fired once per
