@@ -154,6 +154,7 @@ public class MinerUtils {
 
     public List<org.ethereum.core.Transaction> filterTransactions(List<Transaction> txsToRemove, List<Transaction> txs, Map<RskAddress, BigInteger> accountNonces, RepositorySnapshot originalRepo, Coin minGasPrice, boolean isRskip252Enabled, SignatureCache signatureCache) {
         List<org.ethereum.core.Transaction> txsResult = new ArrayList<>();
+        int nonceSkipped = 0;
         for (org.ethereum.core.Transaction tx : txs) {
             try {
                 Keccak256 hash = tx.getHash();
@@ -183,7 +184,13 @@ public class MinerUtils {
                 }
 
                 if (!expectedNonce.equals(txNonce)) {
-                    logger.warn("Invalid nonce, expected {}, found {}, tx={}", expectedNonce, txNonce, hash);
+                    // Debug, not warn: a sender pipelining several transactions leaves
+                    // future-nonce entries sitting in the pool until the earlier ones are
+                    // mined, which is entirely normal. Logged at warn this fired once per
+                    // such transaction per candidate rebuild -- with rebuilds running many
+                    // times a second it accounted for 99.8% of all log output.
+                    nonceSkipped++;
+                    logger.debug("Invalid nonce, expected {}, found {}, tx={}", expectedNonce, txNonce, hash);
                     continue;
                 }
 
@@ -200,7 +207,7 @@ public class MinerUtils {
             txsResult.add(tx);
         }
 
-        logger.debug("Ending getTransactions {}", txsResult.size());
+        logger.debug("Ending getTransactions {} ({} skipped on nonce)", txsResult.size(), nonceSkipped);
 
         return txsResult;
     }
