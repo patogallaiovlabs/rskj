@@ -121,6 +121,12 @@ public class MinerServerImpl implements MinerServer {
     private volatile MinerWork currentWork; // This variable can be read at anytime without the lock.
     private final Object lock = new Object();
 
+    /**
+     * Serialises candidate-block builds against each other without holding {@link #lock},
+     * which getWork() and processSolution() need. See buildBlockToMine.
+     */
+    private final Object buildLock = new Object();
+
     private final RskAddress coinbaseAddress;
     private final BigDecimal minFeesNotifyInDollars;
     private final BigDecimal gasUnitInDollars;
@@ -514,23 +520,39 @@ public class MinerServerImpl implements MinerServer {
         List<BlockHeader> mainchainHeaders = mainchainView.get();
         clock.clearIncreaseTime();
         final Block newBlock;
-        synchronized (lock) {
+
+        // builder.build() is a full block execution and used to run while holding `lock`,
+        // which also guards getWork() and processSolution(). Under load the candidate is
+        // rebuilt many times a second, so `lock` was held almost continuously and the
+        // mining and getWork paths queued behind a rebuild they have no dependency on.
+        //
+        // The build reads the mainchain headers and the transaction pool, neither of which
+        // `lock` protects; what genuinely needs `lock` is publishing the result below.
+        // buildLock keeps two rebuilds from running at once -- serialisation `lock`
+        // previously provided, since this is reachable from both the tx listener and the
+        // RefreshBlock timer -- and publishing stays inside it so results cannot be
+        // published out of build order. Nothing acquires `lock` before buildLock, so the
+        // nesting introduces no lock-order cycle.
+        synchronized (buildLock) {
             newBlock = builder.build(mainchainHeaders, extraData).getBlock();
-            Keccak256 parentHash = newBlockParentHeader.getHash();
-            boolean notify = this.getNotify(newBlock, parentHash);
 
-            if (notify) {
-                latestPaidFeesWithNotify = newBlock.getFeesPaidToMiner();
+            synchronized (lock) {
+                Keccak256 parentHash = newBlockParentHeader.getHash();
+                boolean notify = this.getNotify(newBlock, parentHash);
+
+                if (notify) {
+                    latestPaidFeesWithNotify = newBlock.getFeesPaidToMiner();
+                }
+
+                latestParentHash = parentHash;
+                latestBlock = newBlock;
+
+                currentWork = updateGetWork(newBlock, notify);
+                Keccak256 latestBlockHashWaitingForPoW = new Keccak256(newBlock.getHashForMergedMining());
+
+                blocksWaitingForPoW.put(latestBlockHashWaitingForPoW, latestBlock);
+                logger.debug("blocksWaitingForPoW size {}", blocksWaitingForPoW.size());
             }
-
-            latestParentHash = parentHash;
-            latestBlock = newBlock;
-
-            currentWork = updateGetWork(newBlock, notify);
-            Keccak256 latestBlockHashWaitingForPoW = new Keccak256(newBlock.getHashForMergedMining());
-
-            blocksWaitingForPoW.put(latestBlockHashWaitingForPoW, latestBlock);
-            logger.debug("blocksWaitingForPoW size {}", blocksWaitingForPoW.size());
         }
 
         logger.debug("Built block {}. Parent {}", newBlock.getPrintableHashForMergedMining(), newBlockParentHeader.getPrintableHashForMergedMining());
