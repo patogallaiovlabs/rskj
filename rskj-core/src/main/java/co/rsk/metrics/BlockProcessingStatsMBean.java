@@ -33,9 +33,21 @@ public interface BlockProcessingStatsMBean {
 
     long getTotalMs();
 
+    /**
+     * Time inside tryToConnect before validation starts: the "does this block already
+     * exist" store lookup (a guaranteed miss for any genuinely new block), the accessLock
+     * acquisition, and the parent/total-difficulty lookups. Previously unmeasured, and on a
+     * node with a large database it was ~22% of TotalMs.
+     */
+    long getPreambleMs();
+
     long getInitialValidationMs();
 
     long getExecuteMs();
+
+    long getPostExecuteValidationMs();
+
+    long getProcessBestMs();
 
     long getTxExecutionMs();
 
