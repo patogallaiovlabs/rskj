@@ -64,6 +64,10 @@ public class Block {
     /* Indicates if this block can or cannot be changed */
     private volatile boolean sealed;
 
+    /* Tx trie root computed from transactionsList (null if transactionsList was replaced), and the RSKIP126 flag used */
+    private byte[] calculatedTxTrieRoot;
+    private boolean calculatedTxTrieRootRskip126;
+
     public static Block createBlockFromHeader(BlockHeader header, boolean isRskip126Enabled) {
         return new Block(header, Collections.emptyList(), Collections.emptyList(), isRskip126Enabled, true, false);
     }
@@ -87,6 +91,20 @@ public class Block {
         this.transactionsList = ImmutableList.copyOf(transactionsList);
         this.uncleList = ImmutableList.copyOf(uncleList);
         this.sealed = sealed;
+        this.calculatedTxTrieRoot = calculatedRoot;
+        this.calculatedTxTrieRootRskip126 = isRskip126Enabled;
+    }
+
+    /**
+     * Returns the tx trie root computed from this block's transactions. The returned array must not be modified.
+     * Uses the value computed at construction when the block is sealed and the flag matches.
+     */
+    public byte[] getCalculatedTxTrieRoot(boolean isRskip126Enabled) {
+        byte[] cached = this.calculatedTxTrieRoot;
+        if (this.sealed && cached != null && this.calculatedTxTrieRootRskip126 == isRskip126Enabled) {
+            return cached;
+        }
+        return BlockHashesHelper.getTxTrieRoot(this.transactionsList, isRskip126Enabled);
     }
 
     public void seal() {
@@ -107,6 +125,7 @@ public class Block {
 
         this.transactionsList = Collections.unmodifiableList(transactionsList);
         rlpEncoded = null;
+        this.calculatedTxTrieRoot = null;
     }
 
     public BlockHeader getHeader() {

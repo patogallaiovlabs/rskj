@@ -17,7 +17,6 @@
  */
 package co.rsk.validators;
 
-import co.rsk.core.bc.BlockHashesHelper;
 import co.rsk.core.types.bytes.Bytes;
 import co.rsk.panic.PanicProcessor;
 import org.ethereum.config.blockchain.upgrades.ActivationConfig;
@@ -50,7 +49,7 @@ public class BlockRootValidationRule implements BlockValidationRule {
     public boolean isValid(Block block) {
         boolean isRskip126Enabled = activationConfig.isActive(ConsensusRule.RSKIP126, block.getNumber());
         byte[] blockTxRootHash = block.getTxTrieRoot();
-        byte[] txListRootHash = BlockHashesHelper.getTxTrieRoot(block.getTransactionsList(), isRskip126Enabled);
+        byte[] txListRootHash = block.getCalculatedTxTrieRoot(isRskip126Enabled);
 
         if (!Arrays.equals(blockTxRootHash, txListRootHash)) {
             String message = String.format("Block's given Trie Hash doesn't match: %s != %s",
