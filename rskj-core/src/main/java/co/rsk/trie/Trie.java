@@ -93,6 +93,9 @@ public class Trie {
     // temporary storage of encoding. Removed after save()
     private byte[] encoded;
 
+    // memoized length of the encoding (0 = not computed yet; a real encoding is never empty)
+    private int messageLength;
+
     // valueLength enables lazy long value retrieval.
     // The length of the data is now stored. This allows EXTCODESIZE to
     // execute much faster without the need to actually retrieve the data.
@@ -512,11 +515,32 @@ public class Trie {
     }
 
     public int getMessageLength() {
-        if (encoded == null) {
-            internalToMessage();
+        byte[] enc = encoded;
+        if (enc != null) {
+            return enc.length;
         }
 
-        return encoded.length;
+        return computeMessageLength();
+    }
+
+    /**
+     * Length of the RSKIP107 encoding of this node, computed without serializing it. It only needs
+     * the message lengths of embeddable children, so it never hashes children nor the long value.
+     * Memoized: every input (shared path, child references, children size, value length) is fixed
+     * for the lifetime of the node. Racing threads compute the same value; int writes are atomic.
+     */
+    private int computeMessageLength() {
+        int length = messageLength;
+        if (length == 0) {
+            length = 1 + // flags
+                    SharedPathSerializer.getSerializedLength(this.sharedPath) +
+                    this.left.serializedLength() +
+                    this.right.serializedLength() +
+                    (this.isTerminal() ? 0 : getChildrenSize().getSizeInBytes()) +
+                    (this.hasLongValue() ? Keccak256Helper.DEFAULT_SIZE_BYTES + Uint24.BYTES : this.valueLength.intValue());
+            messageLength = length;
+        }
+        return length;
     }
 
     /**
@@ -681,14 +705,7 @@ public class Trie {
         SharedPathSerializer sharedPathSerializer = new SharedPathSerializer(this.sharedPath);
         VarInt childrenSize = getChildrenSize();
 
-        ByteBuffer buffer = ByteBuffer.allocate(
-                1 + // flags
-                        sharedPathSerializer.serializedLength() +
-                        this.left.serializedLength() +
-                        this.right.serializedLength() +
-                        (this.isTerminal() ? 0 : childrenSize.getSizeInBytes()) +
-                        (hasLongVal ? Keccak256Helper.DEFAULT_SIZE_BYTES + Uint24.BYTES : lvalue.intValue())
-        );
+        ByteBuffer buffer = ByteBuffer.allocate(computeMessageLength());
 
         // current serialization version: 01
         byte flags = 0b01000000;
@@ -734,6 +751,8 @@ public class Trie {
         } else if (lvalue.compareTo(Uint24.ZERO) > 0) {
             buffer.put(this.getValue());
         }
+
+        assert !buffer.hasRemaining() : "computed message length does not match the encoding";
 
         encoded = buffer.array();
     }
