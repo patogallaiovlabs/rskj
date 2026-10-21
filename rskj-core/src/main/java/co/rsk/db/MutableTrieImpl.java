@@ -69,6 +69,14 @@ public class MutableTrieImpl implements MutableTrie {
         trie = trie.put(key, value);
     }
 
+    /**
+     * Inserts or updates several keys at once, see {@link Trie#putAll(List, List)}.
+     * Values must be non-null and non-empty.
+     */
+    public void putAll(List<byte[]> keys, List<byte[]> values) {
+        trie = trie.putAll(keys, values);
+    }
+
     @Override
     public Uint24 getValueLength(byte[] key) {
         Trie atrie = trie.find(key);

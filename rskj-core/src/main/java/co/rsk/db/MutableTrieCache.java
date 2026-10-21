@@ -214,6 +214,35 @@ public class MutableTrieCache implements MutableTrie {
         }
     }
 
+    /**
+     * Applies all cached insertions/updates to the underlying trie in one batch, building each
+     * touched node once, then the deletes one by one through the regular put path (which
+     * coalesces nodes). Keys are unique in the cache and the trie shape is a canonical function
+     * of its key/value set, so the result is identical to one put per key in map order.
+     */
+    private void commitAsBatch(MutableTrieImpl target) {
+        List<byte[]> putKeys = new ArrayList<>();
+        List<byte[]> putValues = new ArrayList<>();
+        List<ByteArrayWrapper> deleteKeys = new ArrayList<>();
+        for (Map<ByteArrayWrapper, Optional<byte[]>> accountData : cache.values()) {
+            for (Map.Entry<ByteArrayWrapper, Optional<byte[]>> cacheEntry : accountData.entrySet()) {
+                byte[] value = cacheEntry.getValue().orElse(null);
+                if (value == null || value.length == 0) {
+                    deleteKeys.add(cacheEntry.getKey());
+                } else {
+                    putKeys.add(cacheEntry.getKey().getData());
+                    putValues.add(value);
+                }
+            }
+        }
+
+        target.putAll(putKeys, putValues);
+
+        for (ByteArrayWrapper key : deleteKeys) {
+            target.put(key, null);
+        }
+    }
+
     @Override
     public void commit() {
         if (deleteRecursiveLog.isEmpty() && cache.isEmpty()) {
@@ -232,9 +261,13 @@ public class MutableTrieCache implements MutableTrie {
         }
 
         if (deleteRecursiveLog.isEmpty()) {
-            for (Map<ByteArrayWrapper, Optional<byte[]>> accountData : cache.values()) {
-                for (Map.Entry<ByteArrayWrapper, Optional<byte[]>> cacheEntry : accountData.entrySet()) {
-                    this.trie.put(cacheEntry.getKey(), cacheEntry.getValue().orElse(null));
+            if (this.trie instanceof MutableTrieImpl) {
+                commitAsBatch((MutableTrieImpl) this.trie);
+            } else {
+                for (Map<ByteArrayWrapper, Optional<byte[]>> accountData : cache.values()) {
+                    for (Map.Entry<ByteArrayWrapper, Optional<byte[]>> cacheEntry : accountData.entrySet()) {
+                        this.trie.put(cacheEntry.getKey(), cacheEntry.getValue().orElse(null));
+                    }
                 }
             }
 

@@ -448,6 +448,171 @@ public class Trie {
     public Trie put(ByteArrayWrapper key, byte[] value) {
         return put(key.getData(), value);
     }
+
+    /**
+     * Puts several key/value associations at once, returning the new top node.
+     *
+     * The result is identical (same nodes, serialization and hashes) to applying
+     * {@link #put(byte[], byte[])} once per entry, in any order: the trie shape is a
+     * canonical function of its key/value set and every node built here goes through
+     * the same per-node logic as the sequential path (value replacement via put, split,
+     * incremental childrenSize update). The difference is that each touched node is
+     * rebuilt once instead of once per key below it.
+     *
+     * Only insertions/updates are supported: every value must be non-null and non-empty
+     * (deletes keep using the sequential path and its coalescing logic). If a key appears
+     * more than once, the last occurrence wins, as with sequential puts.
+     */
+    public Trie putAll(List<byte[]> keys, List<byte[]> values) {
+        int size = keys.size();
+        if (size != values.size()) {
+            throw new IllegalArgumentException("keys and values must have the same size");
+        }
+
+        if (size == 0) {
+            return this;
+        }
+
+        BatchEntry[] entries = new BatchEntry[size];
+        for (int i = 0; i < size; i++) {
+            byte[] value = values.get(i);
+            if (value == null || value.length == 0) {
+                throw new IllegalArgumentException("putAll does not support deletes (null or empty values)");
+            }
+            entries[i] = new BatchEntry(TrieKeySlice.fromKey(keys.get(i)), value);
+        }
+
+        // stable sort, so for duplicated keys the last occurrence stays last within its run
+        Arrays.sort(entries, (a, b) -> compareBits(a.key, b.key));
+
+        int count = 0;
+        for (int i = 0; i < size; i++) {
+            if (i + 1 < size && compareBits(entries[i].key, entries[i + 1].key) == 0) {
+                continue;
+            }
+            entries[count++] = entries[i];
+        }
+
+        return putRange(this, entries, 0, count, 0);
+    }
+
+    private static final class BatchEntry {
+        private final TrieKeySlice key;
+        private final byte[] value;
+
+        private BatchEntry(TrieKeySlice key, byte[] value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    // lexicographic order on bit strings, a proper prefix sorts first
+    private static int compareBits(TrieKeySlice a, TrieKeySlice b) {
+        int length = Math.min(a.length(), b.length());
+        for (int i = 0; i < length; i++) {
+            int diff = a.get(i) - b.get(i);
+            if (diff != 0) {
+                return diff;
+            }
+        }
+
+        return Integer.compare(a.length(), b.length());
+    }
+
+    private static TrieKeySlice keyFrom(BatchEntry entry, int depth) {
+        return entry.key.slice(depth, entry.key.length());
+    }
+
+    /**
+     * Applies entries[lo, hi) to node. All those keys start with the same depth bits
+     * (the path from the batch root to node), which are skipped. The range is sorted
+     * by key and non-empty.
+     */
+    private static Trie putRange(Trie node, BatchEntry[] entries, int lo, int hi, int depth) {
+        if (node.isEmptyTrie()) {
+            node = node.put(keyFrom(entries[lo], depth), entries[lo].value, false);
+            lo++;
+            if (lo == hi) {
+                return node;
+            }
+        }
+
+        if (hi - lo == 1) {
+            return node.put(keyFrom(entries[lo], depth), entries[lo].value, false);
+        }
+
+        // split the shared path once, at the shallowest point where any key diverges from it
+        TrieKeySlice sharedPath = node.sharedPath;
+        int sharedLength = sharedPath.length();
+        int splitAt = sharedLength;
+        for (int i = lo; i < hi && splitAt > 0; i++) {
+            TrieKeySlice key = entries[i].key;
+            int max = Math.min(splitAt, key.length() - depth);
+            int common = 0;
+            while (common < max && key.get(depth + common) == sharedPath.get(common)) {
+                common++;
+            }
+            splitAt = common;
+        }
+
+        if (splitAt < sharedLength) {
+            node = node.split(sharedPath.slice(0, splitAt));
+            sharedLength = splitAt;
+        }
+
+        // sorted range: the key ending at this node (if any) comes first, then the left keys, then the right keys
+        int childDepth = depth + sharedLength + 1;
+        int start = lo;
+        if (entries[start].key.length() - depth == sharedLength) {
+            node = node.put(keyFrom(entries[start], depth), entries[start].value, false);
+            start++;
+        }
+
+        int mid = start;
+        while (mid < hi && entries[mid].key.get(childDepth - 1) == 0) {
+            mid++;
+        }
+
+        NodeReference newLeft = node.left;
+        NodeReference newRight = node.right;
+        VarInt childrenSize = node.childrenSize;
+
+        if (start < mid) {
+            Trie child = node.retrieveNode((byte) 0);
+            if (child == null) {
+                child = new Trie(node.store);
+            }
+
+            Trie newChild = putRange(child, entries, start, mid, childDepth);
+            if (newChild != child) {
+                newLeft = new NodeReference(node.store, newChild, null);
+                if (childrenSize != null) {
+                    childrenSize = new VarInt(childrenSize.value - node.left.referenceSize() + newLeft.referenceSize());
+                }
+            }
+        }
+
+        if (mid < hi) {
+            Trie child = node.retrieveNode((byte) 1);
+            if (child == null) {
+                child = new Trie(node.store);
+            }
+
+            Trie newChild = putRange(child, entries, mid, hi, childDepth);
+            if (newChild != child) {
+                newRight = new NodeReference(node.store, newChild, null);
+                if (childrenSize != null) {
+                    childrenSize = new VarInt(childrenSize.value - node.right.referenceSize() + newRight.referenceSize());
+                }
+            }
+        }
+
+        if (newLeft == node.left && newRight == node.right) {
+            return node;
+        }
+
+        return new Trie(node.store, node.sharedPath, node.value, newLeft, newRight, node.valueLength, node.valueHash, childrenSize);
+    }
     /**
      * put string key to value, the key is converted to byte array
      * utility method to be used from testing
