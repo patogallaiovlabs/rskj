@@ -67,19 +67,33 @@ public class PathEncoder {
         int lencoded = calculateEncodedLength(lpath);
 
         byte[] encoded = new byte[lencoded];
+
+        // Whole bytes: pack 8 path bits per output byte, MSB first. Any non-zero path
+        // element is a 1 bit (same as the original "== 0 ? skip : set" test).
         int nbyte = 0;
+        int k = 0;
+        int p = start;
+        for (; k + 8 <= lpath; k += 8, p += 8, nbyte++) {
+            int b = (path[p] != 0 ? 0x80 : 0)
+                    | (path[p + 1] != 0 ? 0x40 : 0)
+                    | (path[p + 2] != 0 ? 0x20 : 0)
+                    | (path[p + 3] != 0 ? 0x10 : 0)
+                    | (path[p + 4] != 0 ? 0x08 : 0)
+                    | (path[p + 5] != 0 ? 0x04 : 0)
+                    | (path[p + 6] != 0 ? 0x02 : 0)
+                    | (path[p + 7] != 0 ? 0x01 : 0);
+            encoded[nbyte] = (byte) b;
+        }
 
-        for (int k = 0; k < lpath; k++) {
-            int offset = k % 8;
-            if (k > 0 && offset == 0) {
-                nbyte++;
+        // Trailing partial byte (lpath % 8 bits); unused low bits stay zero.
+        if (k < lpath) {
+            int b = 0;
+            for (int offset = 0; k < lpath; k++, p++, offset++) {
+                if (path[p] != 0) {
+                    b |= 0x80 >> offset;
+                }
             }
-
-            if (path[start + k] == 0) {
-                continue;
-            }
-
-            encoded[nbyte] |= 0x80 >> offset;
+            encoded[nbyte] = (byte) b;
         }
 
         return encoded;
@@ -91,12 +105,26 @@ public class PathEncoder {
     private static byte[] decodeBinaryPath(byte[] encoded, int bitlength) {
         byte[] path = new byte[bitlength];
 
-        for (int k = 0; k < bitlength; k++) {
-            int nbyte = k / 8;
-            int offset = k % 8;
+        // Whole bytes: expand each encoded byte into 8 path elements, MSB first.
+        int k = 0;
+        int nbyte = 0;
+        for (; k + 8 <= bitlength; k += 8, nbyte++) {
+            int b = encoded[nbyte];
+            path[k] = (byte) ((b >>> 7) & 1);
+            path[k + 1] = (byte) ((b >>> 6) & 1);
+            path[k + 2] = (byte) ((b >>> 5) & 1);
+            path[k + 3] = (byte) ((b >>> 4) & 1);
+            path[k + 4] = (byte) ((b >>> 3) & 1);
+            path[k + 5] = (byte) ((b >>> 2) & 1);
+            path[k + 6] = (byte) ((b >>> 1) & 1);
+            path[k + 7] = (byte) (b & 1);
+        }
 
-            if (((encoded[nbyte] >> (7 - offset)) & 0x01) != 0) {
-                path[k] = 1;
+        // Trailing partial byte (bitlength % 8 bits).
+        if (k < bitlength) {
+            int b = encoded[nbyte];
+            for (int offset = 7; k < bitlength; k++, offset--) {
+                path[k] = (byte) ((b >>> offset) & 1);
             }
         }
 

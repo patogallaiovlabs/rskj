@@ -21,6 +21,9 @@ package co.rsk.trie;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
+import java.util.Arrays;
+import java.util.Random;
+
 /**
  * Created by ajlopez on 07/02/2017.
  */
@@ -148,5 +151,82 @@ class PathEncoderTest {
 
         Assertions.assertNotNull(path);
         Assertions.assertArrayEquals(new byte[] { 0x00, 0x01, 0x01, 0x00, 0x01, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01 }, path);
+    }
+
+    // Reference copies of the original per-bit implementations, used to pin behavior.
+    private static byte[] referenceEncode(byte[] path, int start, int limit) {
+        int lpath = limit - start;
+        byte[] encoded = new byte[PathEncoder.calculateEncodedLength(lpath)];
+        int nbyte = 0;
+        for (int k = 0; k < lpath; k++) {
+            int offset = k % 8;
+            if (k > 0 && offset == 0) {
+                nbyte++;
+            }
+            if (path[start + k] == 0) {
+                continue;
+            }
+            encoded[nbyte] |= 0x80 >> offset;
+        }
+        return encoded;
+    }
+
+    private static byte[] referenceDecode(byte[] encoded, int bitlength) {
+        byte[] path = new byte[bitlength];
+        for (int k = 0; k < bitlength; k++) {
+            if (((encoded[k / 8] >> (7 - k % 8)) & 0x01) != 0) {
+                path[k] = 1;
+            }
+        }
+        return path;
+    }
+
+    @Test
+    void encodeDecodeMatchReferenceForAllLengths() {
+        Random random = new Random(42);
+        for (int len = 0; len <= 300; len++) {
+            for (int pattern = 0; pattern < 8; pattern++) {
+                byte[] path = new byte[len];
+                for (int i = 0; i < len; i++) {
+                    switch (pattern) {
+                        case 0: path[i] = 0; break;
+                        case 1: path[i] = 1; break;
+                        case 2: path[i] = (byte) (i % 2); break;
+                        case 3: path[i] = (byte) ((i + 1) % 2); break;
+                        case 4: path[i] = (byte) (i == len - 1 ? 1 : 0); break;
+                        case 5: path[i] = (byte) (i == 0 ? 1 : 0); break;
+                        // non-binary values: any non-zero element encodes as a 1 bit
+                        case 6: path[i] = (byte) random.nextInt(); break;
+                        default: path[i] = (byte) random.nextInt(2); break;
+                    }
+                }
+
+                byte[] encoded = PathEncoder.encode(path);
+                Assertions.assertArrayEquals(referenceEncode(path, 0, len), encoded, "encode len=" + len + " pattern=" + pattern);
+
+                if (len > 0) {
+                    int off = random.nextInt(len);
+                    int lim = off + random.nextInt(len - off + 1);
+                    Assertions.assertArrayEquals(referenceEncode(path, off, lim), PathEncoder.encode(path, off, lim),
+                            "encode range len=" + len + " off=" + off + " lim=" + lim);
+                }
+
+                Assertions.assertArrayEquals(referenceDecode(encoded, len), PathEncoder.decode(encoded, len),
+                        "decode len=" + len + " pattern=" + pattern);
+            }
+
+            // decode of arbitrary bytes, including set pad bits and sign-bit bytes
+            byte[] raw = new byte[PathEncoder.calculateEncodedLength(len) + 1];
+            random.nextBytes(raw);
+            Assertions.assertArrayEquals(referenceDecode(raw, len), PathEncoder.decode(raw, len), "raw decode len=" + len);
+            Arrays.fill(raw, (byte) 0xff);
+            Assertions.assertArrayEquals(referenceDecode(raw, len), PathEncoder.decode(raw, len), "ff decode len=" + len);
+        }
+    }
+
+    @Test
+    void decodeWithTooShortEncodedThrows() {
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> PathEncoder.decode(new byte[1], 9));
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> PathEncoder.decode(new byte[1], 16));
     }
 }
