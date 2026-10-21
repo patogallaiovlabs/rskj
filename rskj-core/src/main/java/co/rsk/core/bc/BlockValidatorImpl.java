@@ -21,10 +21,14 @@ package co.rsk.core.bc;
 import co.rsk.validators.BlockParentDependantValidationRule;
 import co.rsk.validators.BlockValidationRule;
 import co.rsk.validators.BlockValidator;
+import co.rsk.remasc.RemascTransaction;
 import org.ethereum.core.Block;
+import org.ethereum.core.Transaction;
 import org.ethereum.db.BlockStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * BlockValidator has methods to validate block content before its execution
@@ -65,6 +69,8 @@ public class BlockValidatorImpl implements BlockValidator {
             return false;
         }
 
+        prefetchSenders(block);
+
         Block parent = getParent(block);
 
         if(!this.blockParentValidator.isValid(block, parent)) {
@@ -76,6 +82,34 @@ public class BlockValidatorImpl implements BlockValidator {
         }
 
         return true;
+    }
+
+    static final int MIN_TXS_FOR_PREFETCH = 8;
+
+    /**
+     * Recovers tx senders in parallel, memoizing them in each tx. Recovery is a pure function of the
+     * signed payload, so results are identical to the serial path. Failures are ignored here and
+     * surface later in the regular validation rules.
+     */
+    static void prefetchSenders(Block block) {
+        List<Transaction> txs = block.getTransactionsList();
+        if (txs == null || txs.size() < MIN_TXS_FOR_PREFETCH) {
+            return;
+        }
+        try {
+            txs.parallelStream().forEach(tx -> {
+                if (tx == null || tx instanceof RemascTransaction) {
+                    return;
+                }
+                try {
+                    tx.getSender();
+                } catch (RuntimeException e) {
+                    // left un-memoized; validation rules handle it as before
+                }
+            });
+        } catch (RuntimeException e) {
+            // ignore, the serial path will handle it
+        }
     }
 
     private Block getParent(Block block) {
