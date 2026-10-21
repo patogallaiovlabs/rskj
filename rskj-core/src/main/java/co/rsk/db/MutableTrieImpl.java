@@ -27,8 +27,28 @@ import org.ethereum.db.TrieKeyMapper;
 import org.ethereum.vm.DataWord;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MutableTrieImpl implements MutableTrie {
+
+    // marks a cached miss (trie.find returned null)
+    private static final Trie NULL_NODE = new Trie();
+    private static final int READ_CACHE_MAX_ENTRIES = 200_000;
+
+    /**
+     * Memoized trie.find results for one immutable root. Both keys (cloned) and Trie nodes are
+     * immutable, so concurrent readers can share it; a race only costs a duplicate find.
+     */
+    private static final class ReadCache {
+        private final Trie root;
+        private final Map<ByteArrayWrapper, Trie> nodes = new ConcurrentHashMap<>();
+
+        private ReadCache(Trie root) {
+            this.root = root;
+        }
+    }
+
+    private volatile ReadCache readCache;
 
     private Trie trie;
     private TrieKeyMapper trieKeyMapper = new TrieKeyMapper();
@@ -51,22 +71,53 @@ public class MutableTrieImpl implements MutableTrie {
 
     @Override
     public byte[] get(byte[] key) {
-        return trie.get(key);
+        Trie node = findCached(key);
+        return node == null ? null : node.getValue();
     }
 
     @Override
     public void put(byte[] key, byte[] value) {
         trie = trie.put(key, value);
+        readCache = null;
     }
 
     @Override
     public void put(ByteArrayWrapper key, byte[] value) {
         trie = trie.put(key, value);
+        readCache = null;
     }
 
     @Override
     public void put(String key, byte[] value) {
         trie = trie.put(key, value);
+        readCache = null;
+    }
+
+    /**
+     * Returns exactly what {@code trie.find(key)} returns for the current root, memoized per root.
+     * The cache is bound to the root object it was filled from, so a cache built for an older
+     * root is never consulted once {@code trie} has been reassigned (even under a racy read).
+     */
+    private Trie findCached(byte[] key) {
+        ReadCache cache = readCache;
+        Trie root = trie;
+        if (cache == null || cache.root != root) {
+            cache = new ReadCache(root);
+            readCache = cache;
+        }
+
+        ByteArrayWrapper wrappedKey = new ByteArrayWrapper(key.clone());
+        Trie node = cache.nodes.get(wrappedKey);
+        if (node != null) {
+            return node == NULL_NODE ? null : node;
+        }
+
+        node = root.find(key);
+        if (cache.nodes.size() >= READ_CACHE_MAX_ENTRIES) {
+            cache.nodes.clear();
+        }
+        cache.nodes.put(wrappedKey, node == null ? NULL_NODE : node);
+        return node;
     }
 
     /**
@@ -79,7 +130,7 @@ public class MutableTrieImpl implements MutableTrie {
 
     @Override
     public Uint24 getValueLength(byte[] key) {
-        Trie atrie = trie.find(key);
+        Trie atrie = findCached(key);
         if (atrie == null) {
             // TODO(mc) should be null?
             return Uint24.ZERO;
@@ -90,7 +141,7 @@ public class MutableTrieImpl implements MutableTrie {
 
     @Override
     public Optional<Keccak256> getValueHash(byte[] key) {
-        Trie atrie = trie.find(key);
+        Trie atrie = findCached(key);
         if (atrie == null) {
             return Optional.empty();
         }
@@ -114,6 +165,7 @@ public class MutableTrieImpl implements MutableTrie {
     @Override
     public void deleteRecursive(byte[] key) {
         trie = trie.deleteRecursive(key);
+        readCache = null;
     }
 
     @Override
