@@ -21,11 +21,15 @@ package org.ethereum.crypto.signature;
 
 import org.bitcoin.NativeSecp256k1;
 import org.bitcoin.NativeSecp256k1Exception;
+import org.bouncycastle.util.BigIntegers;
+import org.ethereum.config.Constants;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.HashUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
 import static java.lang.System.arraycopy;
 
@@ -36,6 +40,7 @@ public class Secp256k1ServiceNative extends Secp256k1ServiceBC {
 
     private static final Logger logger = LoggerFactory.getLogger(Secp256k1ServiceNative.class);
     private static final byte[] ZERO_PUB = {0};
+    private static final byte[] SECP256K1N_BYTES = BigIntegers.asUnsignedByteArray(32, Constants.getSECP256K1N());
 
     @Nullable
     @Override
@@ -68,6 +73,63 @@ public class Secp256k1ServiceNative extends Secp256k1ServiceBC {
             return null;
         }
         return ECKey.fromPublicOnly(pbKey);
+    }
+
+    /**
+     * Fast path for the ECRecover precompile: recovers the 20-byte address for an uncompressed key directly from
+     * 32-byte big-endian r and s, without building BigIntegers or decoding the public key into an EC point.
+     * <p>
+     * Returns {@code null} whenever this path cannot produce the result by itself (invalid v, r or s, a native
+     * recovery failure, an unexpected pubkey encoding, or any exception). Callers must then run the regular
+     * {@link #signatureToKey} path, which yields exactly the previous behavior for those cases.
+     * <p>
+     * Equivalence with signatureToKey(...).getAddress() when non-null is returned:
+     * <ul>
+     *   <li>v in {27,28} and 1 &lt;= r,s &lt; N match {@link ECDSASignature#validateComponents(java.math.BigInteger,
+     *   java.math.BigInteger, byte)}: both arrays are 32-byte big-endian, so an unsigned lexicographic compare equals
+     *   the numeric compare.</li>
+     *   <li>Since r,s &lt; N fit in 32 bytes, r||s is exactly what {@link #concatenate} produces.</li>
+     *   <li>For a valid uncompressed encoding 0x04||X||Y, BC decodePoint followed by getEncoded(false) reproduces
+     *   the same 65 bytes, so getAddress hashes the same bytes [1..65].</li>
+     * </ul>
+     */
+    @Nullable
+    public byte[] recoverAddressFast(byte[] messageHash, byte[] r, byte[] s, byte v) {
+        if (v != 27 && v != 28) {
+            return null;
+        }
+        if (!isValidComponent(r) || !isValidComponent(s)) {
+            return null;
+        }
+        try {
+            byte[] sigBytes = new byte[64];
+            arraycopy(r, 0, sigBytes, 0, 32);
+            arraycopy(s, 0, sigBytes, 32, 32);
+            byte[] pub = NativeSecp256k1.ecdsaRecover(sigBytes, messageHash, v - 27, false);
+            if (pub == null || pub.length != 65 || pub[0] != 0x04) {
+                return null;
+            }
+            return HashUtil.keccak256Omit12(Arrays.copyOfRange(pub, 1, 65));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 1 &lt;= x &lt; N for a 32-byte big-endian unsigned value.
+     */
+    static boolean isValidComponent(byte[] x) {
+        if (x == null || x.length != 32) {
+            return false;
+        }
+        boolean nonZero = false;
+        for (byte b : x) {
+            if (b != 0) {
+                nonZero = true;
+                break;
+            }
+        }
+        return nonZero && Arrays.compareUnsigned(x, SECP256K1N_BYTES) < 0;
     }
 
     /**

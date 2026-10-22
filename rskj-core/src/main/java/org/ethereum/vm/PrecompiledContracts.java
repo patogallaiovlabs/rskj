@@ -47,6 +47,7 @@ import org.ethereum.crypto.cryptohash.Blake2b;
 import org.ethereum.crypto.signature.ECDSASignature;
 import org.ethereum.crypto.signature.Secp256k1;
 import org.ethereum.crypto.signature.Secp256k1Service;
+import org.ethereum.crypto.signature.Secp256k1ServiceNative;
 import org.ethereum.db.BlockStore;
 import org.ethereum.db.ReceiptStore;
 import org.ethereum.vm.exception.VMException;
@@ -405,6 +406,16 @@ public class PrecompiledContracts {
 
                 int sLength = data.length < 128 ? data.length - 96 : 32;
                 System.arraycopy(data, 96, s, 0, sLength);
+
+                // Native fast path: same result as the code below whenever it returns non-null;
+                // otherwise (invalid input, native failure, infinity) fall through unchanged.
+                Secp256k1Service service = Secp256k1.getInstance();
+                if (service instanceof Secp256k1ServiceNative) {
+                    byte[] address = ((Secp256k1ServiceNative) service).recoverAddressFast(h, r, s, v[31]);
+                    if (address != null) {
+                        return DataWord.valueOf(address).getData();
+                    }
+                }
 
                 if (isValid(r, s, v)) {
                     ECDSASignature signature = ECDSASignature.fromComponents(r, s, v[31]);
