@@ -28,7 +28,11 @@ import org.ethereum.db.BlockStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * BlockValidator has methods to validate block content before its execution
@@ -87,18 +91,35 @@ public class BlockValidatorImpl implements BlockValidator {
     static final int MIN_TXS_FOR_PREFETCH = 8;
 
     /**
-     * Recovers tx senders in parallel, memoizing them in each tx. Recovery is a pure function of the
-     * signed payload, so results are identical to the serial path. Failures are ignored here and
-     * surface later in the regular validation rules.
+     * Recovers tx senders and computes tx hashes in parallel, memoizing them in each tx. Both are pure
+     * functions of the tx contents (sender: of the signed payload; hash: keccak256 of the full RLP
+     * encoding), so results are identical to the serial path. Failures are ignored here and surface
+     * later in the regular validation rules.
+     *
+     * Distinct tx objects are deduplicated by identity so each object's non-synchronized memo fields
+     * (hash, rlpEncoding) are written by a single worker; completion of the parallel stream gives the
+     * caller happens-before on those writes.
      */
     static void prefetchSenders(Block block) {
         List<Transaction> txs = block.getTransactionsList();
         if (txs == null || txs.size() < MIN_TXS_FOR_PREFETCH) {
             return;
         }
+        Set<Transaction> seen = Collections.newSetFromMap(new IdentityHashMap<>(txs.size() * 2));
+        List<Transaction> distinct = new ArrayList<>(txs.size());
+        for (Transaction tx : txs) {
+            if (tx != null && seen.add(tx)) {
+                distinct.add(tx);
+            }
+        }
         try {
-            txs.parallelStream().forEach(tx -> {
-                if (tx == null || tx instanceof RemascTransaction) {
+            distinct.parallelStream().forEach(tx -> {
+                try {
+                    tx.getHash();
+                } catch (RuntimeException e) {
+                    // left un-memoized; computed later exactly as before
+                }
+                if (tx instanceof RemascTransaction) {
                     return;
                 }
                 try {
