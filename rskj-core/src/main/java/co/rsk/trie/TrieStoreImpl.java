@@ -45,8 +45,15 @@ public class TrieStoreImpl implements TrieStore {
 
     private final KeyValueDataSource store;
 
+    private final boolean parallelHashing;
+
     public TrieStoreImpl(KeyValueDataSource store) {
+        this(store, true);
+    }
+
+    TrieStoreImpl(KeyValueDataSource store, boolean parallelHashing) {
         this.store = store;
+        this.parallelHashing = parallelHashing;
     }
 
     /**
@@ -72,6 +79,11 @@ public class TrieStoreImpl implements TrieStore {
             traceInfo.numOfNoSavesInSaveTrie = 0;
 
             logger.trace("Start saving trie root.");
+        }
+
+        // fill the hash/encoding memo fields of large new subtrees on worker threads; the store is not touched
+        if (parallelHashing) {
+            TrieParallelHasher.prehash(trie);
         }
 
         // save a trie recursively

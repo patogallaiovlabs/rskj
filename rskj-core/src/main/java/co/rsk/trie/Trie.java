@@ -1388,6 +1388,16 @@ public class Trie {
         return this.saved;
     }
 
+    // true when getHash() returns the memoized hash without serializing this node
+    boolean hasCachedHash() {
+        return this.hash != null;
+    }
+
+    // true when getValueHash() would have to read the long value from the store to compute it
+    boolean valueHashNeedsStore() {
+        return this.valueHash == null && this.value == null && this.valueLength.compareTo(Uint24.ZERO) > 0;
+    }
+
     public Trie markAsSaved() {
         this.saved = true;
         return this;

@@ -134,6 +134,17 @@ public class NodeReference {
         return lazyNode != null;
     }
 
+    // the hash of the referenced node is known without touching the node
+    boolean hasCachedHash() {
+        return lazyHash != null;
+    }
+
+    // the loaded node, or null; never touches the store
+    @Nullable
+    Trie loadedNode() {
+        return lazyNode;
+    }
+
     // This method should only be called from save()
     public int serializedLength() {
         if (!isEmpty()) {
