@@ -19,8 +19,10 @@
 
 package org.ethereum.crypto;
 
+import co.rsk.core.types.bytes.Bytes;
 import org.bouncycastle.crypto.digests.KeccakDigest;
 import org.bouncycastle.util.encoders.Hex;
+import org.ethereum.crypto.cryptohash.Keccak256;
 import org.ethereum.util.ByteUtil;
 
 import java.math.BigInteger;
@@ -30,25 +32,42 @@ public class Keccak256Helper {
     public static final int DEFAULT_SIZE = 256;
     public static final int DEFAULT_SIZE_BYTES = DEFAULT_SIZE / 8;
 
-    // doFinal() always resets a BouncyCastle Digest's internal state before returning, so a
-    // single per-thread instance is safe to reuse across calls for the common (256-bit) case.
-    private static final ThreadLocal<KeccakDigest> DEFAULT_DIGEST =
-            ThreadLocal.withInitial(() -> new KeccakDigest(DEFAULT_SIZE));
+    // 256-bit default hashing uses the same legacy Keccak-256 implementation as HashUtil
+    // (0x01 padding, rate 1088), byte-identical to BouncyCastle's KeccakDigest(256).
+    // digest() resets the instance, so one per-thread instance is safe to reuse; on an
+    // exception (e.g. bad bounds) it is reset explicitly so no partial state leaks.
+    private static final ThreadLocal<Keccak256> FAST_DIGEST = ThreadLocal.withInitial(Keccak256::new);
+
+    private static byte[] fastKeccak256(byte[] message, int start, int length) {
+        Keccak256 digest = FAST_DIGEST.get();
+        try {
+            if (message.length != 0) {
+                digest.update(Bytes.of(message), start, length);
+            }
+            return digest.digest();
+        } catch (RuntimeException e) {
+            digest.reset();
+            throw e;
+        }
+    }
 
     public static String keccak256String(String message) {
-        return keccak256String(message, DEFAULT_DIGEST.get(), true);
+        if (message == null) {
+            throw new NullPointerException("Can't hash a NULL value");
+        }
+        return keccak256String(Hex.decode(message));
     }
 
     public static String keccak256String(byte[] message) {
-        return keccak256String(message, DEFAULT_DIGEST.get(), true);
+        return ByteUtil.toHexString(keccak256(message));
     }
 
     public static byte[] keccak256(String message) {
-        return keccak256(Hex.decode(message), DEFAULT_DIGEST.get(), true);
+        return keccak256(Hex.decode(message));
     }
 
     public static byte[] keccak256(byte[] message) {
-        return keccak256(message, DEFAULT_DIGEST.get(), true);
+        return fastKeccak256(message, 0, message.length);
     }
 
     public static byte[] keccak256(byte[] message, Size sz) {
@@ -56,11 +75,19 @@ public class Keccak256Helper {
     }
 
     public static byte[] keccak256(byte[] m1, byte[] m2) {
-        return keccak256(m1, m2, DEFAULT_DIGEST.get(), true);
+        Keccak256 digest = FAST_DIGEST.get();
+        if (m1.length != 0) {
+            digest.update(Bytes.of(m1), 0, m1.length);
+        }
+        if (m2.length != 0) {
+            digest.update(Bytes.of(m2), 0, m2.length);
+        }
+        // full-array updates cannot throw, so no reset-on-failure is needed here
+        return digest.digest();
     }
 
     public static byte[] keccak256(byte[] message, int start, int length) {
-        return keccak256(message, start, length, DEFAULT_DIGEST.get(), true);
+        return fastKeccak256(message, start, length);
     }
 
     protected static String keccak256String(String message, Size bitSize) {
@@ -104,10 +131,6 @@ public class Keccak256Helper {
         return doKeccak256(message, digest, bouncyencoder);
     }
 
-    private static byte[] keccak256(byte[] m1, byte[] m2, KeccakDigest digest, boolean bouncyencoder) {
-        return doKeccak256(m1, m2, digest, bouncyencoder);
-    }
-
     private static byte[] keccak256(byte[] message, int start, int length, KeccakDigest digest, boolean bouncyencoder) {
         byte[] hash = new byte[digest.getDigestSize()];
 
@@ -125,15 +148,6 @@ public class Keccak256Helper {
         if (message.length != 0) {
             digest.update(message, 0, message.length);
         }
-        digest.doFinal(hash, 0);
-        return hash;
-    }
-
-    private static byte[] doKeccak256(byte[] m1, byte[] m2, KeccakDigest digest, boolean bouncyencoder) {
-        byte[] hash = new byte[digest.getDigestSize()];
-        digest.update(m1, 0, m1.length);
-        digest.update(m2, 0, m2.length);
-
         digest.doFinal(hash, 0);
         return hash;
     }
