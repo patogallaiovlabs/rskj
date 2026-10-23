@@ -38,6 +38,25 @@ public interface MutableTrie {
     @Nullable
     byte[] get(byte[] key);
 
+    /**
+     * Same as {@link #get(byte[])} for {@code key.getData()}. Implementations may override it to
+     * reuse the wrapper's precomputed hash instead of re-wrapping the key.
+     */
+    @Nullable
+    default byte[] get(ByteArrayWrapper key) {
+        return get(key.getData());
+    }
+
+    /** Same as {@link #getValueLength(byte[])} for {@code key.getData()}. */
+    default Uint24 getValueLength(ByteArrayWrapper key) {
+        return getValueLength(key.getData());
+    }
+
+    /** Same as {@link #getValueHash(byte[])} for {@code key.getData()}. */
+    default Optional<Keccak256> getValueHash(ByteArrayWrapper key) {
+        return getValueHash(key.getData());
+    }
+
     void put(byte[] key, byte[] value);
 
     void put(String key, byte[] value);

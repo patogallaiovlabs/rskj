@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Function;
 
 public class MutableTrieCache implements MutableTrie {
 
@@ -79,34 +78,80 @@ public class MutableTrieCache implements MutableTrie {
 
     @Override
     public byte[] get(byte[] key) {
-        return internalGet(key, trie::get, Function.identity()).orElse(null);
+        return get(new ByteArrayWrapper(key));
     }
 
-    private <T> Optional<T> internalGet(
-            byte[] key,
-            Function<byte[], T> trieRetriever,
-            Function<byte[], T> cacheTransformer) {
-        ByteArrayWrapper wrapper = new ByteArrayWrapper(key);
-        ByteArrayWrapper accountWrapper = getAccountWrapper(wrapper);
+    @Override
+    public byte[] get(ByteArrayWrapper key) {
+        return internalGet(key, getAccountWrapper(key));
+    }
 
-        Map<ByteArrayWrapper, Optional<byte[]>> accountItems = cache.get(accountWrapper);
-        boolean isDeletedAccount = deleteRecursiveLog.contains(accountWrapper);
-        if (accountItems == null || !accountItems.containsKey(wrapper)) {
-            if (isDeletedAccount) {
-                return Optional.empty();
+    /**
+     * Resolves a read at this level, or returns {@code null} if this level has no answer for it
+     * and the read must go to the parent trie.
+     * <ul>
+     *   <li>key cached here: its cached value ({@code Optional.empty()} for a deleted key)</li>
+     *   <li>key not cached but its account is scheduled for recursive deletion: {@code Optional.empty()}</li>
+     *   <li>otherwise: {@code null}</li>
+     * </ul>
+     * Cached values are never {@code null} ({@link #put(ByteArrayWrapper, byte[])} always stores an
+     * Optional), so a single {@code get} replaces the former {@code containsKey} + {@code get} pair.
+     */
+    private Optional<byte[]> lookupLocal(ByteArrayWrapper wrapper, ByteArrayWrapper accountWrapper) {
+        if (!cache.isEmpty()) {
+            Map<ByteArrayWrapper, Optional<byte[]>> accountItems = cache.get(accountWrapper);
+            if (accountItems != null) {
+                Optional<byte[]> cacheItem = accountItems.get(wrapper);
+                if (cacheItem != null) {
+                    return cacheItem;
+                }
             }
-            // uncached account
-            return Optional.ofNullable(trieRetriever.apply(key));
         }
 
-        Optional<byte[]> cacheItem = accountItems.get(wrapper);
-        if (!cacheItem.isPresent()) {
-            // deleted account key
+        if (!deleteRecursiveLog.isEmpty() && deleteRecursiveLog.contains(accountWrapper)) {
             return Optional.empty();
         }
 
-        // cached account key
-        return Optional.ofNullable(cacheTransformer.apply(cacheItem.get()));
+        return null;
+    }
+
+    // package-private so a child MutableTrieCache can pass down the already hashed key and account wrapper
+    byte[] internalGet(ByteArrayWrapper wrapper, ByteArrayWrapper accountWrapper) {
+        Optional<byte[]> local = lookupLocal(wrapper, accountWrapper);
+        if (local != null) {
+            return local.orElse(null);
+        }
+
+        if (trie instanceof MutableTrieCache) {
+            return ((MutableTrieCache) trie).internalGet(wrapper, accountWrapper);
+        }
+        return trie.get(wrapper);
+    }
+
+    Uint24 internalGetValueLength(ByteArrayWrapper wrapper, ByteArrayWrapper accountWrapper) {
+        Optional<byte[]> local = lookupLocal(wrapper, accountWrapper);
+        if (local != null) {
+            return local.isPresent() ? new Uint24(local.get().length) : Uint24.ZERO;
+        }
+
+        Uint24 result = trie instanceof MutableTrieCache
+                ? ((MutableTrieCache) trie).internalGetValueLength(wrapper, accountWrapper)
+                : trie.getValueLength(wrapper);
+        return result == null ? Uint24.ZERO : result;
+    }
+
+    Optional<Keccak256> internalGetValueHash(ByteArrayWrapper wrapper, ByteArrayWrapper accountWrapper) {
+        Optional<byte[]> local = lookupLocal(wrapper, accountWrapper);
+        if (local != null) {
+            return local.isPresent()
+                    ? Optional.of(new Keccak256(Keccak256Helper.keccak256(local.get())))
+                    : Optional.empty();
+        }
+
+        if (trie instanceof MutableTrieCache) {
+            return ((MutableTrieCache) trie).internalGetValueHash(wrapper, accountWrapper);
+        }
+        return Optional.ofNullable(trie.getValueHash(wrapper).orElse(null));
     }
 
     public Iterator<DataWord> getStorageKeys(RskAddress addr) {
@@ -393,14 +438,22 @@ public class MutableTrieCache implements MutableTrie {
 
     @Override
     public Uint24 getValueLength(byte[] key) {
-        return internalGet(key, trie::getValueLength, cachedBytes -> new Uint24(cachedBytes.length)).orElse(Uint24.ZERO);
+        return getValueLength(new ByteArrayWrapper(key));
+    }
+
+    @Override
+    public Uint24 getValueLength(ByteArrayWrapper key) {
+        return internalGetValueLength(key, getAccountWrapper(key));
     }
 
     @Override
     public Optional<Keccak256> getValueHash(byte[] key) {
-        return internalGet(key,
-                keyB -> trie.getValueHash(keyB).orElse(null),
-                cachedBytes -> new Keccak256(Keccak256Helper.keccak256(cachedBytes)));
+        return getValueHash(new ByteArrayWrapper(key));
+    }
+
+    @Override
+    public Optional<Keccak256> getValueHash(ByteArrayWrapper key) {
+        return internalGetValueHash(key, getAccountWrapper(key));
     }
 
     private static class StorageKeysIterator implements Iterator<DataWord> {

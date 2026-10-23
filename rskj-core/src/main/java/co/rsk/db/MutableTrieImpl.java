@@ -71,6 +71,11 @@ public class MutableTrieImpl implements MutableTrie {
 
     @Override
     public byte[] get(byte[] key) {
+        return get(new ByteArrayWrapper(key));
+    }
+
+    @Override
+    public byte[] get(ByteArrayWrapper key) {
         Trie node = findCached(key);
         return node == null ? null : node.getValue();
     }
@@ -98,7 +103,7 @@ public class MutableTrieImpl implements MutableTrie {
      * The cache is bound to the root object it was filled from, so a cache built for an older
      * root is never consulted once {@code trie} has been reassigned (even under a racy read).
      */
-    private Trie findCached(byte[] key) {
+    private Trie findCached(ByteArrayWrapper key) {
         ReadCache cache = readCache;
         Trie root = trie;
         if (cache == null || cache.root != root) {
@@ -106,17 +111,17 @@ public class MutableTrieImpl implements MutableTrie {
             readCache = cache;
         }
 
-        ByteArrayWrapper wrappedKey = new ByteArrayWrapper(key.clone());
-        Trie node = cache.nodes.get(wrappedKey);
+        Trie node = cache.nodes.get(key);
         if (node != null) {
             return node == NULL_NODE ? null : node;
         }
 
-        node = root.find(key);
+        node = root.find(key.getData());
         if (cache.nodes.size() >= READ_CACHE_MAX_ENTRIES) {
             cache.nodes.clear();
         }
-        cache.nodes.put(wrappedKey, node == null ? NULL_NODE : node);
+        // store a private copy so later mutation of the caller's array cannot corrupt the cache
+        cache.nodes.put(key.copy(), node == null ? NULL_NODE : node);
         return node;
     }
 
@@ -130,6 +135,11 @@ public class MutableTrieImpl implements MutableTrie {
 
     @Override
     public Uint24 getValueLength(byte[] key) {
+        return getValueLength(new ByteArrayWrapper(key));
+    }
+
+    @Override
+    public Uint24 getValueLength(ByteArrayWrapper key) {
         Trie atrie = findCached(key);
         if (atrie == null) {
             // TODO(mc) should be null?
@@ -141,6 +151,11 @@ public class MutableTrieImpl implements MutableTrie {
 
     @Override
     public Optional<Keccak256> getValueHash(byte[] key) {
+        return getValueHash(new ByteArrayWrapper(key));
+    }
+
+    @Override
+    public Optional<Keccak256> getValueHash(ByteArrayWrapper key) {
         Trie atrie = findCached(key);
         if (atrie == null) {
             return Optional.empty();

@@ -420,18 +420,21 @@ public class MutableRepository implements Repository {
     }
 
     private byte[] internalGet(byte[] key) {
-        tracker.addNewReadKey(new ByteArrayWrapper(key));
-        return mutableTrie.get(key);
+        ByteArrayWrapper wrapper = new ByteArrayWrapper(key);
+        tracker.addNewReadKey(wrapper);
+        return mutableTrie.get(wrapper);
     }
 
     private Uint24 internalGetValueLength(byte[] key) {
-        tracker.addNewReadKey(new ByteArrayWrapper(key));
-        return mutableTrie.getValueLength(key);
+        ByteArrayWrapper wrapper = new ByteArrayWrapper(key);
+        tracker.addNewReadKey(wrapper);
+        return mutableTrie.getValueLength(wrapper);
     }
 
     private Optional<Keccak256> internalGetValueHash(byte[] key) {
-        tracker.addNewReadKey(new ByteArrayWrapper(key));
-        return mutableTrie.getValueHash(key);
+        ByteArrayWrapper wrapper = new ByteArrayWrapper(key);
+        tracker.addNewReadKey(wrapper);
+        return mutableTrie.getValueHash(wrapper);
     }
 
     @Override

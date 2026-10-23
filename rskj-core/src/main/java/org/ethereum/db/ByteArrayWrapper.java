@@ -44,6 +44,19 @@ public class ByteArrayWrapper implements Comparable<ByteArrayWrapper>, Serializa
         this.hashCode = Arrays.hashCode(data);
     }
 
+    private ByteArrayWrapper(byte[] data, int hashCode) {
+        this.data = data;
+        this.hashCode = hashCode;
+    }
+
+    /**
+     * Returns an equal wrapper over a private clone of the data, reusing the already computed hash
+     * (hashCode is a pure function of the bytes, so it is the same for the clone).
+     */
+    public ByteArrayWrapper copy() {
+        return new ByteArrayWrapper(data.clone(), hashCode);
+    }
+
     public boolean equals(Object other) {
         if (!(other instanceof ByteArrayWrapper)) {
             return false;
